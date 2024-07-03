@@ -3,6 +3,7 @@ import { AlertColor } from "@mui/material";
 export interface ReducerAction {
   payload: any;
   type: string;
+  crudType: string;
 }
 
 export interface rootReducer {
@@ -14,6 +15,7 @@ export interface userReducer {
   email: string;
   name: string;
   loading: boolean;
+  mobile: string;
 }
 
 export interface toastReducer {

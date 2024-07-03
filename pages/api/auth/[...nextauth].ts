@@ -18,7 +18,6 @@ export const authOptions = {
   ],
   callbacks: {
     async session(response: any) {
-      // Send properties to the client, like an access_token and user id from a provider.
       const { session, token, user, ...rest } = response;
       const tempSession: any = session;
       tempSession["token"] = token;

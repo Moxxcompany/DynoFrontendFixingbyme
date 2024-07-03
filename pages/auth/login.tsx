@@ -4,8 +4,13 @@ import {
   Button,
   Collapse,
   Divider,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   Grid,
   IconButton,
+  Radio,
+  RadioGroup,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -23,7 +28,12 @@ import {
 
 import * as yup from "yup";
 import { UserAction } from "@/Redux/Actions";
-import { USER_LOGIN } from "@/Redux/Actions/UserAction";
+import {
+  USER_CONFIRM_CODE,
+  USER_EMAIL_CHECK,
+  USER_LOGIN,
+  USER_SEND_OTP,
+} from "@/Redux/Actions/UserAction";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { rootReducer } from "@/utils/types";
@@ -34,10 +44,13 @@ import { signIn } from "next-auth/react";
 import TelegramLoginButton from "@/Components/Page/Common/TelegramLogin";
 import axios from "axios";
 import axiosBaseApi from "@/axiosConfig";
+import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 
 const initialValue = {
   email: "",
   password: "",
+  otp: "",
+  emailOTP: "",
 };
 
 const Login = () => {
@@ -46,8 +59,12 @@ const Login = () => {
   const router = useRouter();
   const userState = useSelector((state: rootReducer) => state.userReducer);
   const [viewPassword, setViewPassword] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [signInType, setSignInType] = useState("mobile");
   const [collapse, setCollapse] = useState(false);
+  const [countdown, setCountdown] = useState(-1);
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const loginSchema = yup.object().shape({
     email: yup
       .string()
@@ -55,10 +72,39 @@ const Login = () => {
       .required("email is required!"),
   });
   const passwordSchema = yup.object().shape({
-    password: yup
-      .string()
-      .email("Please enter a valid password")
-      .required("password is required!"),
+    password: yup.string().test("password", "password is required", (value) => {
+      let flag = true;
+      if (signInType === "password") {
+        if (value === "" || value === null) {
+          flag = false;
+        } else {
+          flag = true;
+        }
+      }
+      return flag;
+    }),
+    otp: yup.string().test("otp", "OTP is required", (value) => {
+      let flag = true;
+      if (signInType === "mobile") {
+        if (value === "" || value === null) {
+          flag = false;
+        } else {
+          flag = true;
+        }
+      }
+      return flag;
+    }),
+    emailOTP: yup.string().test("emailOTP", "OTP is required", (value) => {
+      let flag = true;
+      if (signInType === "emailOTP") {
+        if (value === "" || value === null) {
+          flag = false;
+        } else {
+          flag = true;
+        }
+      }
+      return flag;
+    }),
   });
 
   useEffect(() => {
@@ -67,15 +113,81 @@ const Login = () => {
     }
   }, [userState]); // eslint-disable-line
 
-  const handleCheck = async (values: any) => {
-    setEmail(values.email);
+  useEffect(() => {
+    if (sent) {
+      setCountdown(30);
+      const timeOutId = setTimeout(() => {
+        setSent(false);
+      }, 30000);
+      return () => clearTimeout(timeOutId);
+    }
+  }, [sent]);
 
-    setCollapse(!collapse);
+  useEffect(() => {
+    if (countdown !== -1) {
+      const timerId = setInterval(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearInterval(timerId);
+    }
+  }, [countdown]);
+
+  const handleCheck = async (values: any) => {
+    try {
+      const {
+        data: { data },
+      } = await axiosBaseApi.get("/user/checkEmail?email=" + values.email);
+
+      if (data.validEmail) {
+        setEmail(values.email);
+        dispatch({ type: USER_EMAIL_CHECK, payload: data });
+        setCollapse(!collapse);
+      } else {
+        setEmailError("Email not found! please try again");
+      }
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
   };
   const handleSubmit2 = (values: any) => {
-    dispatch(UserAction(USER_LOGIN, { email, password: values.password }));
-    setCollapse(!collapse);
+    if (signInType === "password") {
+      dispatch(UserAction(USER_LOGIN, { email, password: values.password }));
+    } else if (signInType === "emailOTP") {
+      dispatch(UserAction(USER_CONFIRM_CODE, { email, otp: values.emailOTP }));
+    } else if (signInType === "mobile") {
+      dispatch(
+        UserAction(USER_CONFIRM_CODE, {
+          email,
+          otp: values.otp,
+          mobile: userState.mobile,
+        })
+      );
+    }
   };
+
+  const connectSocial = async (token: any) => {
+    const {
+      data: { data, message },
+    } = await axiosBaseApi.post("user/connectSocial", {
+      ...token,
+    });
+    dispatch({
+      type: TOAST_SHOW,
+      payload: { message },
+    });
+    dispatch({
+      type: USER_LOGIN,
+      payload: { ...data.userData, accessToken: data.accessToken },
+    });
+  };
+
   return (
     <Box>
       <Grid container sx={{ height: "100vh" }}>
@@ -144,14 +256,17 @@ const Login = () => {
                           placeholder="Enter your email"
                           name="email"
                           value={values.email}
-                          error={touched.email && errors.email}
+                          error={(touched.email && errors.email) || emailError}
                           helperText={
-                            touched.email && errors.email && errors.email
+                            (touched.email && errors.email && errors.email) ||
+                            (emailError && emailError)
                           }
-                          onChange={handleChange}
+                          onChange={(e) => {
+                            handleChange(e);
+                            setEmailError("");
+                          }}
                           onBlur={(e) => {
                             handleBlur(e);
-                            console.log(e);
                           }}
                         />
                       </Box>
@@ -198,10 +313,9 @@ const Login = () => {
                         variant="rounded"
                         type="submit"
                         disabled={
-                          //   userState.loading === true
-                          //     ? userState.loading
-                          //     :
-                          submitDisable
+                          userState.loading === true
+                            ? userState.loading
+                            : submitDisable
                         }
                         sx={{ py: 1.5 }}
                       >
@@ -210,9 +324,9 @@ const Login = () => {
                             lineHeight: 1,
                             fontSize: "0.875rem",
                             px: 1,
-                            // cursor: userState.loading
-                            //   ? "not-allowed"
-                            //   : "pointer",
+                            cursor: userState.loading
+                              ? "not-allowed"
+                              : "pointer",
                           }}
                         >
                           Continue
@@ -290,14 +404,13 @@ const Login = () => {
                 </Button>
                 <TelegramLoginButton
                   dataOnauth={async (user) => {
-                    const data = await axios.post(
-                      `https://api.telegram.org/bot${process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN}/sendMessage`,
-                      {
-                        chat_id: user.id,
-                        text: "Please provide an email or mobile number to have more control over your account.",
-                      }
-                    );
-                    console.log(user);
+                    await connectSocial({
+                      name: user.first_name,
+                      provider: "telegram",
+                      id: user.id.toString(),
+                      email: null,
+                      photo: user.photo_url,
+                    });
                   }}
                 />
               </Box>
@@ -360,69 +473,220 @@ const Login = () => {
                           Change
                         </Typography>
                       </Box>
-
-                      <Box sx={{ width: "100%" }}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                          }}
+                      <FormControl fullWidth>
+                        <FormLabel id="demo-radio-buttons-group-label">
+                          Choose a sign in method
+                        </FormLabel>
+                        <RadioGroup
+                          aria-labelledby="demo-radio-buttons-group-label"
+                          defaultValue="female"
+                          name="radio-buttons-group"
+                          value={signInType}
+                          onChange={(e) => setSignInType(e.target.value)}
                         >
-                          <Typography
-                            sx={{
-                              ml: 1,
-                              fontSize: "14px",
-                              textTransform: "capitalize",
-                            }}
-                          >
-                            Password
-                          </Typography>
-                          <Typography
-                            sx={{
-                              mr: 1,
-                              fontWeight: 500,
-                              fontSize: "14px",
-                              color: "text.secondary",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {
-                              router.push("/auth/forgot");
-                            }}
-                          >
-                            Forgot password?
-                          </Typography>
-                        </Box>
-                        <TextBox
-                          mt={1}
-                          fullWidth={true}
-                          type={viewPassword ? "text" : "password"}
-                          placeholder="Enter your password"
-                          name="password"
-                          value={values.password}
-                          error={touched.password && errors.password}
-                          helperText={
-                            touched.password &&
-                            errors.password &&
-                            errors.password
-                          }
-                          InputProps={{
-                            endAdornment: (
-                              <IconButton
-                                onClick={() => setViewPassword(!viewPassword)}
-                              >
-                                {viewPassword ? (
-                                  <VisibilityOffRounded color="secondary" />
-                                ) : (
-                                  <VisibilityRounded color="secondary" />
-                                )}
-                              </IconButton>
-                            ),
-                          }}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                        />
-                      </Box>
+                          <Box>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <FormControlLabel
+                                value="mobile"
+                                control={<Radio />}
+                                label="Text me a verification code"
+                              />
+                              {signInType === "mobile" && userState.mobile && (
+                                <Typography
+                                  sx={{
+                                    mr: 1,
+                                    fontWeight: 500,
+                                    fontSize: "14px",
+                                    color: sent
+                                      ? "text.disabled"
+                                      : "text.secondary",
+                                    cursor: sent ? "not-allowed" : "pointer",
+                                  }}
+                                  onClick={() => {
+                                    if (!sent) {
+                                      setSent(true);
+                                      dispatch(
+                                        UserAction(USER_SEND_OTP, {
+                                          email,
+                                          mobile: userState.mobile,
+                                        })
+                                      );
+                                    }
+                                  }}
+                                >
+                                  Send OTP {sent ? `in ${countdown}s` : ""}
+                                </Typography>
+                              )}
+                            </Box>
+                            <Collapse in={signInType === "mobile"}>
+                              <Box sx={{ width: "100%" }}>
+                                <Typography
+                                  sx={{
+                                    fontSize: "12px",
+                                    ml: 4,
+                                    color: userState.mobile
+                                      ? "text.primary"
+                                      : "#d32f2f",
+                                  }}
+                                >
+                                  {userState.mobile
+                                    ? "+ xxxxxxx" +
+                                      userState.mobile.substring(7)
+                                    : "Please enter a mobile number"}
+                                </Typography>
+                                <TextBox
+                                  mt={1}
+                                  fullWidth={true}
+                                  type="text"
+                                  placeholder="Enter OTP"
+                                  name="otp"
+                                  value={values.otp}
+                                  disabled={userState.mobile ? false : true}
+                                  error={touched.otp && errors.otp}
+                                  helperText={
+                                    touched.otp && errors.otp && errors.otp
+                                  }
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                />
+                              </Box>
+                            </Collapse>
+                          </Box>
+                          <Box sx={{ mt: 2 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <FormControlLabel
+                                value="emailOTP"
+                                control={<Radio />}
+                                label="Email me a verification code"
+                              />
+                              {signInType === "emailOTP" && (
+                                <Typography
+                                  sx={{
+                                    mr: 1,
+                                    fontWeight: 500,
+                                    fontSize: "14px",
+                                    color: sent
+                                      ? "text.disabled"
+                                      : "text.secondary",
+                                    cursor: sent ? "not-allowed" : "pointer",
+                                  }}
+                                  onClick={() => {
+                                    if (!sent) {
+                                      setSent(true);
+                                      dispatch(
+                                        UserAction(USER_SEND_OTP, {
+                                          email,
+                                          mobile: null,
+                                        })
+                                      );
+                                    }
+                                  }}
+                                >
+                                  Send Code {sent ? `in ${countdown}s` : ""}
+                                </Typography>
+                              )}
+                            </Box>
+                            <Collapse in={signInType === "emailOTP"}>
+                              <Box sx={{ width: "100%" }}>
+                                <TextBox
+                                  mt={1}
+                                  fullWidth={true}
+                                  type="text"
+                                  placeholder="Enter OTP"
+                                  name="emailOTP"
+                                  value={values.emailOTP}
+                                  error={touched.emailOTP && errors.emailOTP}
+                                  helperText={
+                                    touched.emailOTP &&
+                                    errors.emailOTP &&
+                                    errors.emailOTP
+                                  }
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                />
+                              </Box>
+                            </Collapse>
+                          </Box>
+                          <Box sx={{ mt: 2 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <FormControlLabel
+                                value="password"
+                                control={<Radio />}
+                                label="Password"
+                              />
+                              {signInType === "password" && (
+                                <Typography
+                                  sx={{
+                                    mr: 1,
+                                    fontWeight: 500,
+                                    fontSize: "14px",
+                                    color: "text.secondary",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => {
+                                    router.push("/auth/forgot");
+                                  }}
+                                >
+                                  Forgot password?
+                                </Typography>
+                              )}
+                            </Box>
+                            <Collapse in={signInType === "password"}>
+                              <Box sx={{ width: "100%" }}>
+                                <TextBox
+                                  mt={1}
+                                  fullWidth={true}
+                                  type={viewPassword ? "text" : "password"}
+                                  placeholder="Enter your password"
+                                  name="password"
+                                  value={values.password}
+                                  error={touched.password && errors.password}
+                                  helperText={
+                                    touched.password &&
+                                    errors.password &&
+                                    errors.password
+                                  }
+                                  InputProps={{
+                                    endAdornment: (
+                                      <IconButton
+                                        onClick={() =>
+                                          setViewPassword(!viewPassword)
+                                        }
+                                      >
+                                        {viewPassword ? (
+                                          <VisibilityOffRounded color="secondary" />
+                                        ) : (
+                                          <VisibilityRounded color="secondary" />
+                                        )}
+                                      </IconButton>
+                                    ),
+                                  }}
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                />
+                              </Box>
+                            </Collapse>
+                          </Box>
+                        </RadioGroup>
+                      </FormControl>
                     </Box>
                     <Box
                       sx={{
