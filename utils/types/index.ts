@@ -1,3 +1,4 @@
+import { IToastProps } from "./common";
 import {
   ReducerAction,
   rootReducer,
@@ -14,4 +15,5 @@ export type {
   TokenData,
   IconProps,
   menuItem,
+  IToastProps,
 };

@@ -6,7 +6,7 @@
     "dev": "rimraf .next && next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "tsc --noEmit && eslint . --ext .ts,.tsx"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",

@@ -1,11 +1,12 @@
 import React from "react";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
-import { IToastProps } from "../../../utils/types";
+
 import { useDispatch } from "react-redux";
 import { ToastAction } from "../../../Redux/Actions/ToastAction";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import { CheckCircleOutlineRounded } from "@mui/icons-material";
+import { IToastProps } from "@/utils/types";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
@@ -21,9 +22,6 @@ const Toast = (props: IToastProps) => {
     event?: React.SyntheticEvent | Event,
     reason?: string
   ) => {
-    // if (reason === "clickaway") {
-    //   return;
-    // }
     dispatch(ToastAction({ hide: true }));
   };
 

@@ -75,3 +75,11 @@ export interface pageProps {
   setPageName: Function;
   setComponent: Function;
 }
+
+export interface IToastProps {
+  open?: boolean;
+  severity?: AlertColor;
+  message?: string;
+  hide?: boolean;
+  loading?: boolean;
+}

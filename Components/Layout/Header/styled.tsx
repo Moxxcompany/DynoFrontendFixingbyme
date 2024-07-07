@@ -1,4 +1,4 @@
-import { drawerWidth } from "@/utils/constants";
+import { drawerWidth } from "@/styles/theme";
 import { AppBar, styled } from "@mui/material";
 
 export const CustomAppBar = styled(AppBar)(({ theme }) => ({
