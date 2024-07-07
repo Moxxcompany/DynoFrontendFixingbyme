@@ -145,11 +145,7 @@ export default function Company({ setPageName }: pageProps) {
 
   const handleFileChange = (file: File) => {
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        setImage(e.target?.result);
-      };
-      reader.readAsDataURL(file);
+      setImage(URL.createObjectURL(file));
       setFileName(file.name);
       setMediaFile(file);
     }
@@ -208,7 +204,7 @@ export default function Company({ setPageName }: pageProps) {
         confirmText="Delete"
         onConfirm={handleDelete}
       />
-      <Box sx={{ m: 2 }}>
+      <Box sx={{ m: 2, mb: 5 }}>
         <Box
           sx={{
             mt: 2,
@@ -366,7 +362,7 @@ export default function Company({ setPageName }: pageProps) {
                         </Typography>
                         <MuiTelInput
                           fullWidth={true}
-                          placeholder="Enter your email"
+                          placeholder="Enter your mobile number"
                           name="mobile"
                           forceCallingCode
                           disableFormatting

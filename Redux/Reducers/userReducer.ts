@@ -6,6 +6,7 @@ import {
   USER_LOGIN,
   USER_REGISTER,
   USER_SEND_OTP,
+  USER_UPDATE,
 } from "../Actions/UserAction";
 
 const userInitialState = {
@@ -41,6 +42,10 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
         name: payload.name,
         loading: false,
       };
+    case USER_UPDATE:
+      localStorage.setItem("token", payload.accessToken);
+      return { ...state };
+
     case USER_EMAIL_CHECK:
       return {
         ...state,
