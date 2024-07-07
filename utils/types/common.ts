@@ -9,6 +9,7 @@ export interface ReducerAction {
 export interface rootReducer {
   userReducer: userReducer;
   toastReducer: toastReducer;
+  companyReducer: companyReducer;
 }
 
 export interface userReducer {
@@ -16,6 +17,30 @@ export interface userReducer {
   name: string;
   loading: boolean;
   mobile: string;
+  user_id: number;
+  photo: string;
+  telegram_id: string;
+}
+
+export interface companyReducer {
+  companyList: ICompany[];
+  loading: boolean;
+}
+
+export interface ICompany {
+  company_id: number;
+  user_id: number;
+  company_name: string;
+  mobile: string;
+  photo: string;
+  email: string;
+  website: string;
+}
+
+export interface menuItem {
+  value: any;
+  label: any;
+  disable?: boolean;
 }
 
 export interface toastReducer {
@@ -33,11 +58,20 @@ export interface LayoutProps {
 }
 
 export interface TokenData {
-  email: string;
+  user_id: number;
   name: string;
+  email: string;
+  photo: string;
+  mobile: string;
+  telegram_id: string;
 }
 
 export interface IconProps {
   fill?: string;
   size?: number;
+}
+
+export interface pageProps {
+  setPageName: Function;
+  setComponent: Function;
 }

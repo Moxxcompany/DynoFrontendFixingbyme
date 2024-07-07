@@ -1,11 +1,14 @@
-import { UserAction } from "@/Redux/Actions";
-import { USER_LOGIN } from "@/Redux/Actions/UserAction";
+import { pageProps } from "@/utils/types/common";
 import Head from "next/head";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-export default function Home() {
+export default function Home({ setPageName }: pageProps) {
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setPageName("Home");
+  }, []);
 
   return (
     <>
@@ -15,7 +18,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>Hello</main>
+      <main>Hiiii</main>
     </>
   );
 }

@@ -12,6 +12,7 @@ declare module "@mui/material/Button" {
 }
 
 export const toolbarHeight = 70;
+export const drawerWidth = 64;
 
 const tempTheme = createTheme();
 export const theme = createTheme({
@@ -185,7 +186,6 @@ export const theme = createTheme({
           color: "#1034A6",
           padding: "10px 15px",
           borderRadius: "20px",
-          minWidth: "150px",
           [tempTheme.breakpoints.down("md")]: {
             minWidth: "75px",
           },

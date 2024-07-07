@@ -17,3 +17,7 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+.customMenu.Mui-selected {
+  color: #fff !important;
+}

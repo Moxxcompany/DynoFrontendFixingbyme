@@ -1,19 +1,27 @@
 import withAuth from "@/Components/Page/Common/HOC/withAuth";
-import { toolbarHeight } from "@/styles/theme";
-import { LayoutProps } from "@/utils/types";
-import { Box, useTheme } from "@mui/material";
+import { drawerWidth, toolbarHeight } from "@/styles/theme";
+import { LayoutProps, rootReducer } from "@/utils/types";
+import { Box, Drawer, useTheme } from "@mui/material";
 import React from "react";
 import useTokenData from "@/hooks/useTokenData";
 import Header from "@/Components/Layout/Header";
-import { drawerWidth } from "@/Components/Layout/SideBar";
+import SideBar from "@/Components/Layout/Sidebar";
+import Toast from "@/Components/UI/Toast";
+import { useSelector } from "react-redux";
 
 const ClientLayout = ({ children, pageName, component }: LayoutProps) => {
   const theme = useTheme();
   const tokenData = useTokenData();
-
+  const ToastState = useSelector((state: rootReducer) => state.toastReducer);
   return (
     <>
-      {/* <Box component="nav" sx={{ sm: "block", xs: "none" }}>
+      <Toast
+        open={ToastState.open}
+        message={ToastState.message}
+        severity={ToastState.severity ?? "success"}
+        loading={ToastState.loading}
+      />
+      <Box component="nav" sx={{ sm: "block", xs: "none" }}>
         <Drawer
           variant="permanent"
           sx={{
@@ -31,12 +39,12 @@ const ClientLayout = ({ children, pageName, component }: LayoutProps) => {
         >
           <SideBar handleDrawerToggle={() => {}} />
         </Drawer>
-      </Box> */}
+      </Box>
       <Box
         sx={{
           width: { lg: `calc(100vw - ${drawerWidth}px)`, xs: "100vw" },
           ml: { lg: `${drawerWidth}px`, xs: 0 },
-          // mt: { sm: `${toolbarHeight}px`, xs: `${toolbarHeight * 2 - 5}px` },
+          mt: { sm: `${toolbarHeight}px`, xs: `${toolbarHeight * 2 - 5}px` },
         }}
       >
         <Header pageName={pageName} component={component} />
