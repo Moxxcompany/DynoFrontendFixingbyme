@@ -10,6 +10,7 @@ export interface rootReducer {
   userReducer: userReducer;
   toastReducer: toastReducer;
   companyReducer: companyReducer;
+  walletReducer: walletReducer;
 }
 
 export interface userReducer {
@@ -26,6 +27,11 @@ export interface companyReducer {
   companyList: ICompany[];
   loading: boolean;
 }
+export interface walletReducer {
+  walletList: IWallet[];
+  totalBalance: number;
+  loading: boolean;
+}
 
 export interface ICompany {
   company_id: number;
@@ -35,6 +41,16 @@ export interface ICompany {
   photo: string;
   email: string;
   website: string;
+}
+
+export interface IWallet {
+  company_id: number;
+  user_id: number;
+  wallet_id: number;
+  company_name: string;
+  amount: number;
+  photo: string;
+  email: string;
 }
 
 export interface menuItem {

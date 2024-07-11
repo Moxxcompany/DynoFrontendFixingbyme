@@ -13,6 +13,7 @@ import {
   PhotoLibraryRounded,
   RssFeedRounded,
   SmsRounded,
+  WalletRounded,
 } from "@mui/icons-material";
 
 import {
@@ -41,6 +42,11 @@ const navItems = [
     icon: <BusinessRounded color="inherit" />,
     name: "Company",
     link: "/company",
+  },
+  {
+    icon: <WalletRounded color="inherit" />,
+    name: "Wallet",
+    link: "/wallet",
   },
   {
     icon: <ApiRounded color="inherit" />,

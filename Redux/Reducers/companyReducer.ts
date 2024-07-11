@@ -1,4 +1,5 @@
 import { ReducerAction } from "@/utils/types";
+import { companyReducer as ICompanyReducer } from "@/utils/types";
 import {
   COMPANY_API_ERROR,
   COMPANY_DELETE,
@@ -7,7 +8,6 @@ import {
   COMPANY_INSERT,
   COMPANY_UPDATE,
 } from "../Actions/CompanyAction";
-import { companyReducer as ICompanyReducer } from "@/utils/types/common";
 
 const companyInitialState: ICompanyReducer = {
   companyList: [],

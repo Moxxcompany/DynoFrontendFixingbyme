@@ -165,6 +165,7 @@ const DataTable = ({
                             textTransform:
                               key === "email" ? "none" : "capitalize",
                             whiteSpace: "nowrap",
+                            fontWeight: key === "amount" ? 600 : 400,
                           }}
                           key={`${row[key]}_${localIndex}`}
                         >

@@ -2,7 +2,7 @@ import FormManager from "@/Components/Page/Common/FormManager";
 import DataTable from "@/Components/UI/DataTable";
 import PopupModal from "@/Components/UI/PopupModal";
 import TextBox from "@/Components/UI/TextBox";
-import { pageProps, rootReducer } from "@/utils/types/common";
+
 import {
   AddCircleOutlineRounded,
   AddRounded,
@@ -33,6 +33,7 @@ import {
   COMPANY_UPDATE,
 } from "@/Redux/Actions/CompanyAction";
 import CustomAlert from "@/Components/UI/CustomAlert";
+import { pageProps, rootReducer } from "@/utils/types";
 
 const companyInitial = {
   company_name: "",
@@ -94,22 +95,17 @@ export default function Company({ setPageName }: pageProps) {
                 display: "flex",
                 alignItems: "center",
                 gap: 2,
-                "& img,.tempImg": {
-                  width: "60px",
-                  height: "60px",
-                  borderRadius: "100%",
-                  objectFit: "cover",
-                  objectPosition: "center",
-                  fontSize: 36,
-                  fontWeight: 900,
-                },
               }}
             >
               {x.photo ? (
-                <img src={x.photo} crossOrigin="anonymous" />
+                <img
+                  src={x.photo}
+                  className="round-img"
+                  crossOrigin="anonymous"
+                />
               ) : (
                 <Box
-                  className="tempImg"
+                  className="round-img"
                   sx={{
                     background: theme.palette.secondary.main + "44",
                     color: "text.secondary",

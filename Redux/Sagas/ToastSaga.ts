@@ -1,6 +1,6 @@
 import { put } from "redux-saga/effects";
 import { TOAST_HIDE, TOAST_SHOW } from "../Actions/ToastAction";
-import { toastReducer } from "@/utils/types/common";
+import { toastReducer } from "@/utils/types";
 
 interface IToast {
   payload: toastReducer;

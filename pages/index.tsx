@@ -1,4 +1,4 @@
-import { pageProps } from "@/utils/types/common";
+import { pageProps } from "@/utils/types";
 import Head from "next/head";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";

@@ -19,21 +19,7 @@ const BrandLogo = () => {
         onClick={() => router.push("/")}
       >
         {/* <img src={Logo.src} alt="no logo" /> */}
-        <Typography sx={{ fontSize: "45px" }}>D</Typography>
-      </Box>
-      <Box
-        sx={{
-          mt: 2,
-          display: { lg: "none", xs: "block" },
-          "& img": {
-            width: "180px",
-            height: "auto",
-          },
-          cursor: "pointer",
-        }}
-        onClick={() => router.push("/")}
-      >
-        {/* <img src={Logo2.src} alt="no logo" /> */}
+        <Typography sx={{ fontSize: "45px", lineHeight: 1 }}>D</Typography>
       </Box>
     </>
   );

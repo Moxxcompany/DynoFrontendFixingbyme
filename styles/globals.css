@@ -22,6 +22,16 @@ a {
   color: #fff !important;
 }
 
+.round-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 100%;
+  object-fit: cover;
+  object-position: center;
+  font-size: 36px;
+  font-weight: 900;
+}
+
 ::-webkit-scrollbar-track {
   background-color: transparent;
 }

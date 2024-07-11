@@ -1,4 +1,4 @@
-import { ClientLayout, LoginLayout } from "@/Containers";
+import { ClientLayout, LoginLayout, PaymentLayout } from "@/Containers";
 import store from "@/store";
 import "@/styles/globals.css";
 import { theme } from "@/styles/theme";
@@ -17,7 +17,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <Provider store={store}>
         <SessionProvider session={pageProps.session}>
           <ThemeProvider theme={theme}>
-            {!pathname.includes("auth") && (
+            {!pathname.includes("auth") && !pathname.includes("payment") && (
               <ClientLayout pageName={pageName}>
                 <Component {...pageProps} setPageName={setPageName} />
               </ClientLayout>
@@ -26,6 +26,11 @@ export default function App({ Component, pageProps }: AppProps) {
               <LoginLayout pageName={pageName}>
                 <Component {...pageProps} setPageName={setPageName} />
               </LoginLayout>
+            )}
+            {pathname.includes("payment") && (
+              <PaymentLayout pageName={pageName}>
+                <Component {...pageProps} setPageName={setPageName} />
+              </PaymentLayout>
             )}
           </ThemeProvider>
         </SessionProvider>
