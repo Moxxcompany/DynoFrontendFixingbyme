@@ -1,5 +1,6 @@
 import checkTouched from "./checkTouchedHelper";
 import checkValidation from "./checkValidationHelper";
+import createEncryption from "./createEncryption";
 
 import getRandomColor from "./getRandomColor";
 import getRandomNumber from "./getRandomNumber";
@@ -43,4 +44,5 @@ export {
   firstCapital,
   extractLinks,
   getRandomNumber,
+  createEncryption,
 };

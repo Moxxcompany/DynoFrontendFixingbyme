@@ -1,6 +1,9 @@
+import axiosBaseApi from "@/axiosConfig";
 import BrandLogo from "@/Components/Layout/BrandLogo";
-import FormManager from "@/Components/Page/Common/FormManager";
-import TextBox from "@/Components/UI/TextBox";
+
+import CardComponent from "@/Components/Page/Payment/CardComponent";
+import { createEncryption } from "@/helpers";
+
 import {
   AccountBalanceRounded,
   CreditCardRounded,
@@ -8,55 +11,41 @@ import {
 } from "@mui/icons-material";
 import { Box, Divider, Grid, Typography, useTheme } from "@mui/material";
 import React, { useState } from "react";
-import Cards, { Focused } from "react-credit-cards-2";
 import "react-credit-cards-2/dist/es/styles-compiled.css";
-import * as yup from "yup";
 
-const initialValue = {
-  number: "",
-  expiry: "",
-  cvc: "",
-  name: "",
-  focus: "",
-};
-
-interface cardType {
-  number: string;
-  expiry: string;
-  cvc: string;
-  name: string;
-  focus: Focused;
+export interface ApiRes {
+  data: {
+    mode: "redirect" | "pin" | "avs_noauth" | "otp";
+    redirect: string;
+    fields: string[];
+  };
 }
 
 const Payment = () => {
   const theme = useTheme();
-  const [state, setState] = useState<cardType>({
-    number: "",
-    expiry: "",
-    cvc: "",
-    name: "",
-    focus: "",
-  });
 
-  const cardPaymentSchema = yup.object().shape({
-    name: yup
-      .string()
-      .required("card holder name is required!")
-      .max(30, "Please enter a valid name"),
-  });
+  const handleSubmit = async (values: any) => {
+    const finalPayload = {
+      ...values,
+      paymentType: "CARD",
+      currency: "USD",
+      amount: 125,
+    };
+    const res = createEncryption(JSON.stringify(finalPayload));
 
-  const handleInputChange = (evt: any) => {
-    const { name, value } = evt.target;
-
-    setState((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleInputFocus = (evt: any) => {
-    setState((prev) => ({ ...prev, focus: evt.target.name }));
-  };
-
-  const handleSubmit = (values: any) => {
-    console.log("values==================>", values);
+    const {
+      data: { data },
+    }: { data: ApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+      data: res,
+    });
+    console.log(data);
+    if (data.mode === "pin") {
+      console.log(data);
+    } else if (data.mode === "avs_noauth") {
+      console.log(data);
+    } else {
+      window.location.replace(data.redirect);
+    }
   };
   return (
     <Box sx={{ height: "100vh" }}>
@@ -155,121 +144,7 @@ const Payment = () => {
             </Box>
             <Divider flexItem sx={{ my: 2 }} />
             <Typography>Enter your card details</Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                mt: 5,
-                width: "100%",
-              }}
-            >
-              <Cards
-                number={state.number}
-                expiry={state.expiry}
-                cvc={state.cvc}
-                name={state.name}
-                preview
-                focused={state.focus}
-                callback={(type, isValid) => {
-                  console.log("cardType============>", type, isValid);
-                }}
-              />
-              <Box
-                sx={{
-                  width: "100%",
-                }}
-              >
-                <FormManager
-                  initialValues={initialValue}
-                  yupSchema={cardPaymentSchema}
-                  onSubmit={handleSubmit}
-                >
-                  {({
-                    errors,
-                    handleBlur,
-                    handleChange,
-                    submitDisable,
-                    touched,
-                    values,
-                  }) => (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexDirection: "column",
-                        rowGap: "20px",
-                        width: "100%",
-                      }}
-                    >
-                      <TextBox
-                        name="name"
-                        placeholder="Enter card holder name"
-                        label="card holder"
-                        value={values.name}
-                        fullWidth
-                        onChange={(e) => {
-                          handleInputChange(e);
-                          handleChange(e);
-                        }}
-                        onFocus={handleInputFocus}
-                        onBlur={handleBlur}
-                        error={touched.name && errors.name}
-                        helperText={touched.name && errors.name && errors.name}
-                      />
-                      <TextBox
-                        type="number"
-                        name="number"
-                        placeholder="Enter card Number"
-                        label="Card number"
-                        value={state.number}
-                        fullWidth
-                        onChange={handleInputChange}
-                        onFocus={handleInputFocus}
-                      />
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                      >
-                        <TextBox
-                          name="name"
-                          placeholder="Expiry Date"
-                          value={values.name}
-                          label={"valid till"}
-                          fullWidth
-                          onChange={(e) => {
-                            handleInputChange(e);
-                            handleChange(e);
-                          }}
-                          onFocus={handleInputFocus}
-                          onBlur={handleBlur}
-                          error={touched.name && errors.name}
-                          helperText={
-                            touched.name && errors.name && errors.name
-                          }
-                        />
-                        <Box>
-                          <Typography
-                            sx={{ fontSize: 11, fontWeight: 600, ml: 1 }}
-                          >
-                            CVC/CVV
-                          </Typography>
-                          <TextBox
-                            type="number"
-                            name="number"
-                            placeholder="CVC"
-                            value={state.number}
-                            fullWidth
-                            onChange={handleInputChange}
-                            onFocus={handleInputFocus}
-                          />
-                        </Box>
-                      </Box>
-                    </Box>
-                  )}
-                </FormManager>
-              </Box>
-            </Box>
+            <CardComponent cardData={handleSubmit} />
           </Box>
         </Grid>
       </Grid>
