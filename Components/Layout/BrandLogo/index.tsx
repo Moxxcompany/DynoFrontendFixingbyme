@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 
-const BrandLogo = () => {
+const BrandLogo = ({ redirect = true }: { redirect?: boolean }) => {
   const router = useRouter();
   return (
     <>
@@ -16,7 +16,7 @@ const BrandLogo = () => {
           },
           cursor: "pointer",
         }}
-        onClick={() => router.push("/")}
+        onClick={() => redirect && router.push("/")}
       >
         {/* <img src={Logo.src} alt="no logo" /> */}
         <Typography sx={{ fontSize: "45px", lineHeight: 1 }}>D</Typography>

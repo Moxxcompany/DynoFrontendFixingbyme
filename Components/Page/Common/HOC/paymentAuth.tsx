@@ -8,16 +8,16 @@ const paymentAuth = (WrappedComponent: any) => {
   const AuthChecker = (props: any) => {
     const Router = useRouter();
     const [payment, setPayment] = useState(false);
-    // const paymentState = useSelector(
-    //   (state: rootReducer) => state.paymentReducer
-    // );
-    // useEffect(() => {
-    //   if (paymentState.finalPrice !== 0) {
-    //     setPayment(true);
-    //   } else {
-    //     Router.replace("/");
-    //   }
-    // }, [Router.pathname]);
+    const paymentState = useSelector(
+      (state: rootReducer) => state.walletReducer
+    );
+    useEffect(() => {
+      if (paymentState.amount !== 0) {
+        setPayment(true);
+      } else {
+        Router.replace("/");
+      }
+    }, [Router.pathname]);
     return payment ? <WrappedComponent {...props} /> : <></>;
   };
   return AuthChecker;

@@ -1,8 +1,12 @@
 import axiosBaseApi from "@/axiosConfig";
 import BrandLogo from "@/Components/Layout/BrandLogo";
+import paymentAuth from "@/Components/Page/Common/HOC/paymentAuth";
+import BankTransferComponent from "@/Components/Page/Payment/BankTransferComponent";
 
 import CardComponent from "@/Components/Page/Payment/CardComponent";
 import { createEncryption } from "@/helpers";
+import useTokenData from "@/hooks/useTokenData";
+import { rootReducer } from "@/utils/types";
 
 import {
   AccountBalanceRounded,
@@ -10,43 +14,78 @@ import {
   CurrencyBitcoinRounded,
 } from "@mui/icons-material";
 import { Box, Divider, Grid, Typography, useTheme } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "react-credit-cards-2/dist/es/styles-compiled.css";
+import { useSelector } from "react-redux";
 
-export interface ApiRes {
+export interface BankTransferApiRes {
   data: {
-    mode: "redirect" | "pin" | "avs_noauth" | "otp";
-    redirect: string;
-    fields: string[];
+    mode: "banktransfer";
+    transfer_account: string;
+    transfer_bank: string;
+    transfer_note: string;
+    transfer_amount: string;
   };
 }
 
+export interface transferDetails {
+  transfer_account: string;
+  transfer_bank: string;
+  transfer_note: string;
+  transfer_amount: string;
+}
+
+const paymentMethods = [
+  { label: "Card", value: "CARD", icon: <CreditCardRounded /> },
+  {
+    label: "Bank Transfer (NGN)",
+    value: "BANK_TRANSFER",
+    icon: <AccountBalanceRounded />,
+  },
+  {
+    label: "Bank Account",
+    value: "BANK_ACCOUNT",
+    icon: <AccountBalanceRounded />,
+  },
+  {
+    label: "Crypto",
+    value: "CRYPTO",
+    icon: <CurrencyBitcoinRounded />,
+  },
+];
+
 const Payment = () => {
   const theme = useTheme();
+  const tokenData = useTokenData();
+  const [paymentType, setPaymentType] = useState("BANK_TRANSFER");
+  const [transferDetails, setTransferDetails] = useState<transferDetails>();
 
-  const handleSubmit = async (values: any) => {
+  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+
+  // useEffect(() => {
+  //   if (paymentType === "BANK_TRANSFER") {
+  //     initiateBankTransfer();
+  //   }
+  // }, [paymentType]);
+
+  const initiateBankTransfer = async () => {
     const finalPayload = {
-      ...values,
-      paymentType: "CARD",
-      currency: "USD",
-      amount: 125,
+      paymentType,
+      currency: walletState.currency,
+      amount: walletState.amount,
     };
     const res = createEncryption(JSON.stringify(finalPayload));
 
     const {
       data: { data },
-    }: { data: ApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
-      data: res,
-    });
-    console.log(data);
-    if (data.mode === "pin") {
-      console.log(data);
-    } else if (data.mode === "avs_noauth") {
-      console.log(data);
-    } else {
-      window.location.replace(data.redirect);
-    }
+    }: { data: BankTransferApiRes } = await axiosBaseApi.post(
+      "/wallet/addFunds",
+      {
+        data: res,
+      }
+    );
   };
+
   return (
     <Box sx={{ height: "100vh" }}>
       <Grid container sx={{ height: "100vh" }} alignItems={"center"}>
@@ -83,6 +122,7 @@ const Payment = () => {
                   p: 3,
                   px: 5,
                   width: "100%",
+                  cursor: "pointer",
                   "&.activeBox": {
                     background: "#fff",
                     color: "text.primary",
@@ -90,18 +130,18 @@ const Payment = () => {
                 },
               }}
             >
-              <Box className="paymentBox activeBox">
-                <CreditCardRounded />
-                <Typography>Card</Typography>
-              </Box>
-              <Box className="paymentBox">
-                <AccountBalanceRounded />
-                <Typography>Bank</Typography>
-              </Box>
-              <Box className="paymentBox">
-                <CurrencyBitcoinRounded />
-                <Typography>Crypto</Typography>
-              </Box>
+              {paymentMethods.map((x, i) => (
+                <Box
+                  className={`paymentBox ${
+                    paymentType === x.value && "activeBox"
+                  }`}
+                  key={x.value}
+                  onClick={() => setPaymentType(x.value)}
+                >
+                  {x.icon}
+                  <Typography>{x.label}</Typography>
+                </Box>
+              ))}
             </Box>
           </Box>
         </Grid>
@@ -132,19 +172,24 @@ const Payment = () => {
               }}
             >
               <Box>
-                <BrandLogo />
+                <BrandLogo redirect={false} />
                 <Typography>Standard Payment</Typography>
               </Box>
               <Box>
                 <Typography sx={{ fontWeight: 500, fontSize: 24 }}>
-                  $125.99
+                  {walletState.currency === "NGN" ? "₦" : "$"}
+                  {walletState.amount}
                 </Typography>
-                <Typography sx={{ fontSize: 16 }}>temp@gmail.com</Typography>
+                <Typography sx={{ fontSize: 16 }}>
+                  {tokenData?.email}
+                </Typography>
               </Box>
             </Box>
             <Divider flexItem sx={{ my: 2 }} />
-            <Typography>Enter your card details</Typography>
-            <CardComponent cardData={handleSubmit} />
+            {paymentType === "CARD" && <CardComponent />}
+            {paymentType === "BANK_TRANSFER" && (
+              <BankTransferComponent transferDetails={transferDetails} />
+            )}
           </Box>
         </Grid>
       </Grid>
@@ -152,4 +197,5 @@ const Payment = () => {
   );
 };
 
+// export default paymentAuth(Payment);
 export default Payment;

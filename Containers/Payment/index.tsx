@@ -8,6 +8,7 @@ import Header from "@/Components/Layout/Header";
 import SideBar from "@/Components/Layout/Sidebar";
 import Toast from "@/Components/UI/Toast";
 import { useSelector } from "react-redux";
+import paymentAuth from "@/Components/Page/Common/HOC/paymentAuth";
 
 const PaymentLayout = ({ children, pageName, component }: LayoutProps) => {
   const theme = useTheme();
@@ -30,4 +31,4 @@ const PaymentLayout = ({ children, pageName, component }: LayoutProps) => {
   );
 };
 
-export default withAuth(PaymentLayout);
+export default PaymentLayout;

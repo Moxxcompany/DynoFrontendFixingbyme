@@ -4,6 +4,7 @@ import {
   WALLET_API_ERROR,
   WALLET_DELETE,
   WALLET_FETCH,
+  WALLET_FUND_CREATE,
   WALLET_INIT,
   WALLET_INSERT,
   WALLET_UPDATE,
@@ -13,6 +14,13 @@ const walletInitialState: IWalletReducer = {
   walletList: [],
   totalBalance: 0,
   loading: false,
+  amount: 10,
+  currency: "USD",
+  paymentData: {
+    mode: "",
+    fields: [],
+    uniqueRef: "",
+  },
 };
 
 const walletReducer = (state = walletInitialState, action: ReducerAction) => {
@@ -57,6 +65,14 @@ const walletReducer = (state = walletInitialState, action: ReducerAction) => {
         ...state,
         loading: false,
         walletList: [...tempList],
+      };
+
+    case WALLET_FUND_CREATE:
+      return {
+        ...state,
+        loading: false,
+        amount: payload.amount,
+        currency: payload.currency,
       };
 
     case WALLET_API_ERROR:

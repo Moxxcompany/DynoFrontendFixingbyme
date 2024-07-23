@@ -1,6 +1,13 @@
+import FormManager from "@/Components/Page/Common/FormManager";
 import DataTable from "@/Components/UI/DataTable";
+import Dropdown from "@/Components/UI/Dropdown";
+import PopupModal from "@/Components/UI/PopupModal";
 import TextBox from "@/Components/UI/TextBox";
-import { WALLET_FETCH, WalletAction } from "@/Redux/Actions/WalletAction";
+import {
+  WALLET_FETCH,
+  WALLET_FUND_CREATE,
+  WalletAction,
+} from "@/Redux/Actions/WalletAction";
 import { pageProps, rootReducer } from "@/utils/types";
 import { Search } from "@mui/icons-material";
 import {
@@ -11,17 +18,30 @@ import {
   useTheme,
 } from "@mui/material";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import * as yup from "yup";
 
 const columns = ["#", "Company Name", "Email", "Amount"];
+
+const fundInitial = {
+  amount: "",
+  currency: "USD",
+};
 
 const Wallet = ({ setPageName }: pageProps) => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const router = useRouter();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
   const [localData, setLocalData] = useState<any[]>([]);
   const [searchValue, setSearchValue] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const fundSchema = yup.object().shape({
+    amount: yup.string().required("amount is required!"),
+  });
 
   useEffect(() => {
     setPageName("Wallets");
@@ -78,8 +98,18 @@ const Wallet = ({ setPageName }: pageProps) => {
     }
   }, [walletState.walletList]);
 
+  useEffect(() => {
+    if (walletState.amount !== 0) {
+      router.push("/payment");
+    }
+  }, [walletState.amount]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
+  };
+
+  const handleSubmit = (values: any) => {
+    dispatch({ type: WALLET_FUND_CREATE, payload: { ...values } });
   };
   return (
     <>
@@ -89,7 +119,81 @@ const Wallet = ({ setPageName }: pageProps) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
+      <PopupModal
+        open={open}
+        showClose
+        handleClose={() => setOpen(false)}
+        headerText={"Add Funds"}
+      >
+        <Box sx={{ minWidth: "450px" }}>
+          <FormManager
+            initialValues={fundInitial}
+            yupSchema={fundSchema}
+            onSubmit={handleSubmit}
+          >
+            {({
+              errors,
+              handleBlur,
+              handleChange,
+              submitDisable,
+              touched,
+              values,
+            }) => (
+              <>
+                <TextBox
+                  name="amount"
+                  placeholder="Enter amount"
+                  label="Amount"
+                  value={values.amount}
+                  type="number"
+                  fullWidth
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.amount && errors.amount}
+                  helperText={touched.amount && errors.amount && errors.amount}
+                />
+                <Box sx={{ width: "100%", mt: 3 }}>
+                  <Dropdown
+                    name="currency"
+                    placeholder="Enter currency"
+                    label="Currency"
+                    value={values.currency}
+                    type="number"
+                    fullWidth
+                    menuItems={[
+                      { label: "USD", value: "USD" },
+                      { label: "NGN", value: "NGN" },
+                    ]}
+                    getValue={(value: any) => {
+                      const e: any = {
+                        target: {
+                          name: "currency",
+                          value,
+                        },
+                      };
+                      handleChange(e);
+                    }}
+                    onBlur={handleBlur}
+                    error={touched.currency && errors.currency}
+                    helperText={
+                      touched.currency && errors.currency && errors.currency
+                    }
+                  />
+                </Box>
+                <Box sx={{ mt: 5, mb: 3, display: "flex" }}>
+                  <Button
+                    variant="rounded"
+                    disabled={walletState.loading ?? submitDisable}
+                    type="submit"
+                  >
+                    Add
+                  </Button>
+                </Box>
+              </>
+            )}
+          </FormManager>
+        </Box>
+      </PopupModal>
       <Box sx={{ m: 2, mb: 5 }}>
         <Box
           sx={{
@@ -128,6 +232,15 @@ const Wallet = ({ setPageName }: pageProps) => {
             </Box>
             <Button variant="rounded" color="secondary">
               Withdraw
+            </Button>
+            <Button
+              variant="rounded"
+              color="primary"
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              Add Funds
             </Button>
           </Box>
         </Box>

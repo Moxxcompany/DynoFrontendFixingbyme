@@ -4,6 +4,8 @@ export const WALLET_FETCH = "WALLET_FETCH";
 export const WALLET_UPDATE = "WALLET_UPDATE";
 export const WALLET_DELETE = "WALLET_DELETE";
 export const WALLET_API_ERROR = "WALLET_API_ERROR";
+export const WALLET_FUND_CREATE = "WALLET_FUND_CREATE";
+export const WALLET_ADD_FUND = "WALLET_ADD_FUND";
 
 export const WalletAction = (type?: string, data?: any) => {
   return { type: WALLET_INIT, payload: data, crudType: type };

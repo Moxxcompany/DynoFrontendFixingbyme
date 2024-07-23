@@ -31,6 +31,13 @@ export interface walletReducer {
   walletList: IWallet[];
   totalBalance: number;
   loading: boolean;
+  amount: number;
+  currency: string;
+  paymentData: {
+    mode: "avs_noauth" | "pin" | "otp" | "";
+    fields: string[];
+    uniqueRef: string;
+  };
 }
 
 export interface ICompany {
