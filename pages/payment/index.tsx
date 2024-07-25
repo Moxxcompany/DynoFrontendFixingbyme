@@ -1,12 +1,21 @@
 import axiosBaseApi from "@/axiosConfig";
 import BrandLogo from "@/Components/Layout/BrandLogo";
 import paymentAuth from "@/Components/Page/Common/HOC/paymentAuth";
+import BankAccountComponent from "@/Components/Page/Payment/BankAccountComponent";
 import BankTransferComponent from "@/Components/Page/Payment/BankTransferComponent";
 
 import CardComponent from "@/Components/Page/Payment/CardComponent";
+import GooglePayComponent from "@/Components/Page/Payment/GooglePayComponent";
 import { createEncryption } from "@/helpers";
 import useTokenData from "@/hooks/useTokenData";
+import { paymentTypes } from "@/utils/enums";
 import { rootReducer } from "@/utils/types";
+import {
+  BankAccountApiRes,
+  BankAccountDetails,
+  BankTransferApiRes,
+  transferDetails,
+} from "@/utils/types/paymentTypes";
 
 import {
   AccountBalanceRounded,
@@ -18,38 +27,41 @@ import React, { useEffect, useState } from "react";
 import "react-credit-cards-2/dist/es/styles-compiled.css";
 import { useSelector } from "react-redux";
 
-export interface BankTransferApiRes {
-  data: {
-    mode: "banktransfer";
-    transfer_account: string;
-    transfer_bank: string;
-    transfer_note: string;
-    transfer_amount: string;
-  };
-}
-
-export interface transferDetails {
-  transfer_account: string;
-  transfer_bank: string;
-  transfer_note: string;
-  transfer_amount: string;
-}
-
 const paymentMethods = [
-  { label: "Card", value: "CARD", icon: <CreditCardRounded /> },
+  { label: "Card", value: paymentTypes.CARD, icon: <CreditCardRounded /> },
   {
     label: "Bank Transfer (NGN)",
-    value: "BANK_TRANSFER",
+    value: paymentTypes.BANK_TRANSFER,
     icon: <AccountBalanceRounded />,
   },
   {
     label: "Bank Account",
-    value: "BANK_ACCOUNT",
+    value: paymentTypes.BANK_ACCOUNT,
+    icon: <AccountBalanceRounded />,
+  },
+  {
+    label: "Google Pay",
+    value: paymentTypes.GOOGLE_PAY,
+    icon: <AccountBalanceRounded />,
+  },
+  {
+    label: "Apple Pay",
+    value: paymentTypes.APPLE_PAY,
+    icon: <AccountBalanceRounded />,
+  },
+  {
+    label: "USSD",
+    value: paymentTypes.USSD,
+    icon: <AccountBalanceRounded />,
+  },
+  {
+    label: "M-Pesa",
+    value: paymentTypes.M_PESA,
     icon: <AccountBalanceRounded />,
   },
   {
     label: "Crypto",
-    value: "CRYPTO",
+    value: paymentTypes.CRYPTO,
     icon: <CurrencyBitcoinRounded />,
   },
 ];
@@ -57,16 +69,25 @@ const paymentMethods = [
 const Payment = () => {
   const theme = useTheme();
   const tokenData = useTokenData();
-  const [paymentType, setPaymentType] = useState("BANK_TRANSFER");
+  const [paymentType, setPaymentType] = useState(paymentTypes.CARD);
   const [transferDetails, setTransferDetails] = useState<transferDetails>();
-
+  const [accountDetails, setAccountDetails] = useState<BankAccountDetails>();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
 
-  // useEffect(() => {
-  //   if (paymentType === "BANK_TRANSFER") {
-  //     initiateBankTransfer();
-  //   }
-  // }, [paymentType]);
+  useEffect(() => {
+    if (paymentType === paymentTypes.BANK_TRANSFER) {
+      initiateBankTransfer();
+    }
+    if (paymentType === paymentTypes.BANK_ACCOUNT) {
+      initiateBankAccountTransfer();
+    }
+    if (
+      paymentType === paymentTypes.GOOGLE_PAY ||
+      paymentType === paymentTypes.APPLE_PAY
+    ) {
+      initiateGoogleApplyPayTransfer();
+    }
+  }, [paymentType]);
 
   const initiateBankTransfer = async () => {
     const finalPayload = {
@@ -84,6 +105,45 @@ const Payment = () => {
         data: res,
       }
     );
+    setTransferDetails(data);
+  };
+
+  const initiateBankAccountTransfer = async () => {
+    const finalPayload = {
+      paymentType,
+      currency: walletState.currency,
+      amount: walletState.amount,
+    };
+    const res = createEncryption(JSON.stringify(finalPayload));
+
+    const {
+      data: { data },
+    }: { data: BankAccountApiRes } = await axiosBaseApi.post(
+      "/wallet/addFunds",
+      {
+        data: res,
+      }
+    );
+    setAccountDetails(data);
+  };
+
+  const initiateGoogleApplyPayTransfer = async () => {
+    const finalPayload = {
+      paymentType,
+      currency: walletState.currency,
+      amount: walletState.amount,
+    };
+    const res = createEncryption(JSON.stringify(finalPayload));
+
+    const {
+      data: { data },
+    }: { data: BankAccountApiRes } = await axiosBaseApi.post(
+      "/wallet/addFunds",
+      {
+        data: res,
+      }
+    );
+    setAccountDetails(data);
   };
 
   return (
@@ -186,9 +246,16 @@ const Payment = () => {
               </Box>
             </Box>
             <Divider flexItem sx={{ my: 2 }} />
-            {paymentType === "CARD" && <CardComponent />}
-            {paymentType === "BANK_TRANSFER" && (
+            {paymentType === paymentTypes.CARD && <CardComponent />}
+            {paymentType === paymentTypes.BANK_TRANSFER && (
               <BankTransferComponent transferDetails={transferDetails} />
+            )}
+            {paymentType === paymentTypes.BANK_ACCOUNT && (
+              <BankAccountComponent accountDetails={accountDetails} />
+            )}
+            {(paymentType === paymentTypes.GOOGLE_PAY ||
+              paymentType === paymentTypes.APPLE_PAY) && (
+              <GooglePayComponent accountDetails={accountDetails} />
             )}
           </Box>
         </Grid>
@@ -197,5 +264,5 @@ const Payment = () => {
   );
 };
 
-// export default paymentAuth(Payment);
-export default Payment;
+export default paymentAuth(Payment);
+// export default Payment;

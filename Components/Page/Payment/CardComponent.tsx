@@ -9,8 +9,11 @@ import TextBox from "@/Components/UI/TextBox";
 import { formatCreditCardNumber, formatExpirationDate } from "./utils";
 import { useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
-import { createEncryption } from "@/helpers";
+import { createEncryption, generateRedirectUrl } from "@/helpers";
 import axiosBaseApi from "@/axiosConfig";
+import { useRouter } from "next/router";
+import { paymentTypes } from "../../../utils/enums";
+import { CardApiRes, cardType } from "@/utils/types/paymentTypes";
 
 const initialValue = {
   number: "",
@@ -19,23 +22,6 @@ const initialValue = {
   name: "",
   focus: "",
 };
-
-interface cardType {
-  number: string;
-  expiry: string;
-  cvc: string;
-  name: string;
-  focus: Focused;
-}
-
-interface ApiRes {
-  data: {
-    mode: "redirect" | "pin" | "avs_noauth" | "otp";
-    redirect: string;
-    fields: string[];
-    hash: string;
-  };
-}
 
 const CardComponent = () => {
   const [state, setState] = useState<cardType>({
@@ -140,7 +126,7 @@ const CardComponent = () => {
 
     const finalPayload = {
       ...values,
-      paymentType: "CARD",
+      paymentType: paymentTypes.CARD,
       ...values,
       number: trimmedValue,
       currency: walletState.currency,
@@ -150,7 +136,7 @@ const CardComponent = () => {
 
     const {
       data: { data },
-    }: { data: ApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+    }: { data: CardApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
       data: res,
     });
 
@@ -167,22 +153,27 @@ const CardComponent = () => {
     const finalPayload = {
       ...values,
       uniqueRef: hash,
-      paymentType: "CARD",
+      paymentType: paymentTypes.CARD,
       mode: authType,
     };
     const res = createEncryption(JSON.stringify(finalPayload));
 
     const {
       data: { data },
-    }: { data: ApiRes } = await axiosBaseApi.post("/wallet/authStep", {
+    }: { data: CardApiRes } = await axiosBaseApi.post("/wallet/authStep", {
       data: res,
     });
     if (data.mode === "redirect") {
       window.location.replace(data.redirect);
     } else {
-      setAuthType("otp");
-      setFields(["otp"]);
-      setHash(data.hash);
+      if (data?.status) {
+        const redirectUri = generateRedirectUrl(data);
+        window.location.replace(redirectUri);
+      } else {
+        setAuthType("otp");
+        setFields(["otp"]);
+        setHash(data.hash);
+      }
     }
   };
 

@@ -1,0 +1,10 @@
+export enum paymentTypes {
+  CARD = "CARD",
+  BANK_TRANSFER = "BANK_TRANSFER",
+  BANK_ACCOUNT = "BANK_ACCOUNT",
+  GOOGLE_PAY = "GOOGLE_PAY",
+  APPLE_PAY = "APPLE_PAY",
+  USSD = "USSD",
+  M_PESA = "M_PESA",
+  CRYPTO = "CRYPTO",
+}

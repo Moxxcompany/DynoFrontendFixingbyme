@@ -34,6 +34,36 @@ const extractLinks = (text: string) => {
   return text.match(regex);
 };
 
+const getTime = (dateStamp: any) => {
+  const date = new Date(dateStamp);
+
+  let hours = date.getHours();
+  let minutes: any = date.getMinutes();
+  let ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  let strTime = hours + ":" + minutes + " " + ampm;
+  return strTime;
+};
+
+const generateRedirectUrl = (data: any) => {
+  let url;
+  const status = data?.status;
+  if (status === "successful") {
+    url =
+      process.env.NEXT_PUBLIC_SERVER_URL +
+      "/payment/success?response=" +
+      JSON.stringify(data);
+  } else {
+    url =
+      process.env.NEXT_PUBLIC_SERVER_URL +
+      "/payment/failed?response=" +
+      JSON.stringify(data);
+  }
+  return url;
+};
+
 export {
   a11yProps,
   inputHelper,
@@ -45,4 +75,6 @@ export {
   extractLinks,
   getRandomNumber,
   createEncryption,
+  getTime,
+  generateRedirectUrl,
 };
