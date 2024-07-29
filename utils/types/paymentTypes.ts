@@ -95,16 +95,26 @@ export interface BankTransferApiRes {
   };
 }
 
-export interface BankAccountApiRes {
+export interface CommonApiRes {
   data: {
     hash: string;
     redirect: string;
+    qr_image: string;
   };
 }
 
-export interface BankAccountDetails {
+export interface USSDApiRes {
+  data: {
+    note: string;
+    hash: string;
+    payment_code: string;
+  };
+}
+
+export interface CommonDetails {
   hash: string;
   redirect: string;
+  qr_image: string;
 }
 
 export interface transferDetails {

@@ -7,4 +7,5 @@ export enum paymentTypes {
   USSD = "USSD",
   M_PESA = "M_PESA",
   CRYPTO = "CRYPTO",
+  QR_CODE = "QR_CODE",
 }

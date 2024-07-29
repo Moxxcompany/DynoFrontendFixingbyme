@@ -6,13 +6,16 @@ import BankTransferComponent from "@/Components/Page/Payment/BankTransferCompone
 
 import CardComponent from "@/Components/Page/Payment/CardComponent";
 import GooglePayComponent from "@/Components/Page/Payment/GooglePayComponent";
+import MPesaComponent from "@/Components/Page/Payment/MPesaComponent";
+import QRCodeComponent from "@/Components/Page/Payment/QRCodeComponent";
+import USSDComponent from "@/Components/Page/Payment/USSDComponent";
 import { createEncryption } from "@/helpers";
 import useTokenData from "@/hooks/useTokenData";
 import { paymentTypes } from "@/utils/enums";
 import { rootReducer } from "@/utils/types";
 import {
-  BankAccountApiRes,
-  BankAccountDetails,
+  CommonApiRes,
+  CommonDetails,
   BankTransferApiRes,
   transferDetails,
 } from "@/utils/types/paymentTypes";
@@ -60,6 +63,11 @@ const paymentMethods = [
     icon: <AccountBalanceRounded />,
   },
   {
+    label: "NQR",
+    value: paymentTypes.QR_CODE,
+    icon: <AccountBalanceRounded />,
+  },
+  {
     label: "Crypto",
     value: paymentTypes.CRYPTO,
     icon: <CurrencyBitcoinRounded />,
@@ -71,7 +79,7 @@ const Payment = () => {
   const tokenData = useTokenData();
   const [paymentType, setPaymentType] = useState(paymentTypes.CARD);
   const [transferDetails, setTransferDetails] = useState<transferDetails>();
-  const [accountDetails, setAccountDetails] = useState<BankAccountDetails>();
+  const [accountDetails, setAccountDetails] = useState<CommonDetails>();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
 
   useEffect(() => {
@@ -80,6 +88,12 @@ const Payment = () => {
     }
     if (paymentType === paymentTypes.BANK_ACCOUNT) {
       initiateBankAccountTransfer();
+    }
+    if (paymentType === paymentTypes.M_PESA) {
+      initiateMpesaTransfer();
+    }
+    if (paymentType === paymentTypes.QR_CODE) {
+      initiateQRCodeTransfer();
     }
     if (
       paymentType === paymentTypes.GOOGLE_PAY ||
@@ -118,12 +132,41 @@ const Payment = () => {
 
     const {
       data: { data },
-    }: { data: BankAccountApiRes } = await axiosBaseApi.post(
-      "/wallet/addFunds",
-      {
-        data: res,
-      }
-    );
+    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+      data: res,
+    });
+    setAccountDetails(data);
+  };
+
+  const initiateMpesaTransfer = async () => {
+    const finalPayload = {
+      paymentType,
+      currency: walletState.currency,
+      amount: walletState.amount,
+    };
+    const res = createEncryption(JSON.stringify(finalPayload));
+
+    const {
+      data: { data },
+    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+      data: res,
+    });
+    setAccountDetails(data);
+  };
+
+  const initiateQRCodeTransfer = async () => {
+    const finalPayload = {
+      paymentType,
+      currency: walletState.currency,
+      amount: walletState.amount,
+    };
+    const res = createEncryption(JSON.stringify(finalPayload));
+
+    const {
+      data: { data },
+    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+      data: res,
+    });
     setAccountDetails(data);
   };
 
@@ -137,12 +180,9 @@ const Payment = () => {
 
     const {
       data: { data },
-    }: { data: BankAccountApiRes } = await axiosBaseApi.post(
-      "/wallet/addFunds",
-      {
-        data: res,
-      }
-    );
+    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+      data: res,
+    });
     setAccountDetails(data);
   };
 
@@ -256,6 +296,13 @@ const Payment = () => {
             {(paymentType === paymentTypes.GOOGLE_PAY ||
               paymentType === paymentTypes.APPLE_PAY) && (
               <GooglePayComponent accountDetails={accountDetails} />
+            )}
+            {paymentType === paymentTypes.USSD && <USSDComponent />}
+            {paymentType === paymentTypes.M_PESA && (
+              <MPesaComponent accountDetails={accountDetails} />
+            )}
+            {paymentType === paymentTypes.QR_CODE && (
+              <QRCodeComponent accountDetails={accountDetails} />
             )}
           </Box>
         </Grid>

@@ -1,33 +1,26 @@
-import { Box, Button, Divider, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 import { useTheme } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
-import { generateRedirectUrl, getTime } from "@/helpers";
+import { generateRedirectUrl } from "@/helpers";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import axiosBaseApi from "@/axiosConfig";
 import { useRouter } from "next/router";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { CommonDetails } from "@/utils/types/paymentTypes";
-import {
-  CallMissedOutgoingRounded,
-  NorthEastRounded,
-} from "@mui/icons-material";
+import { NorthEastRounded } from "@mui/icons-material";
 
-interface BankAccountProps {
+interface QRCodeProps {
   accountDetails?: CommonDetails;
 }
 
-const timer = (ms: any) => new Promise((res) => setTimeout(res, ms));
-
-const BankAccountComponent = ({ accountDetails }: BankAccountProps) => {
+const QRCodeComponent = ({ accountDetails }: QRCodeProps) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
   const [loading, setLoading] = useState(true);
-  const [checkVerify, setCheckVerify] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     if (accountDetails) {
@@ -37,44 +30,23 @@ const BankAccountComponent = ({ accountDetails }: BankAccountProps) => {
   }, [accountDetails]);
 
   const handleSubmit = async () => {
-    window.open(accountDetails?.redirect);
-    setCheckVerify(true);
-  };
-
-  useEffect(() => {
-    if (checkVerify) {
-      verifyStatus();
-    }
-  }, [checkVerify]);
-
-  const verifyStatus = async () => {
-    let counter = 0;
-
-    while (checkVerify) {
-      await timer(5000);
-      counter++;
-      try {
-        const {
-          data: { data },
-        } = await axiosBaseApi.post("/wallet/verifyPayment", {
-          uniqueRef: accountDetails?.hash,
-        });
-        const redirectUri = generateRedirectUrl(data);
-        setCheckVerify(false);
-        window.location.replace(redirectUri);
-      } catch (e: any) {
-        const message = e.response.data.message ?? e.message;
-        // dispatch({
-        //   type: TOAST_SHOW,
-        //   payload: {
-        //     message: message,
-        //     severity: "error",
-        //   },
-        // });
-      }
-    }
-    if (counter > 20) {
-      setCheckVerify(false);
+    try {
+      const {
+        data: { data },
+      } = await axiosBaseApi.post("/wallet/verifyPayment", {
+        uniqueRef: accountDetails?.hash,
+      });
+      const redirectUri = generateRedirectUrl(data);
+      window.location.replace(redirectUri);
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
     }
   };
 
@@ -140,31 +112,17 @@ const BankAccountComponent = ({ accountDetails }: BankAccountProps) => {
                 gap: 2,
               }}
             >
-              <Box
-                sx={{
-                  fontSize: 64,
-                  background: theme.palette.secondary.main,
-                  width: "fit-content",
-                  lineHeight: 0,
-                  p: 1.5,
-                  borderRadius: "50%",
-                  color: "#fff",
-                }}
-              >
-                <NorthEastRounded fontSize="inherit" />
+              <Box sx={{}}>
+                <img src={accountDetails?.qr_image} />
               </Box>
-              <Typography>
-                You will be redirected to complete this payment.
+              <Typography textAlign={"center"}>
+                Scan the QR Code above on your Bank’s mobile app to complete the
+                payment.
               </Typography>
             </Box>
           </Box>
-          <Button
-            variant="rounded"
-            sx={{ mt: 3 }}
-            disabled={checkVerify}
-            onClick={handleSubmit}
-          >
-            Proceed
+          <Button variant="rounded" sx={{ mt: 3 }} onClick={handleSubmit}>
+            I have completed this payment
           </Button>
         </>
       )}
@@ -172,4 +130,4 @@ const BankAccountComponent = ({ accountDetails }: BankAccountProps) => {
   );
 };
 
-export default BankAccountComponent;
+export default QRCodeComponent;

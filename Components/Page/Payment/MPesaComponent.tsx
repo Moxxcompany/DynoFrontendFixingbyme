@@ -15,19 +15,16 @@ import {
   NorthEastRounded,
 } from "@mui/icons-material";
 
-interface BankAccountProps {
+interface MPesaProps {
   accountDetails?: CommonDetails;
 }
 
-const timer = (ms: any) => new Promise((res) => setTimeout(res, ms));
-
-const BankAccountComponent = ({ accountDetails }: BankAccountProps) => {
+const MPesaComponent = ({ accountDetails }: MPesaProps) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
   const [loading, setLoading] = useState(true);
   const [checkVerify, setCheckVerify] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     if (accountDetails) {
@@ -37,44 +34,24 @@ const BankAccountComponent = ({ accountDetails }: BankAccountProps) => {
   }, [accountDetails]);
 
   const handleSubmit = async () => {
-    window.open(accountDetails?.redirect);
-    setCheckVerify(true);
-  };
-
-  useEffect(() => {
-    if (checkVerify) {
-      verifyStatus();
-    }
-  }, [checkVerify]);
-
-  const verifyStatus = async () => {
-    let counter = 0;
-
-    while (checkVerify) {
-      await timer(5000);
-      counter++;
-      try {
-        const {
-          data: { data },
-        } = await axiosBaseApi.post("/wallet/verifyPayment", {
-          uniqueRef: accountDetails?.hash,
-        });
-        const redirectUri = generateRedirectUrl(data);
-        setCheckVerify(false);
-        window.location.replace(redirectUri);
-      } catch (e: any) {
-        const message = e.response.data.message ?? e.message;
-        // dispatch({
-        //   type: TOAST_SHOW,
-        //   payload: {
-        //     message: message,
-        //     severity: "error",
-        //   },
-        // });
-      }
-    }
-    if (counter > 20) {
+    try {
+      const {
+        data: { data },
+      } = await axiosBaseApi.post("/wallet/verifyPayment", {
+        uniqueRef: accountDetails?.hash,
+      });
+      const redirectUri = generateRedirectUrl(data);
       setCheckVerify(false);
+      window.location.replace(redirectUri);
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
     }
   };
 
@@ -154,17 +131,12 @@ const BankAccountComponent = ({ accountDetails }: BankAccountProps) => {
                 <NorthEastRounded fontSize="inherit" />
               </Box>
               <Typography>
-                You will be redirected to complete this payment.
+                You need to complete this payment from your M-PESA App.
               </Typography>
             </Box>
           </Box>
-          <Button
-            variant="rounded"
-            sx={{ mt: 3 }}
-            disabled={checkVerify}
-            onClick={handleSubmit}
-          >
-            Proceed
+          <Button variant="rounded" sx={{ mt: 3 }} onClick={handleSubmit}>
+            I have completed this payment
           </Button>
         </>
       )}
@@ -172,4 +144,4 @@ const BankAccountComponent = ({ accountDetails }: BankAccountProps) => {
   );
 };
 
-export default BankAccountComponent;
+export default MPesaComponent;

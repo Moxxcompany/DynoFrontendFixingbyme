@@ -127,7 +127,6 @@ const CardComponent = () => {
     const finalPayload = {
       ...values,
       paymentType: paymentTypes.CARD,
-      ...values,
       number: trimmedValue,
       currency: walletState.currency,
       amount: walletState.amount,

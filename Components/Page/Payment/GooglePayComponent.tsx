@@ -9,11 +9,11 @@ import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import axiosBaseApi from "@/axiosConfig";
 import { useRouter } from "next/router";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { BankAccountDetails } from "@/utils/types/paymentTypes";
+import { CommonDetails } from "@/utils/types/paymentTypes";
 import { NorthEastRounded } from "@mui/icons-material";
 
 interface BankAccountProps {
-  accountDetails?: BankAccountDetails;
+  accountDetails?: CommonDetails;
 }
 
 const timer = (ms: any) => new Promise((res) => setTimeout(res, ms));
