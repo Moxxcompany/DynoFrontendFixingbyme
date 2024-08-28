@@ -64,6 +64,29 @@ const generateRedirectUrl = (data: any) => {
   return url;
 };
 
+const getCurrencySymbol = (currency: any, amount: any) => {
+  switch (currency) {
+    case "NGN":
+      return "₦ " + amount;
+    case "KES":
+      return amount;
+    case "UGX":
+      return amount;
+    case "GHS":
+      return "₵ " + amount;
+    case "RWF":
+      return "₣ " + amount;
+    case "EUR":
+      return "€ " + amount;
+    case "GBP":
+      return "£ " + amount;
+    case "USD":
+      return "$ " + amount;
+    default:
+      return amount;
+  }
+};
+
 export {
   a11yProps,
   inputHelper,
@@ -77,4 +100,5 @@ export {
   createEncryption,
   getTime,
   generateRedirectUrl,
+  getCurrencySymbol,
 };

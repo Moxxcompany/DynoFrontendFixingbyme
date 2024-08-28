@@ -12,9 +12,8 @@ import {
 
 const walletInitialState: IWalletReducer = {
   walletList: [],
-  totalBalance: 0,
   loading: false,
-  amount: 10,
+  amount: 0,
   currency: "USD",
   paymentData: {
     mode: "",
@@ -40,9 +39,7 @@ const walletReducer = (state = walletInitialState, action: ReducerAction) => {
       };
 
     case WALLET_UPDATE:
-      const index = state.walletList.findIndex(
-        (x) => x.wallet_id === payload.id
-      );
+      const index = state.walletList.findIndex((x) => x.id === payload.id);
       const tempArray = [...state.walletList];
       tempArray[index] = payload.data;
       return {
@@ -55,12 +52,11 @@ const walletReducer = (state = walletInitialState, action: ReducerAction) => {
       return {
         ...state,
         loading: false,
-        walletList: payload.data,
-        totalBalance: payload.totalBalance,
+        walletList: payload,
       };
 
     case WALLET_DELETE:
-      const tempList = state.walletList.filter((x) => x.wallet_id !== payload);
+      const tempList = state.walletList.filter((x) => x.id !== payload);
       return {
         ...state,
         loading: false,

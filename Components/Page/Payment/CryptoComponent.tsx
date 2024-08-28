@@ -1,4 +1,11 @@
-import { Box, Button, Collapse, Divider, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Collapse,
+  Divider,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 import { useTheme } from "@mui/material";
@@ -19,35 +26,53 @@ import {
   CommonDetails,
   currencyData,
 } from "@/utils/types/paymentTypes";
-import {
-  CallMissedOutgoingRounded,
-  NorthEastRounded,
-} from "@mui/icons-material";
-import { paymentTypes } from "@/utils/enums";
+
 import FormManager from "../Common/FormManager";
+import * as yup from "yup";
+import TextBox from "@/Components/UI/TextBox";
 import Dropdown from "@/Components/UI/Dropdown";
+import { paymentTypes } from "@/utils/enums";
+import { CopyAllRounded, NorthEastRounded } from "@mui/icons-material";
 
-const timer = (ms: any) => new Promise((res) => setTimeout(res, ms));
+const initialValue = {
+  network: "MTN",
+  mobile: "",
+};
 
-const currencyList = ["EUR", "GBP", "NGN"];
+const currencyList = [
+  "BTC",
+  "ETH",
+  "BNB",
+  "ADA",
+  "SOL",
+  "XRP",
+  "DOGE",
+  "USDT",
+  "LTC",
+];
 
-const BankAccountComponent = () => {
+interface CryptoDetails {
+  qr_code: string;
+  address: string;
+  hash: string;
+}
+
+const CyrptoComponent = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
   const [loading, setLoading] = useState(true);
-  const [checkVerify, setCheckVerify] = useState(false);
-  const [accountDetails, setAccountDetails] = useState<CommonDetails>();
+
   const [currencyRates, setCurrencyRates] = useState<currencyData[]>();
   const [selectedCurrency, setSelectedCurrency] = useState<currencyData>();
+  const [checkVerify, setCheckVerify] = useState(false);
+  const [cryptoDetails, setCryptoDetails] = useState<CryptoDetails>({
+    qr_code:
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJQAAACUCAYAAAB1PADUAAAAAklEQVR4AewaftIAAATdSURBVO3BQY4cSRIEQdNA/f/Lun30UwCJ9GqSOyaCP1K15KRq0UnVopOqRSdVi06qFp1ULTqpWnRSteikatFJ1aKTqkUnVYtOqhadVC06qVr0yUtAfpOaCcikZgLyTWpugDyhZgLym9S8cVK16KRq0UnVok+WqdkE5JvUTEAmNTdAnlDzhppNQDadVC06qVp0UrXoky8D8oSaJ9RMQJ4AMql5Q80EZAJyo+YJIE+o+aaTqkUnVYtOqhZ98o8DcqNmAjKpuQFyo2YCMqn5LzmpWnRSteikatEn/zg1T6h5Q80E5AbIpOb/2UnVopOqRSdViz75MjV/EpBJzQ2QSc0E5A0gk5o31PxNTqoWnVQtOqla9MkyIL8JyKTmCSCTmgnIpGYCMqmZgExqJiCTmhsgf7OTqkUnVYtOqhbhj/zDgExqboBMap4A8k1q/mUnVYtOqhadVC365CUgk5oJyI2aCcgTaiYgk5ongExqnlAzAXkDyKTmBsikZgJyo+aNk6pFJ1WLTqoW4Y8sAnKjZgIyqXkCyBNqboA8oeYGyBtqJiA3aiYgk5pvOqladFK16KRqEf7IC0AmNTdAJjU3QCY1N0AmNROQSc0EZFJzA+RGzQ2QSc0bQJ5Qs+mkatFJ1aKTqkX4I38QkBs1E5BNar4JyKTmBsgTap4AMqnZdFK16KRq0UnVIvyRF4A8oeYJIJOa3wTkCTU3QG7UvAHkRs03nVQtOqladFK16JNlam6ATGomIJOaCciNmgnIpGYCMqnZBGRS8wSQSc0mIJOaN06qFp1ULTqpWoQ/8gKQGzVPALlRMwF5Q80EZFKzCciNmgnIpGYCsknNGydVi06qFp1ULfrkJTUTkBsgN2reUDMBuQEyqZmA3Ki5ATKpeULNBOQJNb/ppGrRSdWik6pF+CN/MSCTmjeATGpugDyhZgIyqZmA3Ki5ATKpmYBMar7ppGrRSdWik6pFnywDMqmZgDyhZgLyhJobIJOaGzU3QN5QMwGZ1ExqJiBPAJnUvHFSteikatFJ1aJPXgIyqZmATGomIJOaCcgTaiYgTwC5ATKpeUPNBOQJIJOaCciNmk0nVYtOqhadVC3CH/mDgExq3gAyqXkCyCY1N0AmNROQb1Kz6aRq0UnVopOqRZ8sAzKpmYBMam6ATGpu1ExAJjVvqJmA3ACZ1NwAeUPNE0AmNW+cVC06qVp0UrXok2VqbtQ8oeYGyCY1b6h5Q80TQCYgk5rfdFK16KRq0UnVok9eAvKb1Dyh5gbIpGYCMqn5TUAmNZvUbDqpWnRSteikatEny9RsAvIGkBs1E5AbIL9JzRNq/qSTqkUnVYtOqhZ98mVAnlDzhJoJyKRmAjIBmdTcALkBcqPmBsgmIDdqNp1ULTqpWnRSteiTfxyQSc0E5EbNBGRSc6NmAnIDZFIzAZnUTEDeUDMBmdS8cVK16KRq0UnVok/+Y9RMQG6ATGomIJOaCcgTap5QMwH5k06qFp1ULTqpWvTJl6n5JjUTkE1qbtTcqJmATEAmNW+ouQEyqdl0UrXopGrRSdWiT5YB+U1AbtRMQG7U3AC5UTMB+U1AJjW/6aRq0UnVopOqRfgjVUtOqhadVC06qVp0UrXopGrRSdWik6pFJ1WLTqoWnVQtOqladFK16KRq0UnVopOqRf8DrEVOIaD9/IUAAAAASUVORK5CYII=",
+    hash: "any",
+    address: "1AgYvJWb3h6eAaJdsHaZrEewAXzr5z3fYu",
+  });
   const [loading2, setLoading2] = useState(false);
-  const [collapse, setCollapse] = useState(false);
-
-  useEffect(() => {
-    if (accountDetails) {
-      setLoading2(false);
-    }
-  }, [accountDetails]);
 
   useEffect(() => {
     if (walletState.amount && walletState.currency) {
@@ -63,6 +88,7 @@ const BankAccountComponent = () => {
         source: walletState.currency,
         amount: walletState.amount,
         currencyList,
+        fixedDecimal: false,
       });
       setCurrencyRates(data);
       setSelectedCurrency(data[0]);
@@ -79,74 +105,67 @@ const BankAccountComponent = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    window.open(accountDetails?.redirect);
-    setCheckVerify(true);
-  };
-
-  useEffect(() => {
-    if (checkVerify) {
-      verifyStatus();
-    }
-  }, [checkVerify]);
-
-  const initiateBankAccountTransfer = async () => {
-    const finalPayload = {
-      paymentType: paymentTypes.BANK_ACCOUNT,
-      currency: selectedCurrency?.currency,
-      amount: selectedCurrency?.amount,
-    };
-    console.log(finalPayload);
-    const res = createEncryption(JSON.stringify(finalPayload));
-    setLoading2(true);
-    setCollapse(true);
-    const {
-      data: { data },
-    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
-      data: res,
-    });
-    setAccountDetails(data);
-  };
-
-  const verifyStatus = async () => {
-    let counter = 0;
-
-    while (checkVerify) {
-      await timer(5000);
-      counter++;
-      try {
-        const {
-          data: { data },
-        } = await axiosBaseApi.post("/wallet/verifyPayment", {
-          uniqueRef: accountDetails?.hash,
-        });
-        const redirectUri = generateRedirectUrl(data);
-
-        window.location.replace(redirectUri);
-      } catch (e: any) {
-        const message = e.response.data.message ?? e.message;
-        // dispatch({
-        //   type: TOAST_SHOW,
-        //   payload: {
-        //     message: message,
-        //     severity: "error",
-        //   },
-        // });
+  const handleSubmit = async (values: any) => {
+    try {
+      const finalPayload = {
+        currency: selectedCurrency?.currency,
+        amount: selectedCurrency?.amount,
+        paymentType: paymentTypes.CRYPTO,
+      };
+      const res = createEncryption(JSON.stringify(finalPayload));
+      setCheckVerify(true);
+      setLoading2(true);
+      const {
+        data: { data },
+      }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+        data: res,
+      });
+      if (data.redirect) {
+        window.location.replace(data.redirect);
+      } else {
+        setCryptoDetails(data);
+        setLoading2(false);
       }
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
     }
-    if (counter > 20) {
-      setCheckVerify(false);
+  };
+
+  const handleVerify = async () => {
+    try {
+      const {
+        data: { data },
+      } = await axiosBaseApi.post("/wallet/verifyPayment", {
+        uniqueRef: cryptoDetails?.hash,
+      });
+      const redirectUri = generateRedirectUrl(data);
+      window.location.replace(redirectUri);
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
     }
   };
 
   return (
     <Box
       sx={{
-        maxWidth: "550px",
+        maxWidth: "450px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        mt: 5,
       }}
     >
       {loading ? (
@@ -172,8 +191,10 @@ const BankAccountComponent = () => {
               flexDirection: "column",
               p: 3,
               mt: 2,
-              background: theme.palette.secondary.main + "11",
-              border: "1px solid #a2a2a2",
+              minWidth: 500,
+              width: "100%",
+              // background: theme.palette.secondary.main + "11",
+              // border: "1px solid #a2a2a2",
               borderRadius: "5px",
               gap: 2,
               "& .topText": {
@@ -255,7 +276,8 @@ const BankAccountComponent = () => {
                 </Typography>
               </Box>
             </Box>
-            <Collapse in={!collapse}>
+
+            <Collapse in={!checkVerify}>
               <Box
                 sx={{
                   mt: 2,
@@ -281,7 +303,6 @@ const BankAccountComponent = () => {
                         const currentIndex = currencyRates?.findIndex(
                           (x) => x.currency === value
                         );
-
                         setSelectedCurrency(currencyRates[currentIndex]);
                       }
                     }}
@@ -291,8 +312,9 @@ const BankAccountComponent = () => {
                   <Box sx={{ mt: 3, textAlign: "right" }}>
                     <Button
                       variant="rounded"
-                      disabled={loading2}
-                      onClick={() => initiateBankAccountTransfer()}
+                      type="submit"
+                      disabled={checkVerify}
+                      onClick={handleSubmit}
                     >
                       Pay
                     </Button>
@@ -301,7 +323,7 @@ const BankAccountComponent = () => {
               </Box>
             </Collapse>
 
-            <Collapse in={collapse}>
+            <Collapse in={checkVerify}>
               {loading2 ? (
                 <>
                   <Typography textAlign={"center"}>Please wait</Typography>
@@ -318,7 +340,7 @@ const BankAccountComponent = () => {
                   </Box>
                 </>
               ) : (
-                <Box sx={{ textAlign: "center", mt: 3 }}>
+                <Box>
                   <Box
                     sx={{
                       display: "flex",
@@ -329,29 +351,50 @@ const BankAccountComponent = () => {
                   >
                     <Box
                       sx={{
-                        fontSize: 64,
-                        background: theme.palette.secondary.main,
-                        width: "fit-content",
-                        lineHeight: 0,
-                        p: 1.5,
-                        borderRadius: "50%",
-                        color: "#fff",
+                        "& img": {
+                          maxHeight: "350px",
+                          minHeight: "250px",
+                          width: "auto",
+                        },
                       }}
                     >
-                      <NorthEastRounded fontSize="inherit" />
+                      <img src={cryptoDetails?.qr_code} />
                     </Box>
-                    <Typography>
-                      You will be redirected to complete this payment.
+                    <Box sx={{ width: "100%" }}>
+                      <TextBox
+                        value={cryptoDetails.address}
+                        fullWidth
+                        label={"address"}
+                        InputProps={{
+                          endAdornment: (
+                            <IconButton
+                              onClick={() => {
+                                navigator.clipboard.writeText(
+                                  cryptoDetails.address
+                                );
+                                alert("copied");
+                              }}
+                            >
+                              <CopyAllRounded />
+                            </IconButton>
+                          ),
+                        }}
+                      />
+                    </Box>
+                    <Typography textAlign={"center"}>
+                      Scan the QR Code above on your Crypto app or Copy the
+                      above address to complete the payment
                     </Typography>
                   </Box>
-                  <Button
-                    variant="rounded"
-                    sx={{ mt: 3 }}
-                    disabled={checkVerify}
-                    onClick={handleSubmit}
-                  >
-                    Proceed
-                  </Button>
+                  <Box sx={{ textAlign: "center" }}>
+                    <Button
+                      variant="rounded"
+                      sx={{ mt: 3 }}
+                      onClick={handleVerify}
+                    >
+                      I have completed this payment
+                    </Button>
+                  </Box>
                 </Box>
               )}
             </Collapse>
@@ -362,4 +405,4 @@ const BankAccountComponent = () => {
   );
 };
 
-export default BankAccountComponent;
+export default CyrptoComponent;

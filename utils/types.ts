@@ -29,7 +29,6 @@ export interface companyReducer {
 }
 export interface walletReducer {
   walletList: IWallet[];
-  totalBalance: number;
   loading: boolean;
   amount: number;
   currency: string;
@@ -51,13 +50,15 @@ export interface ICompany {
 }
 
 export interface IWallet {
-  company_id: number;
+  id: string;
   user_id: number;
-  wallet_id: number;
-  company_name: string;
   amount: number;
-  photo: string;
-  email: string;
+  wallet_type: string;
+  wallet_address: string;
+  wallet_account_id: string;
+  createdAt: string;
+  updatedAt: string;
+  currency_type: string;
 }
 
 export interface menuItem {

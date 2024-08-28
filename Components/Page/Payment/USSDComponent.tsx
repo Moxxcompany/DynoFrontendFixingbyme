@@ -4,12 +4,21 @@ import React, { useEffect, useState } from "react";
 import { useTheme } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
-import { createEncryption, generateRedirectUrl, getTime } from "@/helpers";
+import {
+  createEncryption,
+  generateRedirectUrl,
+  getCurrencySymbol,
+  getTime,
+} from "@/helpers";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import axiosBaseApi from "@/axiosConfig";
 import { useRouter } from "next/router";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { transferDetails, USSDApiRes } from "@/utils/types/paymentTypes";
+import {
+  currencyData,
+  transferDetails,
+  USSDApiRes,
+} from "@/utils/types/paymentTypes";
 import FormManager from "../Common/FormManager";
 import * as yup from "yup";
 import Dropdown from "@/Components/UI/Dropdown";
@@ -46,6 +55,9 @@ const USSDComponent = () => {
     hash: "",
   });
   const [currentBank, setCurrentBank] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [selectedCurrency, setSelectedCurrency] = useState<currencyData>();
+  const [transferDetails, setTransferDetails] = useState<transferDetails>();
 
   const cardPaymentSchema = yup.object().shape({
     account_number: yup
@@ -58,6 +70,44 @@ const USSDComponent = () => {
         return true;
       }),
   });
+
+  useEffect(() => {
+    if (walletState.amount && walletState.currency) {
+      if (walletState.currency !== "NGN") {
+        getCurrencyRate();
+      } else {
+        setSelectedCurrency({
+          currency: "NGN",
+          amount: walletState.amount.toString(),
+          transferRate: "1",
+        });
+      }
+    }
+  }, [walletState.amount]);
+
+  const getCurrencyRate = async () => {
+    try {
+      const {
+        data: { data },
+      } = await axiosBaseApi.post("/wallet/getCurrencyRates", {
+        source: walletState.currency,
+        amount: walletState.amount,
+        currencyList: ["NGN"],
+      });
+
+      setSelectedCurrency(data[0]);
+      setLoading(false);
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -86,8 +136,8 @@ const USSDComponent = () => {
     const finalPayload = {
       ...values,
       paymentType: paymentTypes.USSD,
-      currency: walletState.currency,
-      amount: walletState.amount,
+      currency: selectedCurrency?.currency,
+      amount: selectedCurrency?.amount,
     };
     const res = createEncryption(JSON.stringify(finalPayload));
 
@@ -102,69 +152,150 @@ const USSDComponent = () => {
   return (
     <Box
       sx={{
-        maxWidth: "450px",
+        maxWidth: "500px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        width: "100%",
         mt: 5,
       }}
     >
       {!ussdDetails.note ? (
-        <>
-          <Typography>Please Choose your bank to begin payment</Typography>
-          <Box sx={{ mt: 5, width: "100%" }}>
-            <FormManager
-              initialValues={{ account_number: "0" }}
-              yupSchema={cardPaymentSchema}
-              onSubmit={handleInitiate}
+        loading ? (
+          <Box
+            sx={{
+              height: "375px",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <LoadingIcon size={75} />
+          </Box>
+        ) : (
+          <>
+            <Typography>Please Choose your bank to begin payment</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+                mt: 3,
+                "& .topText": {
+                  color: "text.disabled",
+                  fontSize: 12,
+                  textTransform: "uppercase",
+                },
+                "& .mainText": {
+                  fontWeight: 600,
+                  fontSize: 22,
+                },
+              }}
             >
-              {({
-                errors,
-                handleBlur,
-                handleChange,
-                submitDisable,
-                touched,
-                values,
-              }) => (
-                <Box sx={{ width: "100%" }}>
-                  <Dropdown
-                    label="Select Bank"
-                    name="account_number"
-                    value={values.account_number}
-                    menuItems={BankList}
-                    fullWidth
-                    getValue={(value: any) => {
-                      const e: any = {
-                        target: {
-                          value,
-                          name: "account_number",
-                        },
-                      };
-                      handleChange(e);
-                    }}
-                    onBlur={handleBlur}
-                    error={touched.account_number && errors.account_number}
-                    helperText={
-                      touched.account_number &&
-                      errors.account_number &&
-                      errors.account_number
-                    }
-                  />
-                  <Box sx={{ mt: 3, textAlign: "right" }}>
-                    <Button
-                      variant="rounded"
-                      type="submit"
-                      disabled={submitDisable}
-                      // disabled={isValid === false ? true : submitDisable}
+              <Box>
+                <Typography className="topText">Amount</Typography>
+                <Typography className="mainText">
+                  {selectedCurrency?.currency +
+                    " " +
+                    (transferDetails?.transfer_amount ??
+                      selectedCurrency?.amount)}
+                  {selectedCurrency?.currency !== walletState.currency && (
+                    <Typography
+                      component={"span"}
+                      ml={1}
+                      fontSize={14}
+                      color="text.disabled"
                     >
-                      Pay ${walletState.amount}
-                    </Button>
-                  </Box>
+                      (
+                      {walletState.currency +
+                        " " +
+                        getCurrencySymbol(
+                          walletState.currency,
+                          walletState.amount
+                        )}
+                      )
+                    </Typography>
+                  )}
+                </Typography>
+              </Box>
+              {selectedCurrency?.currency !== walletState.currency && (
+                <Box>
+                  <Typography className="topText" textAlign={"right"}>
+                    Transfer Rate
+                  </Typography>
+                  <Typography fontSize={14} fontWeight={600}>
+                    ({" "}
+                    {walletState.currency +
+                      " " +
+                      getCurrencySymbol(walletState.currency, 1)}
+                    {" = "}
+                    {selectedCurrency &&
+                      " " +
+                        getCurrencySymbol(
+                          selectedCurrency.currency,
+                          selectedCurrency.transferRate
+                        )}
+                    )
+                  </Typography>
                 </Box>
               )}
-            </FormManager>
-          </Box>
-        </>
+            </Box>
+            <Box sx={{ mt: 5, width: "100%" }}>
+              <FormManager
+                initialValues={{ account_number: "0" }}
+                yupSchema={cardPaymentSchema}
+                onSubmit={handleInitiate}
+              >
+                {({
+                  errors,
+                  handleBlur,
+                  handleChange,
+                  submitDisable,
+                  touched,
+                  values,
+                }) => (
+                  <Box sx={{ width: "100%" }}>
+                    <Dropdown
+                      label="Select Bank"
+                      name="account_number"
+                      value={values.account_number}
+                      menuItems={BankList}
+                      fullWidth
+                      getValue={(value: any) => {
+                        const e: any = {
+                          target: {
+                            value,
+                            name: "account_number",
+                          },
+                        };
+                        handleChange(e);
+                      }}
+                      onBlur={handleBlur}
+                      error={touched.account_number && errors.account_number}
+                      helperText={
+                        touched.account_number &&
+                        errors.account_number &&
+                        errors.account_number
+                      }
+                    />
+                    <Box sx={{ mt: 3, textAlign: "right" }}>
+                      <Button
+                        variant="rounded"
+                        type="submit"
+                        disabled={submitDisable}
+                        // disabled={isValid === false ? true : submitDisable}
+                      >
+                        Pay ${walletState.amount}
+                      </Button>
+                    </Box>
+                  </Box>
+                )}
+              </FormManager>
+            </Box>
+          </>
+        )
       ) : (
         <>
           <Box

@@ -3,7 +3,7 @@ import { AnyObjectSchema } from "yup";
 export interface FormManagerProps {
   children: (arg0: childrenProps) => JSX.Element | JSX.Element[];
   initialValues: Values;
-  yupSchema: AnyObjectSchema;
+  yupSchema?: AnyObjectSchema;
   onSubmit: (values: Values) => void | Promise<any>;
 }
 

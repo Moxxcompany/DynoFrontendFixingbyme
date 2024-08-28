@@ -5,7 +5,7 @@ export enum paymentTypes {
   GOOGLE_PAY = "GOOGLE_PAY",
   APPLE_PAY = "APPLE_PAY",
   USSD = "USSD",
-  M_PESA = "M_PESA",
+  MOBILE_MONEY = "MOBILE_MONEY",
   CRYPTO = "CRYPTO",
   QR_CODE = "QR_CODE",
 }

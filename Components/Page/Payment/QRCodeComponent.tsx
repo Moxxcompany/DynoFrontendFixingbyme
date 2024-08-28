@@ -4,23 +4,30 @@ import React, { useEffect, useState } from "react";
 import { useTheme } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
-import { generateRedirectUrl } from "@/helpers";
+import {
+  createEncryption,
+  generateRedirectUrl,
+  getCurrencySymbol,
+} from "@/helpers";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import axiosBaseApi from "@/axiosConfig";
 import { useRouter } from "next/router";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { CommonDetails } from "@/utils/types/paymentTypes";
+import {
+  CommonApiRes,
+  CommonDetails,
+  currencyData,
+} from "@/utils/types/paymentTypes";
 import { NorthEastRounded } from "@mui/icons-material";
+import { paymentTypes } from "@/utils/enums";
 
-interface QRCodeProps {
-  accountDetails?: CommonDetails;
-}
-
-const QRCodeComponent = ({ accountDetails }: QRCodeProps) => {
+const QRCodeComponent = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
   const [loading, setLoading] = useState(true);
+  const [selectedCurrency, setSelectedCurrency] = useState<currencyData>();
+  const [accountDetails, setAccountDetails] = useState<CommonDetails>();
 
   useEffect(() => {
     if (accountDetails) {
@@ -28,6 +35,49 @@ const QRCodeComponent = ({ accountDetails }: QRCodeProps) => {
       console.log(accountDetails);
     }
   }, [accountDetails]);
+
+  useEffect(() => {
+    if (walletState.amount && walletState.currency) {
+      if (walletState.currency !== "NGN") {
+        getCurrencyRate();
+      } else {
+        setSelectedCurrency({
+          currency: "NGN",
+          amount: walletState.amount.toString(),
+          transferRate: "1",
+        });
+      }
+    }
+  }, [walletState.amount]);
+
+  useEffect(() => {
+    if (selectedCurrency?.currency) {
+      initiateQRCodeTransfer();
+    }
+  }, [selectedCurrency]);
+
+  const getCurrencyRate = async () => {
+    try {
+      const {
+        data: { data },
+      } = await axiosBaseApi.post("/wallet/getCurrencyRates", {
+        source: walletState.currency,
+        amount: walletState.amount,
+        currencyList: ["NGN"],
+      });
+
+      setSelectedCurrency(data[0]);
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -48,6 +98,22 @@ const QRCodeComponent = ({ accountDetails }: QRCodeProps) => {
         },
       });
     }
+  };
+
+  const initiateQRCodeTransfer = async () => {
+    const finalPayload = {
+      paymentType: paymentTypes.QR_CODE,
+      currency: selectedCurrency?.currency,
+      amount: selectedCurrency?.amount,
+    };
+    const res = createEncryption(JSON.stringify(finalPayload));
+
+    const {
+      data: { data },
+    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+      data: res,
+    });
+    setAccountDetails(data);
   };
 
   return (
@@ -98,11 +164,57 @@ const QRCodeComponent = ({ accountDetails }: QRCodeProps) => {
               },
             }}
           >
-            <Box>
-              <Typography className="topText">Amount</Typography>
-              <Typography className="mainText">
-                {walletState.currency + " " + walletState.amount}
-              </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Box>
+                <Typography className="topText">Amount</Typography>
+                <Typography className="mainText">
+                  {selectedCurrency?.currency + " " + selectedCurrency?.amount}
+                  {selectedCurrency?.currency !== walletState.currency && (
+                    <Typography
+                      component={"span"}
+                      ml={1}
+                      fontSize={14}
+                      color="text.disabled"
+                    >
+                      (
+                      {walletState.currency +
+                        " " +
+                        getCurrencySymbol(
+                          walletState.currency,
+                          walletState.amount
+                        )}
+                      )
+                    </Typography>
+                  )}
+                </Typography>
+              </Box>
+              {selectedCurrency?.currency !== walletState.currency && (
+                <Box>
+                  <Typography className="topText" textAlign={"right"}>
+                    Transfer Rate
+                  </Typography>
+                  <Typography fontSize={14} fontWeight={600}>
+                    ({" "}
+                    {walletState.currency +
+                      " " +
+                      getCurrencySymbol(walletState.currency, 1)}
+                    {" = "}
+                    {selectedCurrency &&
+                      " " +
+                        getCurrencySymbol(
+                          selectedCurrency.currency,
+                          selectedCurrency.transferRate
+                        )}
+                    )
+                  </Typography>
+                </Box>
+              )}
             </Box>
             <Box
               sx={{
@@ -112,7 +224,7 @@ const QRCodeComponent = ({ accountDetails }: QRCodeProps) => {
                 gap: 2,
               }}
             >
-              <Box sx={{}}>
+              <Box sx={{ "& img": { maxHeight: "350px", width: "100%" } }}>
                 <img src={accountDetails?.qr_image} />
               </Box>
               <Typography textAlign={"center"}>

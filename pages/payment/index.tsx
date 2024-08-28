@@ -6,7 +6,7 @@ import BankTransferComponent from "@/Components/Page/Payment/BankTransferCompone
 
 import CardComponent from "@/Components/Page/Payment/CardComponent";
 import GooglePayComponent from "@/Components/Page/Payment/GooglePayComponent";
-import MPesaComponent from "@/Components/Page/Payment/MPesaComponent";
+import MobileMoneyComponent from "@/Components/Page/Payment/MobileMoneyComponent";
 import QRCodeComponent from "@/Components/Page/Payment/QRCodeComponent";
 import USSDComponent from "@/Components/Page/Payment/USSDComponent";
 import { createEncryption } from "@/helpers";
@@ -29,6 +29,7 @@ import { Box, Divider, Grid, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import "react-credit-cards-2/dist/es/styles-compiled.css";
 import { useSelector } from "react-redux";
+import CyrptoComponent from "../../Components/Page/Payment/CryptoComponent";
 
 const paymentMethods = [
   { label: "Card", value: paymentTypes.CARD, icon: <CreditCardRounded /> },
@@ -58,8 +59,8 @@ const paymentMethods = [
     icon: <AccountBalanceRounded />,
   },
   {
-    label: "M-Pesa",
-    value: paymentTypes.M_PESA,
+    label: "Mobile Money",
+    value: paymentTypes.MOBILE_MONEY,
     icon: <AccountBalanceRounded />,
   },
   {
@@ -67,11 +68,11 @@ const paymentMethods = [
     value: paymentTypes.QR_CODE,
     icon: <AccountBalanceRounded />,
   },
-  {
-    label: "Crypto",
-    value: paymentTypes.CRYPTO,
-    icon: <CurrencyBitcoinRounded />,
-  },
+  // {
+  //   label: "Crypto",
+  //   value: paymentTypes.CRYPTO,
+  //   icon: <CurrencyBitcoinRounded />,
+  // },
 ];
 
 const Payment = () => {
@@ -83,18 +84,6 @@ const Payment = () => {
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
 
   useEffect(() => {
-    if (paymentType === paymentTypes.BANK_TRANSFER) {
-      initiateBankTransfer();
-    }
-    if (paymentType === paymentTypes.BANK_ACCOUNT) {
-      initiateBankAccountTransfer();
-    }
-    if (paymentType === paymentTypes.M_PESA) {
-      initiateMpesaTransfer();
-    }
-    if (paymentType === paymentTypes.QR_CODE) {
-      initiateQRCodeTransfer();
-    }
     if (
       paymentType === paymentTypes.GOOGLE_PAY ||
       paymentType === paymentTypes.APPLE_PAY
@@ -102,73 +91,6 @@ const Payment = () => {
       initiateGoogleApplyPayTransfer();
     }
   }, [paymentType]);
-
-  const initiateBankTransfer = async () => {
-    const finalPayload = {
-      paymentType,
-      currency: walletState.currency,
-      amount: walletState.amount,
-    };
-    const res = createEncryption(JSON.stringify(finalPayload));
-
-    const {
-      data: { data },
-    }: { data: BankTransferApiRes } = await axiosBaseApi.post(
-      "/wallet/addFunds",
-      {
-        data: res,
-      }
-    );
-    setTransferDetails(data);
-  };
-
-  const initiateBankAccountTransfer = async () => {
-    const finalPayload = {
-      paymentType,
-      currency: walletState.currency,
-      amount: walletState.amount,
-    };
-    const res = createEncryption(JSON.stringify(finalPayload));
-
-    const {
-      data: { data },
-    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
-      data: res,
-    });
-    setAccountDetails(data);
-  };
-
-  const initiateMpesaTransfer = async () => {
-    const finalPayload = {
-      paymentType,
-      currency: walletState.currency,
-      amount: walletState.amount,
-    };
-    const res = createEncryption(JSON.stringify(finalPayload));
-
-    const {
-      data: { data },
-    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
-      data: res,
-    });
-    setAccountDetails(data);
-  };
-
-  const initiateQRCodeTransfer = async () => {
-    const finalPayload = {
-      paymentType,
-      currency: walletState.currency,
-      amount: walletState.amount,
-    };
-    const res = createEncryption(JSON.stringify(finalPayload));
-
-    const {
-      data: { data },
-    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
-      data: res,
-    });
-    setAccountDetails(data);
-  };
 
   const initiateGoogleApplyPayTransfer = async () => {
     const finalPayload = {
@@ -288,22 +210,21 @@ const Payment = () => {
             <Divider flexItem sx={{ my: 2 }} />
             {paymentType === paymentTypes.CARD && <CardComponent />}
             {paymentType === paymentTypes.BANK_TRANSFER && (
-              <BankTransferComponent transferDetails={transferDetails} />
+              <BankTransferComponent />
             )}
             {paymentType === paymentTypes.BANK_ACCOUNT && (
-              <BankAccountComponent accountDetails={accountDetails} />
+              <BankAccountComponent />
             )}
             {(paymentType === paymentTypes.GOOGLE_PAY ||
               paymentType === paymentTypes.APPLE_PAY) && (
               <GooglePayComponent accountDetails={accountDetails} />
             )}
             {paymentType === paymentTypes.USSD && <USSDComponent />}
-            {paymentType === paymentTypes.M_PESA && (
-              <MPesaComponent accountDetails={accountDetails} />
+            {paymentType === paymentTypes.MOBILE_MONEY && (
+              <MobileMoneyComponent />
             )}
-            {paymentType === paymentTypes.QR_CODE && (
-              <QRCodeComponent accountDetails={accountDetails} />
-            )}
+            {paymentType === paymentTypes.QR_CODE && <QRCodeComponent />}
+            {/* {paymentType === paymentTypes.CRYPTO && <CyrptoComponent />} */}
           </Box>
         </Grid>
       </Grid>

@@ -19,35 +19,39 @@ import {
   CommonDetails,
   currencyData,
 } from "@/utils/types/paymentTypes";
-import {
-  CallMissedOutgoingRounded,
-  NorthEastRounded,
-} from "@mui/icons-material";
-import { paymentTypes } from "@/utils/enums";
+
 import FormManager from "../Common/FormManager";
+import * as yup from "yup";
+import TextBox from "@/Components/UI/TextBox";
 import Dropdown from "@/Components/UI/Dropdown";
+import { paymentTypes } from "@/utils/enums";
+import { NorthEastRounded } from "@mui/icons-material";
 
-const timer = (ms: any) => new Promise((res) => setTimeout(res, ms));
+const initialValue = {
+  network: "MTN",
+  mobile: "",
+};
 
-const currencyList = ["EUR", "GBP", "NGN"];
+const currencyList = ["KES", "GHS", "RWF", "UGX"];
 
-const BankAccountComponent = () => {
+const MobileMoneyComponent = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
   const [loading, setLoading] = useState(true);
-  const [checkVerify, setCheckVerify] = useState(false);
-  const [accountDetails, setAccountDetails] = useState<CommonDetails>();
+  const [networkCollapse, setNetworkCollapse] = useState(false);
   const [currencyRates, setCurrencyRates] = useState<currencyData[]>();
   const [selectedCurrency, setSelectedCurrency] = useState<currencyData>();
+  const [checkVerify, setCheckVerify] = useState(false);
+  const [hash, setHash] = useState("");
   const [loading2, setLoading2] = useState(false);
-  const [collapse, setCollapse] = useState(false);
 
-  useEffect(() => {
-    if (accountDetails) {
-      setLoading2(false);
-    }
-  }, [accountDetails]);
+  const paymentSchema = yup.object().shape({
+    mobile: yup
+      .string()
+      .required("Mobile number is required!")
+      .length(10, "Please enter a valid mobile number!"),
+  });
 
   useEffect(() => {
     if (walletState.amount && walletState.currency) {
@@ -79,70 +83,65 @@ const BankAccountComponent = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    window.open(accountDetails?.redirect);
-    setCheckVerify(true);
-  };
-
-  useEffect(() => {
-    if (checkVerify) {
-      verifyStatus();
-    }
-  }, [checkVerify]);
-
-  const initiateBankAccountTransfer = async () => {
-    const finalPayload = {
-      paymentType: paymentTypes.BANK_ACCOUNT,
-      currency: selectedCurrency?.currency,
-      amount: selectedCurrency?.amount,
-    };
-    console.log(finalPayload);
-    const res = createEncryption(JSON.stringify(finalPayload));
-    setLoading2(true);
-    setCollapse(true);
-    const {
-      data: { data },
-    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
-      data: res,
-    });
-    setAccountDetails(data);
-  };
-
-  const verifyStatus = async () => {
-    let counter = 0;
-
-    while (checkVerify) {
-      await timer(5000);
-      counter++;
-      try {
-        const {
-          data: { data },
-        } = await axiosBaseApi.post("/wallet/verifyPayment", {
-          uniqueRef: accountDetails?.hash,
-        });
-        const redirectUri = generateRedirectUrl(data);
-
-        window.location.replace(redirectUri);
-      } catch (e: any) {
-        const message = e.response.data.message ?? e.message;
-        // dispatch({
-        //   type: TOAST_SHOW,
-        //   payload: {
-        //     message: message,
-        //     severity: "error",
-        //   },
-        // });
+  const handleSubmit = async (values: any) => {
+    try {
+      const finalPayload = {
+        ...values,
+        currency: selectedCurrency?.currency,
+        amount: selectedCurrency?.amount,
+        paymentType: paymentTypes.MOBILE_MONEY,
+      };
+      const res = createEncryption(JSON.stringify(finalPayload));
+      setCheckVerify(true);
+      setLoading2(true);
+      const {
+        data: { data },
+      }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+        data: res,
+      });
+      if (data.redirect) {
+        window.location.replace(data.redirect);
+      } else {
+        setHash(data.hash);
+        setLoading2(false);
       }
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
     }
-    if (counter > 20) {
-      setCheckVerify(false);
+  };
+
+  const handleVerify = async () => {
+    try {
+      const {
+        data: { data },
+      } = await axiosBaseApi.post("/wallet/verifyPayment", {
+        uniqueRef: hash,
+      });
+      const redirectUri = generateRedirectUrl(data);
+      window.location.replace(redirectUri);
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
     }
   };
 
   return (
     <Box
       sx={{
-        maxWidth: "550px",
+        maxWidth: "450px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -172,8 +171,10 @@ const BankAccountComponent = () => {
               flexDirection: "column",
               p: 3,
               mt: 2,
-              background: theme.palette.secondary.main + "11",
-              border: "1px solid #a2a2a2",
+              minWidth: 500,
+              width: "100%",
+              // background: theme.palette.secondary.main + "11",
+              // border: "1px solid #a2a2a2",
               borderRadius: "5px",
               gap: 2,
               "& .topText": {
@@ -255,7 +256,8 @@ const BankAccountComponent = () => {
                 </Typography>
               </Box>
             </Box>
-            <Collapse in={!collapse}>
+
+            <Collapse in={!checkVerify}>
               <Box
                 sx={{
                   mt: 2,
@@ -269,39 +271,121 @@ const BankAccountComponent = () => {
                   },
                 }}
               >
-                <>
-                  <Dropdown
-                    menuItems={currencyList.map((x) => {
-                      return { label: x, value: x };
-                    })}
-                    fullWidth
-                    label="currency"
-                    getValue={(value: any) => {
-                      if (currencyRates) {
-                        const currentIndex = currencyRates?.findIndex(
-                          (x) => x.currency === value
-                        );
-
-                        setSelectedCurrency(currencyRates[currentIndex]);
-                      }
-                    }}
-                    defaultValue={selectedCurrency?.currency}
-                  />
-
-                  <Box sx={{ mt: 3, textAlign: "right" }}>
-                    <Button
-                      variant="rounded"
-                      disabled={loading2}
-                      onClick={() => initiateBankAccountTransfer()}
-                    >
-                      Pay
-                    </Button>
-                  </Box>
-                </>
+                <FormManager
+                  initialValues={initialValue}
+                  yupSchema={paymentSchema}
+                  onSubmit={handleSubmit}
+                >
+                  {({
+                    errors,
+                    handleBlur,
+                    handleChange,
+                    submitDisable,
+                    touched,
+                    values,
+                  }) => (
+                    <>
+                      <Dropdown
+                        menuItems={currencyList.map((x) => {
+                          return { label: x, value: x };
+                        })}
+                        fullWidth
+                        label="currency"
+                        getValue={(value: any) => {
+                          if (currencyRates) {
+                            const currentIndex = currencyRates?.findIndex(
+                              (x) => x.currency === value
+                            );
+                            if (value === "GHS" || value === "UGX") {
+                              setNetworkCollapse(true);
+                            } else {
+                              setNetworkCollapse(false);
+                            }
+                            setSelectedCurrency(currencyRates[currentIndex]);
+                            const e: any = {
+                              target: {
+                                value: "MTN",
+                                name: "network",
+                              },
+                            };
+                            handleChange(e);
+                          }
+                        }}
+                        defaultValue={selectedCurrency?.currency}
+                      />
+                      <Collapse in={networkCollapse}>
+                        <Box sx={{ mt: 3 }}>
+                          <Dropdown
+                            menuItems={
+                              selectedCurrency?.currency === "GHS"
+                                ? [
+                                    { label: "MTN", value: "MTN" },
+                                    { label: "VODAFONE", value: "VODAFONE" },
+                                    { label: "TIGO", value: "TIGO" },
+                                  ]
+                                : [
+                                    { label: "MTN", value: "MTN" },
+                                    { label: "AIRTEL", value: "AIRTEL" },
+                                  ]
+                            }
+                            fullWidth
+                            label="Network"
+                            getValue={(value: any) => {
+                              const e: any = {
+                                target: {
+                                  value,
+                                  name: "network",
+                                },
+                              };
+                              handleChange(e);
+                            }}
+                            defaultValue={values.network}
+                          />
+                        </Box>
+                      </Collapse>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexDirection: "column",
+                          rowGap: "20px",
+                          width: "100%",
+                          mt: 3,
+                        }}
+                      >
+                        <TextBox
+                          name="mobile"
+                          placeholder="Enter mobile number"
+                          label="Mobile number"
+                          value={values.mobile}
+                          fullWidth
+                          onChange={(e) => {
+                            handleChange(e);
+                          }}
+                          onBlur={handleBlur}
+                          error={touched.mobile && errors.mobile}
+                          helperText={
+                            touched.mobile && errors.mobile && errors.mobile
+                          }
+                        />
+                      </Box>
+                      <Box sx={{ mt: 3, textAlign: "right" }}>
+                        <Button
+                          variant="rounded"
+                          type="submit"
+                          disabled={checkVerify ? checkVerify : submitDisable}
+                        >
+                          Pay
+                        </Button>
+                      </Box>
+                    </>
+                  )}
+                </FormManager>
               </Box>
             </Collapse>
 
-            <Collapse in={collapse}>
+            <Collapse in={checkVerify}>
               {loading2 ? (
                 <>
                   <Typography textAlign={"center"}>Please wait</Typography>
@@ -341,16 +425,15 @@ const BankAccountComponent = () => {
                       <NorthEastRounded fontSize="inherit" />
                     </Box>
                     <Typography>
-                      You will be redirected to complete this payment.
+                      You need to complete this payment from your M-PESA App.
                     </Typography>
                   </Box>
                   <Button
                     variant="rounded"
                     sx={{ mt: 3 }}
-                    disabled={checkVerify}
-                    onClick={handleSubmit}
+                    onClick={handleVerify}
                   >
-                    Proceed
+                    I have completed this payment
                   </Button>
                 </Box>
               )}
@@ -362,4 +445,4 @@ const BankAccountComponent = () => {
   );
 };
 
-export default BankAccountComponent;
+export default MobileMoneyComponent;

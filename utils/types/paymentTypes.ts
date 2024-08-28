@@ -100,6 +100,8 @@ export interface CommonApiRes {
     hash: string;
     redirect: string;
     qr_image: string;
+    qr_code: string;
+    address: string;
   };
 }
 
@@ -124,4 +126,10 @@ export interface transferDetails {
   transfer_amount: string;
   account_expiration: number;
   hash: string;
+}
+
+export interface currencyData {
+  currency: string;
+  amount: string;
+  transferRate: string;
 }

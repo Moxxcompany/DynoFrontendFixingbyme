@@ -23,52 +23,58 @@ const FormManager = ({
   const [touched, setTouched] = useState(initialTouchValue);
 
   const handleBlur = async (e: React.FocusEvent<any>) => {
-    const tempTouched = checkTouched(touched, e);
-    const tempErrors = await checkValidation(yupSchema, { ...values });
-    const tempInitialValues: any = {};
-    Object.keys(initialValues).map((item) => {
-      if (Number.isInteger(initialTouchValue && initialTouchValue[item]))
-        tempInitialValues[item] = "";
-      else tempInitialValues[item] = "";
-    });
-    setErrors(tempErrors ?? { ...tempInitialValues });
-    setSubmitDisable(tempErrors ? true : false);
-    setTouched(tempTouched);
+    if (yupSchema) {
+      const tempTouched = checkTouched(touched, e);
+      const tempErrors = await checkValidation(yupSchema, { ...values });
+      const tempInitialValues: any = {};
+      Object.keys(initialValues).map((item) => {
+        if (Number.isInteger(initialTouchValue && initialTouchValue[item]))
+          tempInitialValues[item] = "";
+        else tempInitialValues[item] = "";
+      });
+      setErrors(tempErrors ?? { ...tempInitialValues });
+      setSubmitDisable(tempErrors ? true : false);
+      setTouched(tempTouched);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<any>) => {
-    const tempData = inputHelper({ ...values }, e);
-    const tempData2 = inputHelper({ ...values }, e);
-    const tempErrors = checkValidation(yupSchema, tempData2);
-    setSubmitDisable(tempErrors ? true : false);
-    const tempInitialValues: any = {};
-    Object.keys(initialValues).map((item) => {
-      if (Number.isInteger(initialTouchValue && initialTouchValue[item]))
-        tempInitialValues[item] = "";
-      else tempInitialValues[item] = "";
-    });
-    setErrors(tempErrors ?? { ...tempInitialValues });
-    setValues(tempData);
+    if (yupSchema) {
+      const tempData = inputHelper({ ...values }, e);
+      const tempData2 = inputHelper({ ...values }, e);
+      const tempErrors = checkValidation(yupSchema, tempData2);
+      setSubmitDisable(tempErrors ? true : false);
+      const tempInitialValues: any = {};
+      Object.keys(initialValues).map((item) => {
+        if (Number.isInteger(initialTouchValue && initialTouchValue[item]))
+          tempInitialValues[item] = "";
+        else tempInitialValues[item] = "";
+      });
+      setErrors(tempErrors ?? { ...tempInitialValues });
+      setValues(tempData);
+    }
   };
 
   const handleSubmit = (e: any) => {
-    e.preventDefault();
-    const tempErrors = checkValidation(yupSchema, values);
-    const touchedTrue: any = {};
-    Object.keys(initialValues).map((x) => {
-      touchedTrue[x] = true;
-    });
-    setTouched(touchedTrue);
-    const tempInitialValues: any = {};
-    Object.keys(initialValues).map((item) => {
-      if (Number.isInteger(initialTouchValue && initialTouchValue[item]))
-        tempInitialValues[item] = "";
-      else tempInitialValues[item] = "";
-    });
-    setErrors(tempErrors ?? { ...tempInitialValues });
-    setSubmitDisable(tempErrors ? true : false);
-    if (!tempErrors) {
-      onSubmit(values);
+    if (yupSchema) {
+      e.preventDefault();
+      const tempErrors = checkValidation(yupSchema, values);
+      const touchedTrue: any = {};
+      Object.keys(initialValues).map((x) => {
+        touchedTrue[x] = true;
+      });
+      setTouched(touchedTrue);
+      const tempInitialValues: any = {};
+      Object.keys(initialValues).map((item) => {
+        if (Number.isInteger(initialTouchValue && initialTouchValue[item]))
+          tempInitialValues[item] = "";
+        else tempInitialValues[item] = "";
+      });
+      setErrors(tempErrors ?? { ...tempInitialValues });
+      setSubmitDisable(tempErrors ? true : false);
+      if (!tempErrors) {
+        onSubmit(values);
+      }
     }
   };
 
