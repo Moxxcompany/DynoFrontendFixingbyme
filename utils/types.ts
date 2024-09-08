@@ -11,6 +11,7 @@ export interface rootReducer {
   toastReducer: toastReducer;
   companyReducer: companyReducer;
   walletReducer: walletReducer;
+  apiReducer: apiReducer;
 }
 
 export interface userReducer {
@@ -27,6 +28,12 @@ export interface companyReducer {
   companyList: ICompany[];
   loading: boolean;
 }
+
+export interface apiReducer {
+  apiList: IApi[];
+  loading: boolean;
+}
+
 export interface walletReducer {
   walletList: IWallet[];
   loading: boolean;
@@ -47,6 +54,15 @@ export interface ICompany {
   photo: string;
   email: string;
   website: string;
+}
+
+export interface IApi {
+  api_id: number;
+  company_id: number;
+  company_name: string;
+  user_id: number;
+  base_currency: string;
+  apiKey: string;
 }
 
 export interface IWallet {

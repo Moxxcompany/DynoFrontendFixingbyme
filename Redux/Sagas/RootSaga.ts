@@ -7,11 +7,14 @@ import { COMPANY_INIT } from "../Actions/CompanyAction";
 import { CompanySaga } from "./CompanySaga";
 import { WALLET_INIT } from "../Actions/WalletAction";
 import { WalletSaga } from "./WalletSaga";
+import { API_INIT } from "../Actions/ApiAction";
+import { ApiSaga } from "./ApiSaga";
 
 function* RootSaga() {
   yield takeEvery(USER_INIT, UserSaga);
   yield takeEvery(TOAST_INIT, ToastSaga);
   yield takeEvery(COMPANY_INIT, CompanySaga);
+  yield takeEvery(API_INIT, ApiSaga);
   yield takeEvery(WALLET_INIT, WalletSaga);
 }
 

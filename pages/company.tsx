@@ -44,7 +44,7 @@ const companyInitial = {
 
 const regex: RegExp = new RegExp("^((http|https)://)");
 
-export default function Company({ setPageName }: pageProps) {
+const Company = ({ setPageName }: pageProps) => {
   const dispatch = useDispatch();
   const theme = useTheme();
   const companyState = useSelector(
@@ -513,4 +513,6 @@ export default function Company({ setPageName }: pageProps) {
       </PopupModal>
     </>
   );
-}
+};
+
+export default Company;
