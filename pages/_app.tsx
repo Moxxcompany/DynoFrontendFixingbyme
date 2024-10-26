@@ -29,12 +29,12 @@ export default function App({ Component, pageProps }: AppProps) {
                   <Component {...pageProps} setPageName={setPageName} />
                 </ClientLayout>
               )}
-            {pathname.includes("auth") ||
-              (pathname.includes("admin/login") && (
-                <LoginLayout pageName={pageName}>
-                  <Component {...pageProps} setPageName={setPageName} />
-                </LoginLayout>
-              ))}
+            {(pathname.includes("auth") ||
+              pathname.includes("admin/login")) && (
+              <LoginLayout pageName={pageName}>
+                <Component {...pageProps} setPageName={setPageName} />
+              </LoginLayout>
+            )}
             {pathname.includes("payment") && (
               <PaymentLayout pageName={pageName}>
                 <Component {...pageProps} setPageName={setPageName} />
