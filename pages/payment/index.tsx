@@ -68,11 +68,11 @@ const paymentMethods = [
     value: paymentTypes.QR_CODE,
     icon: <AccountBalanceRounded />,
   },
-  // {
-  //   label: "Crypto",
-  //   value: paymentTypes.CRYPTO,
-  //   icon: <CurrencyBitcoinRounded />,
-  // },
+  {
+    label: "Crypto",
+    value: paymentTypes.CRYPTO,
+    icon: <CurrencyBitcoinRounded />,
+  },
 ];
 
 const Payment = () => {
@@ -224,7 +224,7 @@ const Payment = () => {
               <MobileMoneyComponent />
             )}
             {paymentType === paymentTypes.QR_CODE && <QRCodeComponent />}
-            {/* {paymentType === paymentTypes.CRYPTO && <CyrptoComponent />} */}
+            {paymentType === paymentTypes.CRYPTO && <CyrptoComponent />}
           </Box>
         </Grid>
       </Grid>

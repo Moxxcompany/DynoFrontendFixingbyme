@@ -55,7 +55,20 @@ const navItems = [
   },
 ];
 
-const Menus = () => {
+const adminMenus = [
+  {
+    icon: <HomeRounded color="inherit" />,
+    name: "Home",
+    link: "/admin",
+  },
+  {
+    icon: <WalletRounded color="inherit" />,
+    name: "Wallet",
+    link: "/admin/wallet",
+  },
+];
+
+const Menus = ({ type = "user" }: { type: string }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const tokenData = useTokenData();
@@ -76,8 +89,12 @@ const Menus = () => {
   };
 
   useEffect(() => {
-    setLocalItems(navItems);
-  }, [tokenData]);
+    if (type === "user") {
+      setLocalItems(navItems);
+    } else {
+      setLocalItems(adminMenus);
+    }
+  }, [tokenData, type]);
 
   const open = Boolean(anchorEl);
 

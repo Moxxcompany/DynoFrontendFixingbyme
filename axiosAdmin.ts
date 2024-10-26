@@ -1,20 +1,20 @@
 import axios from "axios";
 const apiBaseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-const axiosBaseApi = axios.create({
+const adminBaseApi = axios.create({
   baseURL: apiBaseUrl + "api/",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-axiosBaseApi.interceptors.request.use(
+adminBaseApi.interceptors.request.use(
   (config: any) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("admin_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
-      delete axiosBaseApi.defaults.headers.common.Authorization;
+      delete adminBaseApi.defaults.headers.common.Authorization;
     }
     return config;
   },
@@ -22,4 +22,4 @@ axiosBaseApi.interceptors.request.use(
   (error) => console.error(error)
 );
 
-export default axiosBaseApi;
+export default adminBaseApi;

@@ -49,16 +49,26 @@ const getTime = (dateStamp: any) => {
 
 const generateRedirectUrl = (data: any) => {
   let url;
+  url =
+    process.env.NEXT_PUBLIC_SERVER_URL +
+    "/payment/verify?response=" +
+    JSON.stringify(data);
+
+  return url;
+};
+
+const generateStatusUrl = (data: any) => {
+  let url;
   const status = data?.status;
   if (status === "successful") {
     url =
       process.env.NEXT_PUBLIC_SERVER_URL +
-      "/payment/success?response=" +
+      "payment/success?response=" +
       JSON.stringify(data);
   } else {
     url =
       process.env.NEXT_PUBLIC_SERVER_URL +
-      "/payment/failed?response=" +
+      "payment/failed?response=" +
       JSON.stringify(data);
   }
   return url;
@@ -86,9 +96,14 @@ const getCurrencySymbol = (currency: any, amount: any) => {
       return amount;
   }
 };
+const countDecimals = (number: number) => {
+  if (Math.floor(number) === number) return 0;
+  return number.toString().split(".")[1].length || 0;
+};
 
 export {
   a11yProps,
+  countDecimals,
   inputHelper,
   getRandomColor,
   checkValidation,
@@ -100,5 +115,6 @@ export {
   createEncryption,
   getTime,
   generateRedirectUrl,
+  generateStatusUrl,
   getCurrencySymbol,
 };

@@ -14,9 +14,10 @@ import BrandLogo from "../BrandLogo";
 
 interface SideBarProps {
   handleDrawerToggle: Function;
+  type?: string;
 }
 
-const SideBar = ({ handleDrawerToggle }: SideBarProps) => {
+const SideBar = ({ handleDrawerToggle, type = "user" }: SideBarProps) => {
   const router = useRouter();
   const tokenData = useTokenData();
 
@@ -34,27 +35,29 @@ const SideBar = ({ handleDrawerToggle }: SideBarProps) => {
       }}
     >
       <Box>
-        <BrandLogo />
-        <Menus />
+        <BrandLogo redirect={false} />
+        <Menus type={type} />
       </Box>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 2,
-          flexDirection: { lg: "column", sm: "row" },
-          mx: "auto",
-          mb: 2,
-        }}
-      >
-        <BottomBullets onClick={() => router.push("/profile")}>
-          <SettingsRounded fill="#fff" />
-        </BottomBullets>
-        <BottomBullets onClick={() => router.push("/help")}>
-          <InfoRounded fill="#fff" />
-        </BottomBullets>
-      </Box>
+      {type === "user" && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 2,
+            flexDirection: { lg: "column", sm: "row" },
+            mx: "auto",
+            mb: 2,
+          }}
+        >
+          <BottomBullets onClick={() => router.push("/profile")}>
+            <SettingsRounded fill="#fff" />
+          </BottomBullets>
+          <BottomBullets onClick={() => router.push("/help")}>
+            <InfoRounded fill="#fff" />
+          </BottomBullets>
+        </Box>
+      )}
     </Box>
   );
 };

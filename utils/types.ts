@@ -69,6 +69,7 @@ export interface IWallet {
   id: string;
   user_id: number;
   amount: number;
+  fee: number;
   wallet_type: string;
   wallet_address: string;
   wallet_account_id: string;
@@ -104,6 +105,7 @@ export interface TokenData {
   photo: string;
   mobile: string;
   telegram_id: string;
+  role: string;
 }
 
 export interface IconProps {
