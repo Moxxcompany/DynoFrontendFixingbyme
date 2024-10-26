@@ -156,9 +156,9 @@ const Withdraw = ({ setPageName }: pageProps) => {
                     Balance :{" "}
                     {getCurrencySymbol(
                       values.currency,
-                      countDecimals(cryptoData[currentIndex].amount) > 8
-                        ? cryptoData[currentIndex].amount.toFixed(8)
-                        : cryptoData[currentIndex].amount.toFixed(2)
+                      countDecimals(cryptoData[currentIndex].fee) > 8
+                        ? cryptoData[currentIndex].fee.toFixed(8)
+                        : cryptoData[currentIndex].fee.toFixed(2)
                     )}
                   </Typography>
                 </Box>
