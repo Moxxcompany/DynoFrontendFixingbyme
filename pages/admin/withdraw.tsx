@@ -29,7 +29,7 @@ const wallets = [
   { label: "LTC", value: "LTC" },
 ];
 
-const Withdraw = ({ setPageName }: pageProps) => {
+const AdminWithdraw = ({ setPageName }: pageProps) => {
   const dispatch = useDispatch();
   const [cryptoData, setCryptoData] = useState<IWallet[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -226,4 +226,4 @@ const Withdraw = ({ setPageName }: pageProps) => {
   );
 };
 
-export default Withdraw;
+export default AdminWithdraw;

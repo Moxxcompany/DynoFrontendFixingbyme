@@ -76,6 +76,7 @@ export interface IWallet {
   createdAt: string;
   updatedAt: string;
   currency_type: string;
+  amount_in_usd: string;
 }
 
 export interface menuItem {

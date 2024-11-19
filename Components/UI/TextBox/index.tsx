@@ -7,6 +7,7 @@ type TextBoxProps = TextFieldProps & {
   customWidth?: string;
   cursor?: string;
   mt?: number;
+  uppercase?: boolean;
 };
 
 const TextBox = ({
@@ -15,6 +16,7 @@ const TextBox = ({
   cursor,
   mt,
   sx,
+  uppercase = false,
   ...props
 }: TextBoxProps) => {
   const theme = useTheme();
@@ -35,10 +37,14 @@ const TextBox = ({
             ml: 1,
             fontWeight: 600,
             fontSize: "11px",
-            textTransform: "lowercase",
-            "&:first-letter": {
-              textTransform: "uppercase",
-            },
+            ...(uppercase
+              ? { textTransform: "uppercase" }
+              : {
+                  textTransform: "lowercase",
+                  "&:first-letter": {
+                    textTransform: "uppercase",
+                  },
+                }),
           }}
         >
           {label}

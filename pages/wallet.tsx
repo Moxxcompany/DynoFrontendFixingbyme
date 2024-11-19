@@ -3,7 +3,7 @@ import DataTable from "@/Components/UI/DataTable";
 import Dropdown from "@/Components/UI/Dropdown";
 import PopupModal from "@/Components/UI/PopupModal";
 import TextBox from "@/Components/UI/TextBox";
-import { getCurrencySymbol } from "@/helpers";
+import { getCurrencySymbol, countDecimals } from "@/helpers";
 import {
   WALLET_FETCH,
   WALLET_FUND_CREATE,
@@ -40,6 +40,7 @@ const Wallet = ({ setPageName }: pageProps) => {
   const [fiatData, setFiatData] = useState<IWallet[]>([]);
   const [cryptoData, setCryptoData] = useState<IWallet[]>([]);
   const [searchValue, setSearchValue] = useState("");
+  const [totalBalance, setTotalBalance] = useState(0);
   const [open, setOpen] = useState(false);
 
   const fundSchema = yup.object().shape({
@@ -53,12 +54,18 @@ const Wallet = ({ setPageName }: pageProps) => {
 
   useEffect(() => {
     if (walletState.walletList.length > 0) {
+      let total = 0;
+      for (let i = 0; i < walletState.walletList.length; i++) {
+        const currentWallet = walletState.walletList[i];
+        total += Number(currentWallet.amount_in_usd);
+      }
       const tempFiat = walletState.walletList.filter(
         (x) => x.currency_type === "FIAT"
       );
       const tempCrypto = walletState.walletList.filter(
         (x) => x.currency_type === "CRYPTO"
       );
+      setTotalBalance(total);
       setCryptoData(tempCrypto);
       setFiatData(tempFiat);
     }
@@ -161,6 +168,16 @@ const Wallet = ({ setPageName }: pageProps) => {
         </Box>
       </PopupModal>
       <Box sx={{ m: 2, mb: 5 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 900 }}>
+            Total Wallet Balance:{" "}
+          </Typography>
+          <Typography
+            sx={{ fontSize: 18, fontWeight: 900, color: "text.secondary" }}
+          >
+            $ {totalBalance}
+          </Typography>
+        </Box>
         <Box
           sx={{
             mt: 2,
@@ -171,7 +188,11 @@ const Wallet = ({ setPageName }: pageProps) => {
         >
           <Typography sx={{ fontWeight: 700 }}>Fiat Wallets</Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Button variant="rounded" color="secondary">
+            <Button
+              variant="rounded"
+              color="secondary"
+              onClick={() => router.push("/withdraw")}
+            >
               Withdraw
             </Button>
             <Button
@@ -221,6 +242,16 @@ const Wallet = ({ setPageName }: pageProps) => {
               >
                 {getCurrencySymbol(x.wallet_type, x.amount.toFixed(2))}
               </Typography>
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  textAlign: "right",
+                  color: theme.palette.error.main,
+                }}
+              >
+                ({getCurrencySymbol("USD", x.amount_in_usd)})
+              </Typography>
             </Box>
           ))}
         </Box>
@@ -259,7 +290,20 @@ const Wallet = ({ setPageName }: pageProps) => {
                   color: "text.secondary",
                 }}
               >
-                {getCurrencySymbol(x.wallet_type, x.amount)}
+                {getCurrencySymbol(
+                  x.wallet_type,
+                  countDecimals(x.amount) > 8 ? x.amount.toFixed(8) : x.amount
+                )}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  textAlign: "right",
+                  color: theme.palette.error.main,
+                }}
+              >
+                ({getCurrencySymbol("USD", x.amount_in_usd)})
               </Typography>
             </Box>
           ))}
