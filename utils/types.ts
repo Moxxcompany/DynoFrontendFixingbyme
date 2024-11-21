@@ -77,6 +77,7 @@ export interface IWallet {
   updatedAt: string;
   currency_type: string;
   amount_in_usd: string;
+  transfer_rate: any;
 }
 
 export interface menuItem {

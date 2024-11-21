@@ -16,7 +16,7 @@ import {
   RadioGroup,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 
@@ -24,15 +24,7 @@ const OTPInitial = {
   otp: "",
 };
 
-const minimumDollar: any = {
-  BTC: 0.00015,
-  LTC: 0.12,
-  TRX: 50,
-  BCH: 0.025,
-  DOGE: 30,
-  BSC: 0.016,
-  ETH: 0.0035,
-};
+const minimumDollar = 10;
 
 const Withdraw = ({ setPageName }: pageProps) => {
   const dispatch = useDispatch();
@@ -46,7 +38,10 @@ const Withdraw = ({ setPageName }: pageProps) => {
   const [wallets, setWallets] = useState<menuItem[]>([]);
   const [maxAmount, setMaxAmount] = useState(0);
   const [transaction, setTransaction] = useState<any>();
+  const [countdown, setCountdown] = useState(-1);
   const [finalValues, setFinalValues] = useState<any>();
+  const [resendOtp, setResendOTP] = useState(false);
+
   const [fees, setFees] = useState<{
     fast: number;
     medium: number;
@@ -68,7 +63,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
       .number()
       .typeError("Amount must be a number. Please enter a valid number.")
       .required("amount is required!")
-      .min(0.0005)
+      .min(10)
       .max(maxAmount),
     address: yup.string().required("address is required!"),
   });
@@ -101,14 +96,21 @@ const Withdraw = ({ setPageName }: pageProps) => {
   const handleSubmit = async (values: any) => {
     console.log(values);
     setLoading2(true);
-
+    const amount = Number(
+      Number(cryptoData[currentIndex].transfer_rate) * values.amount
+    ).toFixed(8);
+    setFinalValues({ ...values, amount });
     try {
       if (Boolean(fees)) {
         const {
           data: { data, message },
-        } = await axiosBaseApi.post("/wallet/sendConfirmationOTP", values);
+        } = await axiosBaseApi.post("/wallet/sendConfirmationOTP", {
+          ...values,
+          amount,
+        });
         setOtpSent(true);
-        setFinalValues(values);
+        setCountdown(60);
+        setResendOTP(true);
         dispatch({
           type: TOAST_SHOW,
           payload: {
@@ -118,13 +120,20 @@ const Withdraw = ({ setPageName }: pageProps) => {
       } else {
         const {
           data: { data },
-        } = await axiosBaseApi.post("/wallet/estimateFees", values);
+        } = await axiosBaseApi.post("/wallet/estimateFees", {
+          ...values,
+          amount,
+        });
         setFees(data);
         if (feeType === "wallet") {
+          const feesInUSD =
+            Number(data[currentFees]) *
+            Number(cryptoData[currentIndex].transfer_rate);
+
           const tempAmount = Number(
-            cryptoData[currentIndex].amount -
-              minimumDollar[cryptoData[currentIndex].wallet_type] -
-              data[currentFees]
+            Number(cryptoData[currentIndex].amount_in_usd) -
+              minimumDollar -
+              feesInUSD
           );
           setMaxAmount(Number(tempAmount.toFixed(8)));
         }
@@ -173,6 +182,39 @@ const Withdraw = ({ setPageName }: pageProps) => {
     setLoading2(false);
   };
 
+  const handleOTPResend = async () => {
+    const {
+      data: { data, message },
+    } = await axiosBaseApi.post("/wallet/sendConfirmationOTP", {
+      ...finalValues,
+    });
+    setResendOTP(true);
+    dispatch({
+      type: TOAST_SHOW,
+      payload: {
+        message,
+      },
+    });
+  };
+  useEffect(() => {
+    if (resendOtp) {
+      setCountdown(60);
+      const timeOutId = setTimeout(() => {
+        setResendOTP(false);
+      }, 60000);
+      return () => clearTimeout(timeOutId);
+    }
+  }, [resendOtp]);
+
+  useEffect(() => {
+    if (countdown !== -1) {
+      const timerId = setInterval(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearInterval(timerId);
+    }
+  }, [countdown]);
+
   const getWallets = async () => {
     try {
       const {
@@ -197,14 +239,14 @@ const Withdraw = ({ setPageName }: pageProps) => {
       setCurrentIndex(ETHIndex);
       setWallets(tempWalletData);
       setCryptoData(tempWallets);
+
       const tempAmount = Number(
-        tempWallets[ETHIndex].amount -
-          minimumDollar[tempWallets[ETHIndex].wallet_type]
+        Number(tempWallets[ETHIndex].amount_in_usd) - minimumDollar
       );
-      setMaxAmount(Number(tempAmount.toFixed(8)));
+      setMaxAmount(Number(tempAmount.toFixed(2)));
       setLoading(false);
     } catch (e: any) {
-      const message = e.response.data.message ?? e.message;
+      const message = e?.response?.data?.message ?? e.message;
       dispatch({
         type: TOAST_SHOW,
         payload: {
@@ -277,9 +319,9 @@ const Withdraw = ({ setPageName }: pageProps) => {
                       setCurrentIndex(index);
                       setFees(undefined);
                       setOtpSent(false);
+
                       const tempAmount = Number(
-                        cryptoData[index].amount -
-                          minimumDollar[cryptoData[index].wallet_type]
+                        Number(cryptoData[index].amount_in_usd) - minimumDollar
                       );
                       setMaxAmount(Number(tempAmount.toFixed(8)));
                       handleChange(e);
@@ -297,12 +339,14 @@ const Withdraw = ({ setPageName }: pageProps) => {
                     ($ {cryptoData[currentIndex].amount_in_usd})
                   </Typography>
                 </Box>
-                <Box sx={{ mt: 3 }}>
+                <Box
+                  sx={{ mt: 3, display: "flex", alignItems: "center", gap: 2 }}
+                >
                   <TextBox
                     name="amount"
                     fullWidth
-                    label={"Amount"}
-                    placeholder="Enter amount"
+                    label={"Amount in $"}
+                    placeholder="Enter amount in $"
                     value={values.amount}
                     error={touched.amount && errors.amount}
                     helperText={
@@ -311,6 +355,16 @@ const Withdraw = ({ setPageName }: pageProps) => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                   />
+                  {!errors.amount && (
+                    <Typography sx={{ mt: 2, whiteSpace: "nowrap" }}>
+                      = ({" "}
+                      {Number(
+                        Number(cryptoData[currentIndex].transfer_rate) *
+                          values.amount
+                      ).toFixed(8)}{" "}
+                      {cryptoData[currentIndex].wallet_type})
+                    </Typography>
+                  )}
                 </Box>
                 <Box sx={{ mt: 3 }}>
                   <TextBox
@@ -340,12 +394,14 @@ const Withdraw = ({ setPageName }: pageProps) => {
                     onChange={(e) => {
                       setFeeType(e.target.value);
                       if (e.target.value === "wallet") {
+                        const feesInUSD =
+                          Number(feeToPay) *
+                          Number(cryptoData[currentIndex].transfer_rate);
+
                         const tempAmount = Number(
-                          cryptoData[currentIndex].amount -
-                            minimumDollar[
-                              cryptoData[currentIndex].wallet_type
-                            ] -
-                            feeToPay
+                          Number(cryptoData[currentIndex].amount_in_usd) -
+                            minimumDollar -
+                            feesInUSD
                         );
                         setMaxAmount(Number(tempAmount.toFixed(8)));
                       }
@@ -382,9 +438,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
                           if (feeType === "wallet") {
                             const tempAmount = Number(
                               cryptoData[currentIndex].amount -
-                                minimumDollar[
-                                  cryptoData[currentIndex].wallet_type
-                                ] -
+                                minimumDollar -
                                 tempFees[current]
                             );
                             setMaxAmount(Number(tempAmount.toFixed(8)));
@@ -397,17 +451,32 @@ const Withdraw = ({ setPageName }: pageProps) => {
                         <FormControlLabel
                           value="fast"
                           control={<Radio />}
-                          label={`Fast: ${fees.fast} ${cryptoData[currentIndex].wallet_type}`}
+                          label={`Fast: ${Number(
+                            fees.fast /
+                              Number(cryptoData[currentIndex].transfer_rate)
+                          ).toFixed(2)}$ (${fees.fast} ${
+                            cryptoData[currentIndex].wallet_type
+                          })`}
                         />
                         <FormControlLabel
                           value="medium"
                           control={<Radio />}
-                          label={`Medium: ${fees.medium} ${cryptoData[currentIndex].wallet_type}`}
+                          label={`Medium: ${Number(
+                            fees.medium /
+                              Number(cryptoData[currentIndex].transfer_rate)
+                          ).toFixed(2)}$ (${fees.medium} ${
+                            cryptoData[currentIndex].wallet_type
+                          })`}
                         />
                         <FormControlLabel
                           value="slow"
                           control={<Radio />}
-                          label={`Slow: ${fees.slow} ${cryptoData[currentIndex].wallet_type}`}
+                          label={`Slow: ${Number(
+                            fees.slow /
+                              Number(cryptoData[currentIndex].transfer_rate)
+                          ).toFixed(2)}$ (${fees.slow} ${
+                            cryptoData[currentIndex].wallet_type
+                          })`}
                         />
                       </RadioGroup>
                     </Box>
@@ -465,6 +534,23 @@ const Withdraw = ({ setPageName }: pageProps) => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                   />
+                  <Typography
+                    sx={{
+                      ml: 2,
+                      fontWeight: 500,
+                      fontSize: "14px",
+                      color: resendOtp ? "text.disabled" : "text.secondary",
+                      cursor: resendOtp ? "not-allowed" : "pointer",
+                    }}
+                    onClick={() => {
+                      if (!resendOtp) {
+                        setResendOTP(true);
+                        handleOTPResend();
+                      }
+                    }}
+                  >
+                    Resend Code {resendOtp ? `in ${countdown}s` : ""}
+                  </Typography>
                   <Box
                     sx={{
                       mt: 3,
