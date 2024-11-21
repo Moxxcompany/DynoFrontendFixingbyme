@@ -437,7 +437,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
                           setCurrentFees(current);
                           if (feeType === "wallet") {
                             const tempAmount = Number(
-                              cryptoData[currentIndex].amount -
+                              Number(cryptoData[currentIndex].amount_in_usd) -
                                 minimumDollar -
                                 tempFees[current]
                             );
