@@ -11,6 +11,7 @@ import {
   InsertDriveFileRounded,
   InsightsRounded,
   PhotoLibraryRounded,
+  ReceiptLongRounded,
   RssFeedRounded,
   SmsRounded,
   WalletRounded,
@@ -52,6 +53,11 @@ const navItems = [
     icon: <ApiRounded color="inherit" />,
     name: "API",
     link: "/apis",
+  },
+  {
+    icon: <ReceiptLongRounded color="inherit" />,
+    name: "Transactions",
+    link: "/transactions",
   },
 ];
 

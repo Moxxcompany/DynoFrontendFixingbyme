@@ -13,6 +13,8 @@ import React, { useEffect, useState } from "react";
 import NoData from "../NoData";
 import Dropdown from "../Dropdown";
 import { ArrowDropDownRounded, ArrowDropUpRounded } from "@mui/icons-material";
+import LoadingIcon from "@/assets/Icons/LoadingIcon";
+import { drawerWidth } from "@/styles/theme";
 
 interface DataTableProps {
   columns: string[];
@@ -21,6 +23,7 @@ interface DataTableProps {
   actionColumn?: (index: number) => JSX.Element | JSX.Element[];
   actionText?: string;
   searchValue?: string;
+  loading?: boolean;
 }
 
 const DataTable = ({
@@ -30,6 +33,7 @@ const DataTable = ({
   actionColumn,
   actionText,
   searchValue,
+  loading,
 }: DataTableProps) => {
   const [totalPage, setTotalPage] = useState(Math.ceil(data.length / 5));
   const [localData, setLocalData] = useState<any[]>([]);
@@ -76,10 +80,6 @@ const DataTable = ({
     return tempData;
   };
 
-  useEffect(() => {
-    console.log(localData);
-  }, [localData]);
-
   const handleAllOperation = () => {
     const tempData = [...data];
     const page = paginationOptions.page;
@@ -109,93 +109,123 @@ const DataTable = ({
   };
 
   return (
-    <TableContainer sx={{ mt: 2 }}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead sx={{ "& th": { color: "text.primary", fontWeight: 700 } }}>
-          <TableRow>
-            {columns.map((item, i) => (
-              <TableCell
-                key={item}
-                onClick={() =>
-                  setPaginationOptions({
-                    ...paginationOptions,
-                    currentIndex: i,
-                    asc: !paginationOptions.asc,
-                  })
-                }
-                sx={{ cursor: "pointer" }}
-              >
-                <Box
-                  sx={{
-                    whiteSpace: "nowrap",
-                    display: "flex",
-                    alignItems: "center",
-                    cursor: "pointer",
-                    width: "fit-content",
-                  }}
+    <>
+      <TableContainer sx={{ mt: 2 }}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead
+            sx={{ "& th": { color: "text.primary", fontWeight: 700 } }}
+          >
+            <TableRow>
+              {columns.map((item, i) => (
+                <TableCell
+                  key={item}
+                  onClick={() =>
+                    setPaginationOptions({
+                      ...paginationOptions,
+                      currentIndex: i,
+                      asc: !paginationOptions.asc,
+                    })
+                  }
+                  sx={{ cursor: "pointer" }}
                 >
-                  {item}
-                  {paginationOptions.currentIndex === i && (
-                    <div>
-                      {paginationOptions.asc ? (
-                        <ArrowDropUpRounded />
-                      ) : (
-                        <ArrowDropDownRounded />
-                      )}
-                    </div>
-                  )}
-                </Box>
-              </TableCell>
-            ))}
-            {hasAction && <TableCell>{actionText ?? ""}</TableCell>}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {localData.length > 0 ? (
-            localData.map((row, index) => {
-              const allDataKeys = Object.keys(row);
-              return (
-                <>
-                  <TableRow sx={{ "&:last-child td": { border: 0 } }}>
-                    {allDataKeys
-                      .filter((k) => k !== "hidden" && k !== "id")
-                      .map((key: any, localIndex) => (
-                        <TableCell
-                          sx={{
-                            textTransform:
-                              key === "email" ? "none" : "capitalize",
-                            whiteSpace: "nowrap",
-                            fontWeight: key === "amount" ? 600 : 400,
-                          }}
-                          key={`${row[key]}_${localIndex}`}
-                        >
-                          {Array.isArray(row[key])
-                            ? row[key].join(", ")
-                            : row[key] ?? "No Data"}
-                        </TableCell>
-                      ))}
-                    {hasAction && (
-                      <TableCell sx={{ width: "480px", whiteSpace: "nowrap" }}>
-                        {actionColumn && actionColumn(index)}
-                      </TableCell>
+                  <Box
+                    sx={{
+                      whiteSpace: "nowrap",
+                      display: "flex",
+                      alignItems: "center",
+                      cursor: "pointer",
+                      width: "fit-content",
+                    }}
+                  >
+                    {item}
+                    {paginationOptions.currentIndex === i && (
+                      <div>
+                        {paginationOptions.asc ? (
+                          <ArrowDropUpRounded />
+                        ) : (
+                          <ArrowDropDownRounded />
+                        )}
+                      </div>
                     )}
-                  </TableRow>
-                </>
-              );
-            })
-          ) : (
-            <TableRow
-              sx={{
-                "&:last-child td": { border: 0, textAlign: "center" },
-              }}
-            >
-              <TableCell colSpan={columns.length + 1}>
-                <NoData />
-              </TableCell>
+                  </Box>
+                </TableCell>
+              ))}
+              {hasAction && <TableCell>{actionText ?? ""}</TableCell>}
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody sx={{ width: "100%" }}>
+            {loading ? (
+              <TableRow
+                sx={{
+                  "&:last-child td": { border: 0, textAlign: "center" },
+                }}
+              >
+                <TableCell colSpan={columns.length + 1}>
+                  <Box
+                    sx={{
+                      height: "50vh",
+                      maxHeight: "280px !important",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <LoadingIcon size={75} />
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ) : (
+              <>
+                {localData.length > 0 ? (
+                  localData.map((row, index) => {
+                    const allDataKeys = Object.keys(row);
+                    return (
+                      <>
+                        <TableRow sx={{ "&:last-child td": { border: 0 } }}>
+                          {allDataKeys
+                            .filter((k) => k !== "hidden" && k !== "id")
+                            .map((key: any, localIndex) => (
+                              <TableCell
+                                sx={{
+                                  textTransform:
+                                    key === "email" ? "none" : "capitalize",
+                                  whiteSpace: "nowrap",
+                                  fontWeight: key === "amount" ? 600 : 400,
+                                }}
+                                key={`${row[key]}_${localIndex}`}
+                              >
+                                {Array.isArray(row[key])
+                                  ? row[key].join(", ")
+                                  : row[key] ?? "No Data"}
+                              </TableCell>
+                            ))}
+                          {hasAction && (
+                            <TableCell
+                              sx={{ width: "480px", whiteSpace: "nowrap" }}
+                            >
+                              {actionColumn && actionColumn(index)}
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      </>
+                    );
+                  })
+                ) : (
+                  <TableRow
+                    sx={{
+                      "&:last-child td": { border: 0, textAlign: "center" },
+                    }}
+                  >
+                    <TableCell colSpan={columns.length + 1}>
+                      <NoData />
+                    </TableCell>
+                  </TableRow>
+                )}
+              </>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
       <Box
         sx={{
           mt: 3,
@@ -232,7 +262,7 @@ const DataTable = ({
           }
         />
       </Box>
-    </TableContainer>
+    </>
   );
 };
 

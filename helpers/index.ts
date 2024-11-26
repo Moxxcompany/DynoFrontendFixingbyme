@@ -101,6 +101,13 @@ const countDecimals = (number: number) => {
   return number.toString().split(".")[1].length || 0;
 };
 
+const stringShorten = (string: string, startChars = 10, endChars = 5) => {
+  const firstString = string.substring(0, startChars);
+  const lastString = string.substring(string.length - endChars);
+  console.log(firstString + "........" + lastString);
+  return firstString + "........" + lastString;
+};
+
 export {
   a11yProps,
   countDecimals,
@@ -117,4 +124,5 @@ export {
   generateRedirectUrl,
   generateStatusUrl,
   getCurrencySymbol,
+  stringShorten,
 };

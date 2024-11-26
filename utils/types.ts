@@ -12,6 +12,7 @@ export interface rootReducer {
   companyReducer: companyReducer;
   walletReducer: walletReducer;
   apiReducer: apiReducer;
+  transactionReducer: transactionReducer;
 }
 
 export interface userReducer {
@@ -31,6 +32,12 @@ export interface companyReducer {
 
 export interface apiReducer {
   apiList: IApi[];
+  loading: boolean;
+}
+
+export interface transactionReducer {
+  customers_transactions: ICustomerTransactions[];
+  self_transactions: ICustomerTransactions[];
   loading: boolean;
 }
 
@@ -63,6 +70,39 @@ export interface IApi {
   user_id: number;
   base_currency: string;
   apiKey: string;
+}
+
+export interface ICustomerTransactions {
+  user_id: number;
+  payment_mode: string;
+  base_amount: number;
+  base_currency: string;
+  transaction_reference: string;
+  transaction_type: string;
+  status: string;
+  customer_id: number;
+  createdAt: string;
+  updatedAt: string;
+  transaction_details: string;
+  id: string;
+  customer_name: string;
+  email: string;
+  company_name: string;
+  company_id: number;
+}
+
+export interface ISelfTransactions {
+  user_id: number;
+  payment_mode: string;
+  base_amount: number;
+  base_currency: string;
+  transaction_reference: string;
+  transaction_type: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  transaction_details: string;
+  id: string;
 }
 
 export interface IWallet {

@@ -2,33 +2,36 @@ import { call, put } from "redux-saga/effects";
 
 import axios from "@/axiosConfig";
 import { TOAST_SHOW } from "../Actions/ToastAction";
-import { WALLET_API_ERROR, WALLET_FETCH } from "../Actions/WalletAction";
+import {
+  TRANSACTION_ERROR,
+  TRANSACTION_FETCH,
+} from "../Actions/TransactionAction";
 
-interface IWalletAction {
+interface ITransactionAction {
   crudType: string;
   payload: any;
 }
 
-export function* WalletSaga(action: IWalletAction): unknown {
+export function* TransactionSaga(action: ITransactionAction): unknown {
   switch (action.crudType) {
-    case WALLET_FETCH:
-      yield getWallet();
+    case TRANSACTION_FETCH:
+      yield getAllTransactions();
       break;
 
     default:
-      yield put({ type: WALLET_API_ERROR });
+      yield put({ type: TRANSACTION_ERROR });
       break;
   }
 }
 
-export function* getWallet(): unknown {
+export function* getAllTransactions(): unknown {
   try {
     const {
       data: { data, message },
-    } = yield call(axios.get, "wallet/getWallet");
+    } = yield call(axios.post, "wallet/getAllTransactions");
 
     yield put({
-      type: WALLET_FETCH,
+      type: TRANSACTION_FETCH,
       payload: data,
     });
   } catch (e: any) {
@@ -41,7 +44,7 @@ export function* getWallet(): unknown {
       },
     });
     yield put({
-      type: WALLET_API_ERROR,
+      type: TRANSACTION_ERROR,
     });
   }
 }

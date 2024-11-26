@@ -29,6 +29,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
 import { TOAST_SHOW } from "../Redux/Actions/ToastAction";
+import { stringShorten } from "@/helpers";
 
 const companyInitial = {
   company_id: 0,
@@ -39,12 +40,6 @@ const base_currency = [
   { label: "USD", value: "USD" },
   { label: "NGN", value: "NGN" },
 ];
-
-const stringShorten = (string: string) => {
-  const firstString = string.substring(0, 10);
-  const lastString = string.substring(string.length - 5);
-  return firstString + "........" + lastString;
-};
 
 const APIs = ({ setPageName }: pageProps) => {
   const dispatch = useDispatch();
