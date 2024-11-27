@@ -78,6 +78,24 @@ const FormManager = ({
     }
   };
 
+  const revalidate = () => {
+    if (yupSchema) {
+      const tempErrors = checkValidation(yupSchema, values);
+      const tempInitialValues: any = {};
+      Object.keys(initialValues).map((item) => {
+        if (Number.isInteger(initialTouchValue && initialTouchValue[item]))
+          tempInitialValues[item] = "";
+        else tempInitialValues[item] = "";
+      });
+      setErrors(tempErrors ?? { ...tempInitialValues });
+      setSubmitDisable(tempErrors ? true : false);
+    }
+  };
+
+  useEffect(() => {
+    revalidate();
+  }, [yupSchema]);
+
   return (
     <form method="post" onSubmit={handleSubmit}>
       {children({
@@ -87,6 +105,7 @@ const FormManager = ({
         touched,
         values,
         submitDisable,
+        revalidate,
       })}
     </form>
   );

@@ -29,8 +29,8 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import CustomTooltip from "@/Components/UI/CustomTooltip";
 
 const selfColumns = [
+  "#",
   "id",
-
   "Payment Mode",
   "Amount",
   "Currency",
@@ -41,6 +41,7 @@ const selfColumns = [
 ];
 
 const customerColumns = [
+  "#",
   "id",
   "Customer name",
   "Email",
@@ -78,6 +79,7 @@ const Transactions = ({ setPageName }: pageProps) => {
       for (let i = 0; i < transactionState.self_transactions.length; i++) {
         const temp = transactionState.self_transactions[i];
         const tempObject = {
+          no: i + 1,
           tid: stringShorten(temp.id, 5, 5),
           payment_mode: temp.payment_mode,
           base_amount: temp.base_amount,
@@ -131,6 +133,7 @@ const Transactions = ({ setPageName }: pageProps) => {
       for (let i = 0; i < transactionState.customers_transactions.length; i++) {
         const temp = transactionState.customers_transactions[i];
         const tempObject = {
+          no: i + 1,
           cid: temp.id ? stringShorten(temp.id, 5, 5) : "No id",
           customer_name: temp.customer_name,
           email: temp.email,

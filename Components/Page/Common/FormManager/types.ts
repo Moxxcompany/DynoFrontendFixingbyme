@@ -23,6 +23,7 @@ interface childrenProps {
   errors: Values;
   touched: Values;
   submitDisable: boolean;
+  revalidate: () => void;
 }
 export interface Values {
   [field: string]: any;

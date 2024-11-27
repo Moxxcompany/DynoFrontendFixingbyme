@@ -125,18 +125,22 @@ const Withdraw = ({ setPageName }: pageProps) => {
           amount,
         });
         setFees(data);
-        if (feeType === "wallet") {
-          const feesInUSD =
-            Number(data[currentFees]) *
-            Number(cryptoData[currentIndex].transfer_rate);
+        const feesInUSD = Math.ceil(
+          Number(data[currentFees]) /
+            Number(cryptoData[currentIndex].transfer_rate)
+        );
 
-          const tempAmount = Number(
-            Number(cryptoData[currentIndex].amount_in_usd) -
-              minimumDollar -
-              feesInUSD
-          );
-          setMaxAmount(Number(tempAmount.toFixed(8)));
-        }
+        console.log(
+          feeToPay,
+          feesInUSD,
+          cryptoData[currentIndex].transfer_rate
+        );
+
+        const tempAmount = Number(
+          Number(cryptoData[currentIndex].amount_in_usd) -
+            (feeType === "wallet" ? minimumDollar + feesInUSD : minimumDollar)
+        );
+        setMaxAmount(Number(tempAmount.toFixed(8)));
         setFeeToPay(data[currentFees]);
       }
 
@@ -287,6 +291,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
               submitDisable,
               touched,
               values,
+              revalidate,
             }) => (
               <>
                 <Box
@@ -393,18 +398,19 @@ const Withdraw = ({ setPageName }: pageProps) => {
                     value={feeType}
                     onChange={(e) => {
                       setFeeType(e.target.value);
-                      if (e.target.value === "wallet") {
-                        const feesInUSD =
-                          Number(feeToPay) *
-                          Number(cryptoData[currentIndex].transfer_rate);
 
-                        const tempAmount = Number(
-                          Number(cryptoData[currentIndex].amount_in_usd) -
-                            minimumDollar -
-                            feesInUSD
-                        );
-                        setMaxAmount(Number(tempAmount.toFixed(8)));
-                      }
+                      const feesInUSD = Math.ceil(
+                        Number(feeToPay) /
+                          Number(cryptoData[currentIndex].transfer_rate)
+                      );
+
+                      const tempAmount = Number(
+                        Number(cryptoData[currentIndex].amount_in_usd) -
+                          (e.target.value === "wallet"
+                            ? minimumDollar + feesInUSD
+                            : minimumDollar)
+                      );
+                      setMaxAmount(Number(tempAmount.toFixed(8)));
                     }}
                     name="radio-buttons-group"
                     row
@@ -435,14 +441,27 @@ const Withdraw = ({ setPageName }: pageProps) => {
                           const current = e.target.value;
                           const tempFees: any = { ...fees };
                           setCurrentFees(current);
-                          if (feeType === "wallet") {
-                            const tempAmount = Number(
-                              Number(cryptoData[currentIndex].amount_in_usd) -
-                                minimumDollar -
-                                tempFees[current]
-                            );
-                            setMaxAmount(Number(tempAmount.toFixed(8)));
-                          }
+
+                          const feesInUSD = Math.ceil(
+                            Number(tempFees[current]) /
+                              Number(cryptoData[currentIndex].transfer_rate)
+                          );
+
+                          const tempAmount = Number(
+                            Number(cryptoData[currentIndex].amount_in_usd) -
+                              (feeType === "wallet"
+                                ? minimumDollar + feesInUSD
+                                : minimumDollar)
+                          );
+
+                          console.log(
+                            "radio========>",
+                            tempFees[current],
+                            feesInUSD,
+                            tempAmount
+                          );
+                          setMaxAmount(Number(tempAmount.toFixed(8)));
+
                           setFeeToPay(tempFees[current]);
                         }}
                         name="radio-buttons-group"
