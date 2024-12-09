@@ -22,6 +22,7 @@ import {
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import * as yup from "yup";
 
 const columns = [
   "#",
@@ -36,13 +37,34 @@ const columns = [
 
 const AdminFee = ({ setPageName }: pageProps) => {
   const dispatch = useDispatch();
-  const router = useRouter();
 
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [feeTransaction, setFeeTransactions] = useState<any[]>([]);
+  const [initialValues, setInitialValues] = useState({
+    feeLimit: 0,
+    alert_duration: 0,
+  });
+  const [feeLimits, setFeeLimits] = useState({
+    feeLimit: 0,
+    alert_duration: 0,
+  });
   const [searchValue, setSearchValue] = useState("");
   const [cryptoData, setCryptoData] = useState<IWallet[]>([]);
+  const [open, setOpen] = useState(false);
+
+  const fundSchema = yup.object().shape({
+    feeLimit: yup
+      .number()
+      .required("amount is required!")
+      .min(20, "Minimum is 20$")
+      .typeError("Please enter number"),
+    alert_duration: yup
+      .number()
+      .required("amount is required!")
+      .min(1, "Minimum is 1 Hour")
+      .typeError("Please enter number"),
+  });
 
   useEffect(() => {
     getFeeWalletBalance();
@@ -55,6 +77,14 @@ const AdminFee = ({ setPageName }: pageProps) => {
         data: { data },
       } = await adminBaseApi.get("/admin/getFeeWalletBalance");
       setCryptoData(data.cryptoWallets);
+      setInitialValues({
+        feeLimit: data.cryptoWallets[0].feeLimit,
+        alert_duration: data.cryptoWallets[0].alert_duration,
+      });
+      setFeeLimits({
+        feeLimit: data.cryptoWallets[0].feeLimit,
+        alert_duration: data.cryptoWallets[0].alert_duration,
+      });
       setFeeData(data?.transactions);
       setLoading(false);
     } catch (e: any) {
@@ -128,6 +158,32 @@ const AdminFee = ({ setPageName }: pageProps) => {
     setSearchValue(e.target.value);
   };
 
+  const handleSubmit = async (values: any) => {
+    try {
+      const {
+        data: { data, message },
+      } = await adminBaseApi.put("admin/updateFeeLimits", { ...values });
+      setInitialValues({ ...values });
+      setFeeLimits({ ...values });
+      setOpen(false);
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+        },
+      });
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
+  };
+
   return (
     <Box sx={{ m: 2, mb: 5 }}>
       {loading ? (
@@ -146,6 +202,84 @@ const AdminFee = ({ setPageName }: pageProps) => {
         </>
       ) : (
         <>
+          <PopupModal
+            open={open}
+            showClose
+            handleClose={() => {
+              setOpen(false);
+              setInitialValues({ ...feeLimits });
+            }}
+            headerText={"Change Limits"}
+          >
+            <Box sx={{ minWidth: "450px" }}>
+              <FormManager
+                initialValues={initialValues}
+                yupSchema={fundSchema}
+                onSubmit={handleSubmit}
+              >
+                {({
+                  errors,
+                  handleBlur,
+                  handleChange,
+                  submitDisable,
+                  touched,
+                  values,
+                }) => (
+                  <>
+                    <Box
+                      sx={{
+                        mb: 3,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 3,
+                        justifyContent: "flex-start",
+                        alignItems: "flex-end",
+                      }}
+                    >
+                      <TextBox
+                        name="feeLimit"
+                        placeholder="Enter Limit"
+                        label="Alert Limit"
+                        value={values.feeLimit}
+                        type="number"
+                        fullWidth
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.feeLimit && errors.feeLimit}
+                        helperText={
+                          touched.feeLimit && errors.feeLimit && errors.feeLimit
+                        }
+                      />
+                      <TextBox
+                        name="alert_duration"
+                        placeholder="Enter alert duration in hours"
+                        label="Alert Duration (Hr)"
+                        value={values.alert_duration}
+                        type="number"
+                        fullWidth
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.alert_duration && errors.alert_duration}
+                        helperText={
+                          touched.alert_duration &&
+                          errors.alert_duration &&
+                          errors.alert_duration
+                        }
+                      />
+
+                      <Button
+                        variant="rounded"
+                        disabled={submitDisable}
+                        type="submit"
+                      >
+                        Update
+                      </Button>
+                    </Box>
+                  </>
+                )}
+              </FormManager>
+            </Box>
+          </PopupModal>
           <Box
             sx={{
               display: "flex",
@@ -156,6 +290,9 @@ const AdminFee = ({ setPageName }: pageProps) => {
             <Typography sx={{ fontWeight: 700, mt: 5 }}>
               Crypto Fee Wallets
             </Typography>
+            <Button variant="rounded" onClick={() => setOpen(true)}>
+              Change Limits
+            </Button>
           </Box>
           <Divider sx={{ my: 2 }} />
           <Box

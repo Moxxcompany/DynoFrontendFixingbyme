@@ -10,6 +10,7 @@ import {
   HomeRounded,
   InsertDriveFileRounded,
   InsightsRounded,
+  MonetizationOnRounded,
   PhotoLibraryRounded,
   ReceiptLongRounded,
   RssFeedRounded,
@@ -71,6 +72,11 @@ const adminMenus = [
     icon: <WalletRounded color="inherit" />,
     name: "Wallet",
     link: "/admin/wallet",
+  },
+  {
+    icon: <MonetizationOnRounded color="inherit" />,
+    name: "Fee",
+    link: "/admin/fee",
   },
 ];
 
