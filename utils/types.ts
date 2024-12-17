@@ -117,6 +117,7 @@ export interface IWallet {
   updatedAt: string;
   currency_type: string;
   amount_in_usd: string;
+  fee_in_usd: string;
   transfer_rate: string;
 }
 
@@ -166,6 +167,14 @@ export interface IToastProps {
   message?: string;
   hide?: boolean;
   loading?: boolean;
+}
+
+export interface ISavedAddressTypes {
+  user_address_id: number;
+  user_id: number;
+  label: string;
+  currency: string;
+  wallet_address: string;
 }
 
 // success types

@@ -5,7 +5,7 @@ import PopupModal from "@/Components/UI/PopupModal";
 import { countDecimals, getCurrencySymbol } from "@/helpers";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { IWallet, pageProps } from "@/utils/types";
-import { Box, Button, Divider, Typography } from "@mui/material";
+import { Box, Button, Divider, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -13,7 +13,7 @@ import { useDispatch } from "react-redux";
 const AdminWallet = ({ setPageName }: pageProps) => {
   const dispatch = useDispatch();
   const router = useRouter();
-
+  const theme = useTheme();
   const [loading, setLoading] = useState(true);
 
   const [loading2, setLoading2] = useState(false);
@@ -168,16 +168,78 @@ const AdminWallet = ({ setPageName }: pageProps) => {
                     <Typography sx={{ fontSize: "24px", fontWeight: 700 }}>
                       {x.wallet_type}
                     </Typography>
-                    <Typography
+                    <Box
                       sx={{
-                        fontSize: 30,
-                        fontWeight: 900,
-                        textAlign: "right",
-                        color: "text.secondary",
+                        display: "flex",
+                        alignItems: "flex-end",
+                        justifyContent: "space-between",
                       }}
                     >
-                      {getCurrencySymbol(x.wallet_type, x.amount.toFixed(2))}
-                    </Typography>
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            mt: 2,
+                            color: theme.palette.secondary.main,
+                            fontWeight: 700,
+                          }}
+                        >
+                          ( Fee )
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: 18,
+                            fontWeight: 900,
+                            textAlign: "right",
+                            color: theme.palette.success.main,
+                          }}
+                        >
+                          {getCurrencySymbol(
+                            x.wallet_type,
+                            countDecimals(x.fee) > 8
+                              ? x.fee.toFixed(8)
+                              : x.fee.toFixed(2)
+                          )}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            textAlign: "left",
+                            color: theme.palette.error.main,
+                          }}
+                        >
+                          ({getCurrencySymbol("USD", x.fee_in_usd)})
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: 30,
+                            fontWeight: 900,
+                            textAlign: "right",
+                            color: "text.secondary",
+                          }}
+                        >
+                          {getCurrencySymbol(
+                            x.wallet_type,
+                            countDecimals(x.amount) > 8
+                              ? x.amount.toFixed(8)
+                              : x.amount.toFixed(2)
+                          )}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            textAlign: "right",
+                            color: theme.palette.error.main,
+                          }}
+                        >
+                          ({getCurrencySymbol("USD", x.amount_in_usd)})
+                        </Typography>
+                      </Box>
+                    </Box>
                   </Box>
                 ))}
               </Box>
@@ -198,34 +260,92 @@ const AdminWallet = ({ setPageName }: pageProps) => {
                     key={x.id}
                     sx={{
                       border: "1px solid",
-                      width: "40vw",
-                      height: "150px",
+                      width: { md: "40vw", xs: "90vw" },
+                      height: "100%",
                       borderRadius: "10px",
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
                       p: 3,
+                      overflow: "scroll",
                     }}
                   >
                     <Typography sx={{ fontSize: "24px", fontWeight: 700 }}>
                       {x.wallet_type}
                     </Typography>
                     <Typography>{x.wallet_address}</Typography>
-                    <Typography
+                    <Box
                       sx={{
-                        fontSize: 30,
-                        fontWeight: 900,
-                        textAlign: "right",
-                        color: "text.secondary",
+                        display: "flex",
+                        alignItems: "flex-end",
+                        justifyContent: "space-between",
                       }}
                     >
-                      {getCurrencySymbol(
-                        x.wallet_type,
-                        countDecimals(x.fee) > 8
-                          ? x.fee.toFixed(8)
-                          : x.fee.toFixed(2)
-                      )}
-                    </Typography>
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            mt: 2,
+                            color: theme.palette.secondary.main,
+                            fontWeight: 700,
+                          }}
+                        >
+                          ( Fee )
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: 18,
+                            fontWeight: 900,
+                            textAlign: "right",
+                            color: theme.palette.success.main,
+                          }}
+                        >
+                          {getCurrencySymbol(
+                            x.wallet_type,
+                            countDecimals(x.fee) > 8
+                              ? x.fee.toFixed(8)
+                              : x.fee.toFixed(2)
+                          )}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            textAlign: "left",
+                            color: theme.palette.error.main,
+                          }}
+                        >
+                          ({getCurrencySymbol("USD", x.fee_in_usd)})
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: 30,
+                            fontWeight: 900,
+                            textAlign: "right",
+                            color: "text.secondary",
+                          }}
+                        >
+                          {getCurrencySymbol(
+                            x.wallet_type,
+                            countDecimals(x.amount) > 8
+                              ? x.amount.toFixed(8)
+                              : x.amount.toFixed(2)
+                          )}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            textAlign: "right",
+                            color: theme.palette.error.main,
+                          }}
+                        >
+                          ({getCurrencySymbol("USD", x.amount_in_usd)})
+                        </Typography>
+                      </Box>
+                    </Box>
                   </Box>
                 ))}
               </Box>

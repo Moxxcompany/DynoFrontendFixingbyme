@@ -2,13 +2,20 @@ import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import axiosBaseApi from "@/axiosConfig";
 import FormManager from "@/Components/Page/Common/FormManager";
 import Dropdown from "@/Components/UI/Dropdown";
+import PopupModal from "@/Components/UI/PopupModal";
 import TextBox from "@/Components/UI/TextBox";
 import { countDecimals, getCurrencySymbol } from "@/helpers";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { IWallet, menuItem, pageProps } from "@/utils/types";
+import {
+  ISavedAddressTypes,
+  IWallet,
+  menuItem,
+  pageProps,
+} from "@/utils/types";
 import {
   Box,
   Button,
+  Checkbox,
   Collapse,
   FormControlLabel,
   Grid,
@@ -33,6 +40,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
     currency: "ETH",
     amount: 0,
     address: "",
+    saveAddress: false,
   });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [wallets, setWallets] = useState<menuItem[]>([]);
@@ -41,13 +49,28 @@ const Withdraw = ({ setPageName }: pageProps) => {
   const [countdown, setCountdown] = useState(-1);
   const [finalValues, setFinalValues] = useState<any>();
   const [resendOtp, setResendOTP] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<ISavedAddressTypes[]>(
+    []
+  );
+  const [addressLoading, setAddressLoading] = useState(false);
+
+  const [validAddress, setValidAddress] = useState(true);
+  const [currentAddress, setCurrentAddress] = useState<menuItem[]>([]);
+  const [addressOpen, setAddressOpen] = useState(false);
+  const [newAddress, setNewAddress] = useState("");
+  const [label, setLabel] = useState("");
+  const [open, setOpen] = useState(false);
 
   const [fees, setFees] = useState<{
     fast: number;
+    fast_in_usd: number;
     medium: number;
+    medium_in_usd: number;
     slow: number;
+    slow_in_usd: number;
   }>();
   const [currentFees, setCurrentFees] = useState("fast");
+
   const [feeToPay, setFeeToPay] = useState(0);
   const [feeType, setFeeType] = useState("amount");
   const [otpSent, setOtpSent] = useState(false);
@@ -56,6 +79,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
   useEffect(() => {
     setPageName("Withdraw");
     getWallets();
+    getWalletAddresses();
   }, []);
 
   const schema = yup.object().shape({
@@ -67,6 +91,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
       .max(maxAmount),
     address: yup.string().required("address is required!"),
   });
+
   const otpSchema = yup.object().shape({
     otp: yup
       .string()
@@ -90,6 +115,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
       currency: "ETH",
       amount: 0,
       address: "",
+      saveAddress: false,
     });
   };
 
@@ -261,6 +287,83 @@ const Withdraw = ({ setPageName }: pageProps) => {
     }
   };
 
+  const getWalletAddresses = async () => {
+    try {
+      const {
+        data: { data },
+      } = await axiosBaseApi.get("/wallet/getWalletAddresses");
+      updateNewList(data, "ETH");
+      setSavedAddresses(data);
+    } catch (e: any) {
+      const message = e?.response?.data?.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
+  };
+
+  const updateNewList = (data: ISavedAddressTypes[], currency: string) => {
+    const tempAddressData: menuItem[] = [];
+
+    const currentCurrencyWallets = data.filter(
+      (x: any) => x.currency === currency
+    );
+    for (let i = 0; i < currentCurrencyWallets.length; i++) {
+      const x = currentCurrencyWallets[i];
+
+      tempAddressData.push({
+        label: (x.label ? x.label + "-" : "") + x.wallet_address,
+        value: x.wallet_address,
+      });
+    }
+
+    setCurrentAddress(tempAddressData);
+  };
+
+  const addWalletAddress = async () => {
+    setAddressLoading(true);
+    try {
+      const currency = cryptoData[currentIndex].wallet_type;
+      const {
+        data: { data, message },
+      } = await axiosBaseApi.post("/wallet/addWalletAddress", {
+        wallet_address: newAddress,
+        currency,
+        label: label,
+      });
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+        },
+      });
+      setCurrentAddress([
+        ...currentAddress,
+        { label: (label ? label + "-" : "") + newAddress, value: newAddress },
+      ]);
+      console.log(data);
+      setSavedAddresses([...savedAddresses, { ...data }]);
+      setOpen(false);
+      setNewAddress("");
+    } catch (e: any) {
+      console.log(e);
+      const message = e?.response?.data?.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+      setValidAddress(false);
+    }
+    setAddressLoading(false);
+  };
+
   return (
     <Box>
       {loading ? (
@@ -279,6 +382,57 @@ const Withdraw = ({ setPageName }: pageProps) => {
         </>
       ) : (
         <Box sx={{ maxWidth: "500px" }}>
+          <PopupModal
+            open={open}
+            handleClose={() => setOpen(false)}
+            headerText={`Add ${cryptoData[currentIndex].wallet_type} Address`}
+            showClose
+          >
+            <Box
+              sx={{
+                minWidth: { md: "450px", xs: "90vw" },
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                gap: 1,
+              }}
+            >
+              <TextBox
+                value={label}
+                onChange={(e) => {
+                  setLabel(e.target.value);
+                }}
+                label="address label (optional)"
+                placeholder="Enter address label"
+                fullWidth
+              />
+              <TextBox
+                value={newAddress}
+                onChange={(e) => {
+                  setNewAddress(e.target.value);
+                  setValidAddress(true);
+                }}
+                error={!validAddress || !newAddress}
+                fullWidth
+                label="address"
+                helperText={
+                  (!validAddress || !newAddress) &&
+                  "please add an valid address"
+                }
+                placeholder="Enter new Address"
+              />
+              <Button
+                variant="rounded"
+                sx={{ mt: 2 }}
+                disabled={
+                  addressLoading ? addressLoading : !validAddress || !newAddress
+                }
+                onClick={() => addWalletAddress()}
+              >
+                Add{" "}
+              </Button>
+            </Box>
+          </PopupModal>
           <FormManager
             initialValues={walletInitial}
             yupSchema={schema}
@@ -324,7 +478,10 @@ const Withdraw = ({ setPageName }: pageProps) => {
                       setCurrentIndex(index);
                       setFees(undefined);
                       setOtpSent(false);
-
+                      updateNewList(
+                        savedAddresses,
+                        cryptoData[index].wallet_type
+                      );
                       const tempAmount = Number(
                         Number(cryptoData[index].amount_in_usd) - minimumDollar
                       );
@@ -386,6 +543,99 @@ const Withdraw = ({ setPageName }: pageProps) => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                   />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                      ml: 1,
+                    }}
+                  >
+                    {currentAddress.findIndex(
+                      (x) => x.value === values.address
+                    ) === -1 && (
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            size="small"
+                            color="secondary"
+                            value={values.saveAddress}
+                            onChange={(e: any) => {
+                              const event: any = {
+                                target: {
+                                  name: "saveAddress",
+                                  value: e.target.checked,
+                                },
+                              };
+                              handleChange(event);
+                            }}
+                          />
+                        }
+                        label="Save this address"
+                        sx={{ "& span": { fontSize: 12, fontWeight: 500 } }}
+                      />
+                    )}
+                    <Typography
+                      sx={{
+                        textAlign: "right",
+                        color: "text.secondary",
+                        fontSize: 12,
+                        mt: 1,
+                        ml: "auto",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setAddressOpen(!addressOpen)}
+                    >
+                      {addressOpen
+                        ? "hide address book"
+                        : "select from address book"}
+                    </Typography>
+                  </Box>
+                  <Collapse in={addressOpen}>
+                    <Box
+                      sx={{
+                        mt: 1,
+                        p: 3,
+                        textAlign: "center",
+                        color: "text.secondary",
+                        border: "1px solid",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      {currentAddress.length > 0 ? (
+                        <>
+                          {currentAddress.map((x) => (
+                            <Typography
+                              key={x.value}
+                              sx={{
+                                cursor: "pointer",
+                                "&:hover": {
+                                  textDecoration: "underline",
+                                },
+                              }}
+                              onClick={() => {
+                                const e: any = {
+                                  target: {
+                                    name: "address",
+                                    value: x.value,
+                                  },
+                                };
+                                handleChange(e);
+                              }}
+                            >
+                              {x.label}
+                            </Typography>
+                          ))}
+                        </>
+                      ) : (
+                        <Typography>No Addresses found!</Typography>
+                      )}
+                      <Button sx={{ mt: 1 }} onClick={() => setOpen(true)}>
+                        + Add new
+                      </Button>
+                    </Box>
+                  </Collapse>
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -467,36 +717,28 @@ const Withdraw = ({ setPageName }: pageProps) => {
                         name="radio-buttons-group"
                         row
                       >
-                        <FormControlLabel
-                          value="fast"
-                          control={<Radio />}
-                          label={`Fast: ${Number(
-                            fees.fast /
-                              Number(cryptoData[currentIndex].transfer_rate)
-                          ).toFixed(2)}$ (${fees.fast} ${
-                            cryptoData[currentIndex].wallet_type
-                          })`}
-                        />
-                        <FormControlLabel
-                          value="medium"
-                          control={<Radio />}
-                          label={`Medium: ${Number(
-                            fees.medium /
-                              Number(cryptoData[currentIndex].transfer_rate)
-                          ).toFixed(2)}$ (${fees.medium} ${
-                            cryptoData[currentIndex].wallet_type
-                          })`}
-                        />
-                        <FormControlLabel
-                          value="slow"
-                          control={<Radio />}
-                          label={`Slow: ${Number(
-                            fees.slow /
-                              Number(cryptoData[currentIndex].transfer_rate)
-                          ).toFixed(2)}$ (${fees.slow} ${
-                            cryptoData[currentIndex].wallet_type
-                          })`}
-                        />
+                        {fees?.fast && (
+                          <FormControlLabel
+                            value="fast"
+                            control={<Radio />}
+                            label={`Fast: ${fees.fast_in_usd}$ (${fees.fast} ${cryptoData[currentIndex].wallet_type})`}
+                          />
+                        )}
+                        {fees?.medium && (
+                          <FormControlLabel
+                            value="medium"
+                            control={<Radio />}
+                            label={`Medium: ${fees.medium_in_usd}$ (${fees.medium} ${cryptoData[currentIndex].wallet_type})`}
+                          />
+                        )}
+
+                        {fees?.slow && (
+                          <FormControlLabel
+                            value="slow"
+                            control={<Radio />}
+                            label={`Slow: ${fees.slow_in_usd}$ (${fees.slow} ${cryptoData[currentIndex].wallet_type})`}
+                          />
+                        )}
                       </RadioGroup>
                     </Box>
                   )}

@@ -221,7 +221,7 @@ const Wallet = ({ setPageName }: pageProps) => {
               sx={{
                 border: "1px solid",
                 width: "250px",
-                height: "150px",
+                height: "100%",
                 borderRadius: "10px",
                 display: "flex",
                 flexDirection: "column",
@@ -271,7 +271,7 @@ const Wallet = ({ setPageName }: pageProps) => {
               sx={{
                 border: "1px solid",
                 width: "250px",
-                height: "150px",
+                height: "100%",
                 borderRadius: "10px",
                 display: "flex",
                 flexDirection: "column",
