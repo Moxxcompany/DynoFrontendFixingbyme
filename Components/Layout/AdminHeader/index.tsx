@@ -305,18 +305,18 @@ const AdminHeader = ({ pageName, component }: AdminHeaderProps) => {
               {tokenData?.email}
             </Typography>
           </ListItem>
-          <Divider />
+          <Divider /> */}
           <ListItem sx={{ p: 0 }}>
             <ListItemButton
               onClick={() => {
                 setOpen(false);
                 setAnchorEl(null);
-                router.push("/profile");
+                router.push("/admin/profile");
               }}
             >
               My Profile
             </ListItemButton>
-          </ListItem> */}
+          </ListItem>
           <ListItem sx={{ p: 0 }}>
             <ListItemButton
               sx={{ color: (theme) => theme.palette.error.main }}

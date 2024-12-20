@@ -1,3 +1,4 @@
+import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import FormManager from "@/Components/Page/Common/FormManager";
 import DataTable from "@/Components/UI/DataTable";
 import Dropdown from "@/Components/UI/Dropdown";
@@ -40,6 +41,7 @@ const Wallet = ({ setPageName }: pageProps) => {
   const [fiatData, setFiatData] = useState<IWallet[]>([]);
   const [cryptoData, setCryptoData] = useState<IWallet[]>([]);
   const [searchValue, setSearchValue] = useState("");
+  const [loading, setLoading] = useState(true);
   const [totalBalance, setTotalBalance] = useState(0);
   const [open, setOpen] = useState(false);
 
@@ -68,6 +70,7 @@ const Wallet = ({ setPageName }: pageProps) => {
       setTotalBalance(total);
       setCryptoData(tempCrypto);
       setFiatData(tempFiat);
+      setLoading(false);
     }
   }, [walletState.walletList]);
 
@@ -168,146 +171,168 @@ const Wallet = ({ setPageName }: pageProps) => {
         </Box>
       </PopupModal>
       <Box sx={{ m: 2, mb: 5 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Typography sx={{ fontSize: 18, fontWeight: 900 }}>
-            Total Wallet Balance:{" "}
-          </Typography>
-          <Typography
-            sx={{ fontSize: 18, fontWeight: 900, color: "text.secondary" }}
-          >
-            $ {totalBalance}
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            mt: 2,
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-          }}
-        >
-          <Typography sx={{ fontWeight: 700 }}>Fiat Wallets</Typography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Button
-              variant="rounded"
-              color="secondary"
-              onClick={() => router.push("/withdraw")}
-            >
-              Withdraw
-            </Button>
-            <Button
-              variant="rounded"
-              color="primary"
-              onClick={() => {
-                setOpen(true);
-              }}
-            >
-              Add Funds
-            </Button>
-          </Box>
-        </Box>
-        <Divider sx={{ my: 2 }} />
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 3,
-            flexWrap: "wrap",
-          }}
-        >
-          {fiatData.map((x) => (
+        {loading ? (
+          <>
             <Box
-              key={x.id}
               sx={{
-                border: "1px solid",
-                width: "250px",
-                height: "100%",
-                borderRadius: "10px",
+                height: "375px",
+                width: "100%",
                 display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                p: 3,
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              <Typography sx={{ fontSize: "24px", fontWeight: 700 }}>
-                {x.wallet_type}
+              <LoadingIcon size={75} />
+            </Box>
+          </>
+        ) : (
+          <>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography sx={{ fontSize: 18, fontWeight: 900 }}>
+                Total Wallet Balance:{" "}
               </Typography>
               <Typography
-                sx={{
-                  fontSize: 30,
-                  fontWeight: 900,
-                  textAlign: "right",
-                  color: "text.secondary",
-                }}
+                sx={{ fontSize: 18, fontWeight: 900, color: "text.secondary" }}
               >
-                {getCurrencySymbol(x.wallet_type, x.amount.toFixed(2))}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  textAlign: "right",
-                  color: theme.palette.error.main,
-                }}
-              >
-                ({getCurrencySymbol("USD", x.amount_in_usd)})
+                $ {totalBalance.toFixed(2)}
               </Typography>
             </Box>
-          ))}
-        </Box>
-        <Typography sx={{ fontWeight: 700, mt: 5 }}>Crypto Wallets</Typography>
-        <Divider sx={{ my: 2 }} />
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 3,
-            flexWrap: "wrap",
-          }}
-        >
-          {cryptoData.map((x) => (
             <Box
-              key={x.id}
               sx={{
-                border: "1px solid",
-                width: "250px",
-                height: "100%",
-                borderRadius: "10px",
+                mt: 2,
                 display: "flex",
-                flexDirection: "column",
+                alignItems: "flex-end",
                 justifyContent: "space-between",
-                p: 3,
               }}
             >
-              <Typography sx={{ fontSize: "24px", fontWeight: 700 }}>
-                {x.wallet_type}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 30,
-                  fontWeight: 900,
-                  textAlign: "right",
-                  color: "text.secondary",
-                }}
-              >
-                {getCurrencySymbol(
-                  x.wallet_type,
-                  countDecimals(x.amount) > 8 ? x.amount.toFixed(8) : x.amount
-                )}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  textAlign: "right",
-                  color: theme.palette.error.main,
-                }}
-              >
-                ({getCurrencySymbol("USD", x.amount_in_usd)})
-              </Typography>
+              <Typography sx={{ fontWeight: 700 }}>Fiat Wallets</Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Button
+                  variant="rounded"
+                  color="secondary"
+                  onClick={() => router.push("/withdraw")}
+                >
+                  Withdraw
+                </Button>
+                <Button
+                  variant="rounded"
+                  color="primary"
+                  onClick={() => {
+                    setOpen(true);
+                  }}
+                >
+                  Add Funds
+                </Button>
+              </Box>
             </Box>
-          ))}
-        </Box>
+            <Divider sx={{ my: 2 }} />
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                flexWrap: "wrap",
+              }}
+            >
+              {fiatData.map((x) => (
+                <Box
+                  key={x.id}
+                  sx={{
+                    border: "1px solid",
+                    width: "250px",
+                    height: "100%",
+                    borderRadius: "10px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    p: 3,
+                  }}
+                >
+                  <Typography sx={{ fontSize: "24px", fontWeight: 700 }}>
+                    {x.wallet_type}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 30,
+                      fontWeight: 900,
+                      textAlign: "right",
+                      color: "text.secondary",
+                    }}
+                  >
+                    {getCurrencySymbol(x.wallet_type, x.amount.toFixed(2))}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      textAlign: "right",
+                      color: theme.palette.error.main,
+                    }}
+                  >
+                    ({getCurrencySymbol("USD", x.amount_in_usd)})
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+            <Typography sx={{ fontWeight: 700, mt: 5 }}>
+              Crypto Wallets
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 3,
+                flexWrap: "wrap",
+              }}
+            >
+              {cryptoData.map((x) => (
+                <Box
+                  key={x.id}
+                  sx={{
+                    border: "1px solid",
+                    width: "250px",
+                    height: "100%",
+                    borderRadius: "10px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    p: 3,
+                  }}
+                >
+                  <Typography sx={{ fontSize: "24px", fontWeight: 700 }}>
+                    {x.wallet_type}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 30,
+                      fontWeight: 900,
+                      textAlign: "right",
+                      color: "text.secondary",
+                    }}
+                  >
+                    {getCurrencySymbol(
+                      x.wallet_type,
+                      countDecimals(x.amount) > 8
+                        ? x.amount.toFixed(8)
+                        : x.amount
+                    )}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      textAlign: "right",
+                      color: theme.palette.error.main,
+                    }}
+                  >
+                    ({getCurrencySymbol("USD", x.amount_in_usd)})
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </>
+        )}
       </Box>
     </>
   );

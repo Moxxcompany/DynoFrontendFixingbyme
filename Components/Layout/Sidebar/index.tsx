@@ -58,6 +58,23 @@ const SideBar = ({ handleDrawerToggle, type = "user" }: SideBarProps) => {
           </BottomBullets>
         </Box>
       )}
+      {type === "admin" && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 2,
+            flexDirection: { lg: "column", sm: "row" },
+            mx: "auto",
+            mb: 2,
+          }}
+        >
+          <BottomBullets onClick={() => router.push("/admin/profile")}>
+            <SettingsRounded fill="#fff" />
+          </BottomBullets>
+        </Box>
+      )}
     </Box>
   );
 };

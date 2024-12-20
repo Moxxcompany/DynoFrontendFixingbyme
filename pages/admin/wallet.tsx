@@ -20,6 +20,7 @@ const AdminWallet = ({ setPageName }: pageProps) => {
   const [generated, setGenerated] = useState(false);
   const [fiatData, setFiatData] = useState<IWallet[]>([]);
   const [cryptoData, setCryptoData] = useState<IWallet[]>([]);
+  const [totalBalance, setTotalBalance] = useState(0);
 
   useEffect(() => {
     getWallets();
@@ -34,6 +35,17 @@ const AdminWallet = ({ setPageName }: pageProps) => {
 
       setFiatData(data.fiatWallets);
       setCryptoData(data.cryptoWallets);
+
+      let total = 0;
+      for (let i = 0; i < data.fiatWallets.length; i++) {
+        const currentWallet = data.fiatWallets[i];
+        total += Number(currentWallet.amount_in_usd);
+      }
+      for (let i = 0; i < data.cryptoWallets.length; i++) {
+        const currentWallet = data.cryptoWallets[i];
+        total += Number(currentWallet.amount_in_usd);
+      }
+      setTotalBalance(total);
       setLoading(false);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
@@ -86,6 +98,16 @@ const AdminWallet = ({ setPageName }: pageProps) => {
         </>
       ) : (
         <>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 900 }}>
+              Total Wallet Balance:{" "}
+            </Typography>
+            <Typography
+              sx={{ fontSize: 18, fontWeight: 900, color: "text.secondary" }}
+            >
+              $ {totalBalance.toFixed(2)}
+            </Typography>
+          </Box>
           {fiatData.length === 0 && cryptoData.length === 0 ? (
             <Box
               sx={{

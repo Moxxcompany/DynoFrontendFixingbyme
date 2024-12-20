@@ -13,6 +13,7 @@ import {
   MonetizationOnRounded,
   PhotoLibraryRounded,
   ReceiptLongRounded,
+  RocketLaunchRounded,
   RssFeedRounded,
   SmsRounded,
   WalletRounded,
@@ -77,6 +78,11 @@ const adminMenus = [
     icon: <MonetizationOnRounded color="inherit" />,
     name: "Fee",
     link: "/admin/fee",
+  },
+  {
+    icon: <RocketLaunchRounded color="inherit" />,
+    name: "Transfer Speed",
+    link: "/admin/transferSpeed",
   },
 ];
 
