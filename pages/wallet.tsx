@@ -87,6 +87,7 @@ const Wallet = ({ setPageName }: pageProps) => {
   const handleSubmit = (values: any) => {
     dispatch({ type: WALLET_FUND_CREATE, payload: { ...values } });
   };
+
   return (
     <>
       <Head>
@@ -327,6 +328,21 @@ const Wallet = ({ setPageName }: pageProps) => {
                     }}
                   >
                     ({getCurrencySymbol("USD", x.amount_in_usd)})
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      textAlign: "left",
+                      color: theme.palette.grey[500],
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: "100%",
+                    }}
+                    title={x?.wallet_address ?? ""}
+                  >
+                    {x?.wallet_address ?? ""}
                   </Typography>
                 </Box>
               ))}
