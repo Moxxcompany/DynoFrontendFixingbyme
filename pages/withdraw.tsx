@@ -8,6 +8,7 @@ import { countDecimals, getCurrencySymbol } from "@/helpers";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import {
   ISavedAddressTypes,
+  ITransaction,
   IWallet,
   menuItem,
   pageProps,
@@ -45,7 +46,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [wallets, setWallets] = useState<menuItem[]>([]);
   const [maxAmount, setMaxAmount] = useState(0);
-  const [transaction, setTransaction] = useState<any>();
+  const [transactions, setTransactions] = useState<any>();
   const [countdown, setCountdown] = useState(-1);
   const [finalValues, setFinalValues] = useState<any>();
   const [resendOtp, setResendOTP] = useState(false);
@@ -153,7 +154,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
         setFees(data);
         const feesInUSD = Math.ceil(
           Number(data[currentFees]) /
-            Number(cryptoData[currentIndex].transfer_rate)
+          Number(cryptoData[currentIndex].transfer_rate)
         );
 
         console.log(
@@ -164,7 +165,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
 
         const tempAmount = Number(
           Number(cryptoData[currentIndex].amount_in_usd) -
-            (feeType === "wallet" ? minimumDollar + feesInUSD : minimumDollar)
+          (feeType === "wallet" ? minimumDollar + feesInUSD : minimumDollar)
         );
         setMaxAmount(Number(tempAmount.toFixed(8)));
         setFeeToPay(data[currentFees]);
@@ -180,7 +181,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
           severity: "error",
         },
       });
-      setTransaction(undefined);
+      setTransactions(undefined);
       setFees(undefined);
     }
     setLoading2(false);
@@ -197,7 +198,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
         feeType,
         feeToPay,
       });
-      setTransaction(data);
+      setTransactions(data);
       resetAllStates();
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
@@ -522,7 +523,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
                       = ({" "}
                       {Number(
                         Number(cryptoData[currentIndex].transfer_rate) *
-                          values.amount
+                        values.amount
                       ).toFixed(8)}{" "}
                       {cryptoData[currentIndex].wallet_type})
                     </Typography>
@@ -554,27 +555,27 @@ const Withdraw = ({ setPageName }: pageProps) => {
                     {currentAddress.findIndex(
                       (x) => x.value === values.address
                     ) === -1 && (
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            size="small"
-                            color="secondary"
-                            value={values.saveAddress}
-                            onChange={(e: any) => {
-                              const event: any = {
-                                target: {
-                                  name: "saveAddress",
-                                  value: e.target.checked,
-                                },
-                              };
-                              handleChange(event);
-                            }}
-                          />
-                        }
-                        label="Save this address"
-                        sx={{ "& span": { fontSize: 12, fontWeight: 500 } }}
-                      />
-                    )}
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              size="small"
+                              color="secondary"
+                              value={values.saveAddress}
+                              onChange={(e: any) => {
+                                const event: any = {
+                                  target: {
+                                    name: "saveAddress",
+                                    value: e.target.checked,
+                                  },
+                                };
+                                handleChange(event);
+                              }}
+                            />
+                          }
+                          label="Save this address"
+                          sx={{ "& span": { fontSize: 12, fontWeight: 500 } }}
+                        />
+                      )}
                     <Typography
                       sx={{
                         textAlign: "right",
@@ -651,14 +652,14 @@ const Withdraw = ({ setPageName }: pageProps) => {
 
                       const feesInUSD = Math.ceil(
                         Number(feeToPay) /
-                          Number(cryptoData[currentIndex].transfer_rate)
+                        Number(cryptoData[currentIndex].transfer_rate)
                       );
 
                       const tempAmount = Number(
                         Number(cryptoData[currentIndex].amount_in_usd) -
-                          (e.target.value === "wallet"
-                            ? minimumDollar + feesInUSD
-                            : minimumDollar)
+                        (e.target.value === "wallet"
+                          ? minimumDollar + feesInUSD
+                          : minimumDollar)
                       );
                       setMaxAmount(Number(tempAmount.toFixed(8)));
                     }}
@@ -694,14 +695,14 @@ const Withdraw = ({ setPageName }: pageProps) => {
 
                           const feesInUSD = Math.ceil(
                             Number(tempFees[current]) /
-                              Number(cryptoData[currentIndex].transfer_rate)
+                            Number(cryptoData[currentIndex].transfer_rate)
                           );
 
                           const tempAmount = Number(
                             Number(cryptoData[currentIndex].amount_in_usd) -
-                              (feeType === "wallet"
-                                ? minimumDollar + feesInUSD
-                                : minimumDollar)
+                            (feeType === "wallet"
+                              ? minimumDollar + feesInUSD
+                              : minimumDollar)
                           );
 
                           console.log(
@@ -837,9 +838,17 @@ const Withdraw = ({ setPageName }: pageProps) => {
             </FormManager>
           </Collapse>
 
-          {transaction && (
+          {(transactions && transactions.length > 0) ? (
+            transactions.map((transaction: ITransaction, index: number) => (
+              <Typography mt={5} key={index}>
+                {transactions.length === 1
+                  ? `Transaction ID: ${transaction?.txId}`
+                  : `Transaction ID (${index}): ${transaction?.txId}`}
+              </Typography>
+            ))
+          ) : (
             <Typography mt={5}>
-              {"Transaction ID: " + transaction?.txId}
+              {"Transaction ID: Not Found"}
             </Typography>
           )}
 
