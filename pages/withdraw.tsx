@@ -22,11 +22,15 @@ import {
   Grid,
   Radio,
   RadioGroup,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+
 
 const OTPInitial = {
   otp: "",
@@ -837,20 +841,39 @@ const Withdraw = ({ setPageName }: pageProps) => {
               )}
             </FormManager>
           </Collapse>
-
-          {(transactions && transactions.length > 0) ? (
-            transactions.map((transaction: ITransaction, index: number) => (
-              <Typography mt={5} key={index}>
-                {transactions.length === 1
-                  ? `Transaction ID: ${transaction?.txId}`
-                  : `Transaction ID (${index}): ${transaction?.txId}`}
-              </Typography>
-            ))
-          ) : (
-            <Typography mt={5}>
-              {"Transaction ID: Not Found"}
-            </Typography>
-          )}
+          {
+            transactions && (
+              <>
+                {transactions.length > 0 ? (
+                  transactions.map((transaction: ITransaction, index: number) => (
+                    <Typography mt={5} key={index}>
+                      {transaction.status === 'failed' ? (
+                        <Box display="flex" alignItems="center">
+                          <Typography>
+                            {`Transaction ID (${index}): N/A`}
+                          </Typography>
+                          <Tooltip title={`Transaction from ${transaction.fromAddress} to ${transaction.toAddress} failed (${transaction.errorMessage})` || "Unknown error"} arrow>
+                            <ErrorIcon color="error" sx={{ml: 1}} />
+                          </Tooltip>
+                        </Box>
+                      ) : (
+                        <>
+                        <Typography>
+                          {`Transaction ID (${index}): ${transaction.txId}`}
+                        </Typography>
+                        <CheckCircleIcon color="success" />
+                      </>
+                      )}
+                    </Typography>
+                  ))
+                ) : (
+                  <Typography mt={5}>
+                    {"Transaction ID: Not Found"}
+                  </Typography>
+                )}
+              </>
+            )
+          }
 
           {/* <Grid item md={6} xs={12}>
               
