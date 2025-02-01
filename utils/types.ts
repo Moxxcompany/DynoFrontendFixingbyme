@@ -177,10 +177,16 @@ export interface ISavedAddressTypes {
   wallet_address: string;
 }
 
-export interface ITransaction {
-  txId: string;
-}
 
+export type TransactionStatus = 'success' | 'failed';
+
+export interface ITransaction {
+  txId: string | null;
+  status: TransactionStatus;
+  fromAddress?: string; 
+  toAddress?: string;
+  errorMessage?: string;
+}
 export type ITransactions = ITransaction[];
 
 // success types
