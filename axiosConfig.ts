@@ -1,6 +1,7 @@
 import axios from "axios";
 const apiBaseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
+console.log("url for base", apiBaseUrl);
 const axiosBaseApi = axios.create({
   baseURL: apiBaseUrl + "api/",
   headers: {

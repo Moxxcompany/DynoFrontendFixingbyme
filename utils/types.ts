@@ -70,6 +70,7 @@ export interface IApi {
   user_id: number;
   base_currency: string;
   apiKey: string;
+  adminToken: string;
 }
 
 export interface ICustomerTransactions {
@@ -177,13 +178,12 @@ export interface ISavedAddressTypes {
   wallet_address: string;
 }
 
-
-export type TransactionStatus = 'success' | 'failed';
+export type TransactionStatus = "success" | "failed";
 
 export interface ITransaction {
   txId: string | null;
   status: TransactionStatus;
-  fromAddress?: string; 
+  fromAddress?: string;
   toAddress?: string;
   errorMessage?: string;
 }

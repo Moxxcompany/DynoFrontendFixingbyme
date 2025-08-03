@@ -121,6 +121,27 @@ const APIs = ({ setPageName }: pageProps) => {
               </IconButton>
             </Box>
           ),
+          token: (
+            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+              <Typography fontSize={14} fontWeight={700}>
+                {stringShorten(apiList[i].adminToken)}
+              </Typography>
+              <IconButton
+                onClick={() => {
+                  navigator.clipboard.writeText(apiList[i].adminToken);
+                  dispatch({
+                    type: TOAST_SHOW,
+                    payload: {
+                      message: "Copied!",
+                      severity: "info",
+                    },
+                  });
+                }}
+              >
+                <CopyAllRounded fontSize="small" color="secondary" />
+              </IconButton>
+            </Box>
+          ),
         };
         tempData.push(tempObject);
       }
@@ -132,7 +153,7 @@ const APIs = ({ setPageName }: pageProps) => {
     setSearchValue(e.target.value);
   };
 
-  const columns = ["#", "Company Name", "Base Currency", "API"];
+  const columns = ["#", "Company Name", "Base Currency", "API", "Admin Token"];
 
   const handleClose = () => {
     setInitialValue(structuredClone(companyInitial));
