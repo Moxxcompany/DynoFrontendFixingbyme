@@ -17,6 +17,7 @@ import {
   RssFeedRounded,
   SmsRounded,
   WalletRounded,
+  AccountBalanceWallet,
 } from "@mui/icons-material";
 
 import {
@@ -61,6 +62,11 @@ const navItems = [
     name: "Transactions",
     link: "/transactions",
   },
+  {
+    icon: <AccountBalanceWallet color="inherit" />,
+    name: "Wallet Address",
+    link: "/walletAddress",
+  },
 ];
 
 const adminMenus = [
@@ -83,6 +89,11 @@ const adminMenus = [
     icon: <RocketLaunchRounded color="inherit" />,
     name: "Transfer Speed",
     link: "/admin/transferSpeed",
+  },
+  {
+    icon: <AccountBalanceWallet color="inherit" />,
+    name: "Wallet Address",
+    link: "/admin/walletAddress",
   },
 ];
 
