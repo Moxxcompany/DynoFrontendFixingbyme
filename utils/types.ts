@@ -46,7 +46,6 @@ export interface walletReducer {
   loading: boolean;
   amount: number;
   currency: string;
-  otpVerified?: boolean;
   paymentData: {
     mode: "avs_noauth" | "pin" | "otp" | "";
     fields: string[];

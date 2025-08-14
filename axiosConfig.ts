@@ -1,8 +1,7 @@
 import axios from "axios";
-
 const apiBaseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-console.log("url for base", apiBaseUrl);
 
+console.log("url for base", apiBaseUrl);
 const axiosBaseApi = axios.create({
   baseURL: apiBaseUrl + "api/",
   headers: {
@@ -10,7 +9,6 @@ const axiosBaseApi = axios.create({
   },
 });
 
-// Request interceptor: attach token
 axiosBaseApi.interceptors.request.use(
   (config: any) => {
     const token = localStorage.getItem("token");
@@ -21,25 +19,8 @@ axiosBaseApi.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    console.error("Request error:", error);
-    return Promise.reject(error); // propagate to try/catch
-  }
-);
 
-// Response interceptor: handle errors like 500
-axiosBaseApi.interceptors.response.use(
-  (response) => response, // success responses
-  (error) => {
-    console.error("API Response error:", error.response ?? error.message);
-
-    // Optional: you can return a standard format to always handle errors consistently
-    return Promise.resolve({
-      status: error.response?.status || 500,
-      data: error.response?.data ?? { message: error.message },
-      error: true,
-    });
-  }
+  (error) => console.error(error)
 );
 
 export default axiosBaseApi;

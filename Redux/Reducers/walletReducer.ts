@@ -5,11 +5,9 @@ import {
   WALLET_DELETE,
   WALLET_FETCH,
   WALLET_FUND_CREATE,
-  WALLET_ADD_ADDRESS,
   WALLET_INIT,
   WALLET_INSERT,
   WALLET_UPDATE,
-  VERIFY_OTP,
 } from "../Actions/WalletAction";
 
 const walletInitialState: IWalletReducer = {
@@ -17,7 +15,6 @@ const walletInitialState: IWalletReducer = {
   loading: false,
   amount: 0,
   currency: "USD",
-  otpVerified: false,
   paymentData: {
     mode: "",
     fields: [],
@@ -72,21 +69,6 @@ const walletReducer = (state = walletInitialState, action: ReducerAction) => {
         loading: false,
         amount: payload.amount,
         currency: payload.currency,
-      };
-    case WALLET_ADD_ADDRESS:
-      return {
-        ...state,
-        loading: false,
-        wallet_address: payload.wallet_address,
-        currency: payload.currency,
-        otpVerified: false, // Reset OTP verification flag
-      };
-
-    case VERIFY_OTP:
-      return {
-        ...state,
-        loading: false,
-        otpVerified: payload.success || false,
       };
 
     case WALLET_API_ERROR:
