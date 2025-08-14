@@ -36,21 +36,16 @@ export function* ApiSaga(action: IApiAction): unknown {
 
 export function* addApi(payload: any): unknown {
   try {
-    const response = yield call(axios.post, "userApi/addApi", payload);
-    if(response?.status !== 200){
-      yield put({
-        type: TOAST_SHOW,
-        payload: { message:response?.data?.message, severity: "error", },
-      });
-      return
-    }
+    const {
+      data: { data, message },
+    } = yield call(axios.post, "userApi/addApi", payload);
     yield put({
       type: TOAST_SHOW,
-      payload: { message:response?.data?.message },
+      payload: { message },
     });
     yield put({
       type: API_INSERT,
-      payload: response?.data?.data,
+      payload: data,
     });
   } catch (e: any) {
     const message = e.response.data.message ?? e.message;

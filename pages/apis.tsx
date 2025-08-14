@@ -13,7 +13,6 @@ import {
   CopyAllRounded,
   DeleteRounded,
   Search,
-  CloseRounded,
 } from "@mui/icons-material";
 import {
   Box,
@@ -26,7 +25,6 @@ import {
 } from "@mui/material";
 
 import Head from "next/head";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
@@ -36,7 +34,6 @@ import { stringShorten } from "@/helpers";
 const companyInitial = {
   company_id: 0,
   base_currency: "USD",
-  withdrawal_whitelist: false,
 };
 
 const base_currency = [
@@ -46,7 +43,6 @@ const base_currency = [
 
 const APIs = ({ setPageName }: pageProps) => {
   const dispatch = useDispatch();
-  const router = useRouter();
 
   const companyList = useSelector(
     (state: rootReducer) => state.companyReducer.companyList
@@ -62,7 +58,6 @@ const APIs = ({ setPageName }: pageProps) => {
 
   const [searchValue, setSearchValue] = useState("");
   const [open, setOpen] = useState(false);
-  const [withdrawalWhitelist, setWithdrawalWhitelist] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [ID, setID] = useState(0);
 
@@ -167,17 +162,8 @@ const APIs = ({ setPageName }: pageProps) => {
   };
 
   const handleSubmit = (values: any) => {
-    console.log("Withdrawal Whitelist enabled:", values.withdrawal_whitelist);
-    
-    // Include withdrawal whitelist in the payload
-    const payload = {
-      ...values,
-      withdrawal_whitelist: values.withdrawal_whitelist
-    };
-    
-    dispatch(ApiAction(API_INSERT, payload));
-    setOpen(false);
-    setWithdrawalWhitelist(false); // Reset the toggle state
+    dispatch(ApiAction(API_INSERT, values));
+    handleClose();
   };
 
   const handleDelete = () => {
@@ -343,49 +329,6 @@ const APIs = ({ setPageName }: pageProps) => {
                       }}
                       onBlur={handleBlur}
                     />
-                  </Box>
-                  
-                  <Box sx={{ width: "100%", mt: 3, p: 2.5, border: "1px solid", borderColor: "divider", borderRadius: 2, bgcolor: "background.paper" }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                      Withdrawal Whitelist
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Once this function is enabled, your account will only be able to withdraw to addresses on your whitelist.
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ mt: 1.5, fontWeight: 600, color: "warning.main", cursor: "pointer", width: "fit-content" }}
-                      onClick={() => router.push("/walletAddress")}
-                    >
-                      Address Management
-                    </Typography>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 3 }}>
-                      <Button
-                        variant={values.withdrawal_whitelist ? "outlined" : "contained"}
-                        color={values.withdrawal_whitelist ? "inherit" : "error"}
-                        startIcon={<CloseRounded />}
-                        onClick={() => {
-                          const eOff: any = { target: { name: "withdrawal_whitelist", value: false } };
-                          handleChange(eOff);
-                          setWithdrawalWhitelist(false);
-                        }}
-                        sx={{ borderRadius: 2, px: 3, py: "10px" }}
-                      >
-                        OFF
-                      </Button>
-                      <Button
-                        variant={values.withdrawal_whitelist ? "contained" : "outlined"}
-                        color="primary"
-                        onClick={() => {
-                          const eOn: any = { target: { name: "withdrawal_whitelist", value: true } };
-                          handleChange(eOn);
-                          setWithdrawalWhitelist(true);
-                        }}
-                        sx={{ borderRadius: 2, px: 4, py: "13px", fontWeight: 700 }}
-                      >
-                        Enable
-                      </Button>
-                    </Box>
                   </Box>
                 </Box>
 
