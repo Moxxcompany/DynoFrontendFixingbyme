@@ -11,7 +11,9 @@ const AdminHome = ({ setPageName }: pageProps) => {
   const dispatch = useDispatch();
 
   const [transactionFee, setTransactionFee] = useState(0);
+  const [blockchainFee, setblockchainFee] = useState(0);
   const [fee, setFee] = useState(0);
+  const [blockchainFeeInput, setBlockchainFeeInput] = useState(0);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -24,7 +26,8 @@ const AdminHome = ({ setPageName }: pageProps) => {
       const {
         data: { data },
       } = await adminBaseApi.get("/admin/getTransactionFee");
-      setTransactionFee(data.transaction_fee);
+      setTransactionFee(data?.transaction_fee);
+      setblockchainFee(data?.blockChainFee);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
       dispatch({
@@ -41,10 +44,14 @@ const AdminHome = ({ setPageName }: pageProps) => {
     try {
       const {
         data: { data },
-      } = await adminBaseApi.post("/admin/newTransactionFee", { fee });
+      } = await adminBaseApi.post("/admin/newTransactionFee", { 
+        fee, blockchainFeeInput,
+      });
       setTransactionFee(data.transaction_fee);
+      setblockchainFee(blockchainFeeInput);
       setOpen(false);
       setFee(0);
+      setBlockchainFeeInput(0);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
       dispatch({
@@ -63,8 +70,9 @@ const AdminHome = ({ setPageName }: pageProps) => {
         handleClose={() => {
           setOpen(false);
           setFee(0);
+          setBlockchainFeeInput(0);
         }}
-        headerText={"Transaction Fee"}
+        headerText={"Transaction Fee & Blockchain Fee"}
         showClose
         confirmText="Change"
         hasFooter
@@ -79,17 +87,31 @@ const AdminHome = ({ setPageName }: pageProps) => {
             label={"change fee"}
             autoFocus
           />
+          <TextBox
+            value={blockchainFeeInput}
+            onChange={(e: any) => setBlockchainFeeInput(e.target.value)}
+            fullWidth
+            sx={{ mb: 2 }}
+            label={"blockchain fee"}
+            autoFocus
+          />
         </Box>
       </PopupModal>
       <Box sx={{ mt: 3 }}>
-        <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
-          Transaction Fee : {transactionFee}%
-        </Typography>
+        <Box sx={{display: 'flex', gap: 6}}>
+          <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
+            Transaction Fee : {transactionFee}%
+          </Typography>
+          <Typography sx={{ fontSize: 24, fontWeight: 700 }}>
+          Blockchain Fee  : {blockchainFee}%
+          </Typography>
+        </Box>
         <Button
           variant="rounded"
           sx={{ mt: 1 }}
           onClick={() => {
             setFee(transactionFee);
+            setBlockchainFeeInput(blockchainFee);
             setOpen(true);
           }}
         >
