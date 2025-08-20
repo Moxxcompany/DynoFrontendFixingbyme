@@ -177,7 +177,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
 
       setLoading2(false);
     } catch (e: any) {
-      const message = e.response.data.message ?? e.message;
+      const message = e?.response?.data?.message ?? e.message;
       dispatch({
         type: TOAST_SHOW,
         payload: {
@@ -205,7 +205,7 @@ const Withdraw = ({ setPageName }: pageProps) => {
       setTransactions(data);
       resetAllStates();
     } catch (e: any) {
-      const message = e.response.data.message ?? e.message;
+      const message = e?.response?.data?.message ?? e.message;
       dispatch({
         type: TOAST_SHOW,
         payload: {
