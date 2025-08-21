@@ -5,6 +5,7 @@ import Dropdown from "@/Components/UI/Dropdown";
 import PopupModal from "@/Components/UI/PopupModal";
 import TextBox from "@/Components/UI/TextBox";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import NoData from "@/Components/UI/NoData";
 import { getCurrencySymbol, countDecimals } from "@/helpers";
 import {
   WALLET_FETCH,
@@ -14,7 +15,7 @@ import {
   VERIFY_OTP,
 } from "@/Redux/Actions/WalletAction";
 import { IWallet, pageProps, rootReducer } from "@/utils/types";
-import { Search, ContentCopy } from "@mui/icons-material";
+import { Search, ContentCopy, DeleteOutline } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -74,6 +75,9 @@ const WalletAddress = ({ setPageName }: pageProps) => {
   const [showOtpLoader, setShowOtpLoader] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Validating wallet address...");
   const [address,setAddress] = useState<Address | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<IWallet | null>(null);
 
   const fundSchema = yup.object().shape({
     wallet_address: yup.string().required("Wallet address is required!"),
@@ -95,23 +99,21 @@ const WalletAddress = ({ setPageName }: pageProps) => {
   }, []);
 
   useEffect(() => {
-    if (walletState.walletList.length > 0) {
-      let total = 0;
-      for (let i = 0; i < walletState.walletList.length; i++) {
-        const currentWallet = walletState.walletList[i];
-        total += Number(currentWallet.amount_in_usd);
-      }
-      const tempFiat = walletState.walletList.filter(
-        (x) => x.currency_type === "FIAT"
-      );
-      const tempCrypto = walletState.walletList.filter(
-        (x) => x.currency_type === "CRYPTO"
-      );
-      setTotalBalance(total);
-      setCryptoData(tempCrypto);
-      setFiatData(tempFiat);
-      setLoading(false);
+    let total = 0;
+    for (let i = 0; i < walletState.walletList.length; i++) {
+      const currentWallet = walletState.walletList[i];
+      total += Number(currentWallet.amount_in_usd);
     }
+    const tempFiat = walletState.walletList.filter(
+      (x) => x.currency_type === "FIAT"
+    );
+    const tempCrypto = walletState.walletList.filter(
+      (x) => x.currency_type === "CRYPTO"
+    );
+    setTotalBalance(total);
+    setCryptoData(tempCrypto);
+    setFiatData(tempFiat);
+    setLoading(false);
   }, [walletState.walletList]);
 
   useEffect(() => {
@@ -273,6 +275,42 @@ const WalletAddress = ({ setPageName }: pageProps) => {
     }
   };
 
+  const handleDeleteClick = (wallet: IWallet) => {
+    setDeleteTarget(wallet);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeleteLoading(true);
+      const response = await axiosBaseApi.post("/wallet/deleteWalletAddress", {
+        currency: deleteTarget.wallet_type,
+      });
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: response?.data?.message ?? "Wallet address removed",
+          severity: "success",
+        },
+      });
+      setDeleteModalOpen(false);
+      setDeleteTarget(null);
+      dispatch(WalletAction(WALLET_FETCH));
+    } catch (error: any) {
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message:
+            error?.response?.data?.message ?? error.message ?? "Failed to remove",
+          severity: "error",
+        },
+      });
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const handleOtpChange = (index: number, value: string, handleChange: any, values: any) => {
     // Handle OTP input change and auto-focus to next field
     const fieldName = `otp${index + 1}`;
@@ -350,6 +388,8 @@ const WalletAddress = ({ setPageName }: pageProps) => {
       });
     }
   };
+
+  const cryptoWithAddress = cryptoData.filter((x) => !!x.wallet_address);
 
   return (
     <>
@@ -581,6 +621,43 @@ const WalletAddress = ({ setPageName }: pageProps) => {
           )}
         </Box>
       </PopupModal>
+
+      <PopupModal
+        open={deleteModalOpen}
+        showClose
+        handleClose={() => setDeleteModalOpen(false)}
+        headerText={"Remove Wallet Address"}
+      >
+        <Box sx={{ minWidth: "350px", maxWidth: "400px" }}>
+          <Typography variant="body1" sx={{ mb: 3, textAlign: "center" }}>
+            Are you sure you want to remove the address for {deleteTarget?.wallet_type}?
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Button
+                variant="rounded"
+                color="inherit"
+                fullWidth
+                onClick={() => setDeleteModalOpen(false)}
+                disabled={deleteLoading}
+              >
+                Cancel
+              </Button>
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                variant="rounded"
+                color="error"
+                fullWidth
+                onClick={handleConfirmDelete}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? "Removing..." : "Delete"}
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </PopupModal>
       <Box sx={{ m: 2, mb: 5 }}>
         {loading ? (
           <>
@@ -627,58 +704,69 @@ const WalletAddress = ({ setPageName }: pageProps) => {
                 flexWrap: "wrap",
               }}
             >
-              {cryptoData.filter((x) => !!x.wallet_address).map((x) => (
-                <Box
-                  key={x.id}
-                  sx={{
-                    border: "1px solid",
-                    width: "250px",
-                    height: "100%",
-                    borderRadius: "10px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    p: 3,
-                  }}
-                >
-                  <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
-                  <Typography sx={{ fontSize: "24px", fontWeight: 700 }}>
-                    {x.wallet_type}
-                  </Typography>
-                  <Tooltip title="Copy to clipboard">
-                      <IconButton size="small" onClick={() => copyAddressToClipboard(x.wallet_address)}>
-                        <ContentCopy fontSize="inherit" />
-                      </IconButton>
-                    </Tooltip>
-                    </Box>
-                  
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "end", gap: 1 }}>
-                    <Typography
-                      sx={{
-                        fontSize: 20,
-                        fontWeight: 500,
-                        color: "text.secondary",
-                        wordBreak: "break-all",
-                        flex: 1,
-                        textAlign: "right",
-                      }}
-                      title={x.wallet_address}
-                    >
-                      {formatAddress(x.wallet_address)}
-                    </Typography>
-                  </Box>
-                  <Typography
+              {cryptoWithAddress.length === 0 ? (
+                <NoData customText="No data found" />
+              ) : (
+                cryptoWithAddress.map((x) => (
+                  <Box
+                    key={x.id}
                     sx={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      textAlign: "right",
-                      color: theme.palette.error.main,
+                      border: "1px solid",
+                      width: "250px",
+                      height: "100%",
+                      borderRadius: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      p: 3,
                     }}
                   >
-                    ({getCurrencySymbol("USD", x.amount_in_usd)})
-                  </Typography>
-                </Box>
-              ))}
+                    <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+                    <Typography sx={{ fontSize: "24px", fontWeight: 700 }}>
+                      {x.wallet_type}
+                    </Typography>
+                    <Box>
+                      <Tooltip title="Copy to clipboard">
+                        <IconButton size="small" onClick={() => copyAddressToClipboard(x.wallet_address)}>
+                          <ContentCopy fontSize="inherit" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Remove address">
+                        <IconButton size="small" color="error" onClick={() => handleDeleteClick(x)}>
+                          <DeleteOutline fontSize="inherit" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                      </Box>
+                    
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "end", gap: 1 }}>
+                      <Typography
+                        sx={{
+                          fontSize: 20,
+                          fontWeight: 500,
+                          color: "text.secondary",
+                          wordBreak: "break-all",
+                          flex: 1,
+                          textAlign: "right",
+                        }}
+                        title={x.wallet_address}
+                      >
+                        {formatAddress(x.wallet_address)}
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        textAlign: "right",
+                        color: theme.palette.error.main,
+                      }}
+                    >
+                      ({getCurrencySymbol("USD", x.amount_in_usd)})
+                    </Typography>
+                  </Box>
+                ))
+              )}
             </Box>
           </>
         )}
