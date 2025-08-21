@@ -14,7 +14,7 @@ import {
   VERIFY_OTP,
 } from "@/Redux/Actions/WalletAction";
 import { IWallet, pageProps, rootReducer } from "@/utils/types";
-import { Search } from "@mui/icons-material";
+import { Search, ContentCopy } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -24,6 +24,8 @@ import {
   useTheme,
   TextField,
   Grid,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -311,6 +313,44 @@ const WalletAddress = ({ setPageName }: pageProps) => {
     return shouldShowError(fieldName, touched, errors, values) ? errors[fieldName] : "";
   };
 
+  const formatAddress = (addr?: string) => {
+    if (!addr) return "";
+    const trimmed = addr.trim();
+    if (trimmed.length <= 10) return trimmed;
+    return `${trimmed.slice(0, 10)}...`;
+  };
+
+  const copyAddressToClipboard = async (addr?: string) => {
+    if (!addr) return;
+    try {
+      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(addr);
+      } else {
+        const input = document.createElement("textarea");
+        input.value = addr;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+      }
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: "Wallet address copied",
+          severity: "success",
+        },
+      });
+    } catch (e) {
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: "Failed to copy",
+          severity: "error",
+        },
+      });
+    }
+  };
+
   return (
     <>
       <Head>
@@ -374,7 +414,7 @@ const WalletAddress = ({ setPageName }: pageProps) => {
                     value={values.currency}
                     type="text"
                     fullWidth
-                    menuItems={[...fiatData, ...cryptoData].map(x => ({
+                    menuItems={cryptoData.map((x) => ({
                       value: x.wallet_type,
                       label: x.wallet_type,
                     }))}
@@ -587,7 +627,7 @@ const WalletAddress = ({ setPageName }: pageProps) => {
                 flexWrap: "wrap",
               }}
             >
-              {fiatData.map((x) => (
+              {cryptoData.filter((x) => !!x.wallet_address).map((x) => (
                 <Box
                   key={x.id}
                   sx={{
@@ -601,19 +641,32 @@ const WalletAddress = ({ setPageName }: pageProps) => {
                     p: 3,
                   }}
                 >
+                  <Box sx={{display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
                   <Typography sx={{ fontSize: "24px", fontWeight: 700 }}>
                     {x.wallet_type}
                   </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: 30,
-                      fontWeight: 900,
-                      textAlign: "right",
-                      color: "text.secondary",
-                    }}
-                  >
-                    {getCurrencySymbol(x.wallet_type, x.amount.toFixed(2))}
-                  </Typography>
+                  <Tooltip title="Copy to clipboard">
+                      <IconButton size="small" onClick={() => copyAddressToClipboard(x.wallet_address)}>
+                        <ContentCopy fontSize="inherit" />
+                      </IconButton>
+                    </Tooltip>
+                    </Box>
+                  
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "end", gap: 1 }}>
+                    <Typography
+                      sx={{
+                        fontSize: 20,
+                        fontWeight: 500,
+                        color: "text.secondary",
+                        wordBreak: "break-all",
+                        flex: 1,
+                        textAlign: "right",
+                      }}
+                      title={x.wallet_address}
+                    >
+                      {formatAddress(x.wallet_address)}
+                    </Typography>
+                  </Box>
                   <Typography
                     sx={{
                       fontSize: 12,
