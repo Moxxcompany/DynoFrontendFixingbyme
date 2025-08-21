@@ -245,9 +245,9 @@ const WalletAddress = ({ setPageName }: pageProps) => {
       console.log(response)
       // Dispatch VERIFY_OTP action to verify the OTP
       if(response.status){
-
         setOtpModalOpen(false);
         setWalletData(null);
+        dispatch(WalletAction(WALLET_FETCH));
       }
       dispatch({
         type: TOAST_SHOW,
