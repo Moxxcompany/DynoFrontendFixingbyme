@@ -27,7 +27,7 @@ const AdminHome = ({ setPageName }: pageProps) => {
         data: { data },
       } = await adminBaseApi.get("/admin/getTransactionFee");
       setTransactionFee(data?.transaction_fee);
-      setblockchainFee(data?.blockChainFee);
+      setblockchainFee(data?.blockchain_fee);
     } catch (e: any) {
       const message = e.response.data.message ?? e.message;
       dispatch({
