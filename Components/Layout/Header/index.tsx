@@ -25,6 +25,7 @@ import { useRouter } from "next/router";
 
 import SideBar from "@/Components/Layout/Sidebar";
 import { drawerWidth } from "@/styles/theme";
+import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 
 interface HeaderProps {
   pageName: string;
@@ -115,19 +116,13 @@ const Header = ({ pageName, component }: HeaderProps) => {
             sx={{
               ml: 3,
               display: "flex",
-              justifyContent: "space-between",
-              width: "100%",
               alignItems: "center",
+              gap: 2,
+              marginLeft: "auto",
             }}
           >
-            <Box
-              sx={{
-                right: 0,
-                position: "fixed",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
+            <LanguageSwitcher />
+            <Box sx={{ display: "flex", alignItems: "center" }}>
               <Box
                 ref={menuRef}
                 sx={{
@@ -183,12 +178,12 @@ const Header = ({ pageName, component }: HeaderProps) => {
 
             <Box
               sx={{
-                right: 0,
-                position: "fixed",
                 display: "flex",
                 alignItems: "center",
+                gap: 1,
               }}
             >
+              <LanguageSwitcher />
               <Box
                 ref={menuRef2}
                 sx={{

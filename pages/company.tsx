@@ -84,7 +84,7 @@ const Company = ({ setPageName }: pageProps) => {
   }, []);
 
   useEffect(() => {
-    if (companyState.companyList.length > 0) {
+    if (companyState?.companyList?.length > 0) {
       const tempArray: any[] = [];
       companyState.companyList.map((x, i) => {
         const tempObj = {

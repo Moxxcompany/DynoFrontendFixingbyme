@@ -13,6 +13,7 @@ import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Provider } from "react-redux";
+import "../i18n";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter();
