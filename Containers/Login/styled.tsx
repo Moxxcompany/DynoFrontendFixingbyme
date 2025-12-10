@@ -1,4 +1,4 @@
-import { Box, styled } from "@mui/material";
+import { Box, Card, styled } from "@mui/material";
 
 export const LoginWrapper = styled(Box)(() => ({
   background: "#f4f6fa",
@@ -16,5 +16,49 @@ export const ContentWrapper = styled(Box)(() => ({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  padding: "20px", // safe spacing for mobile
+}));
+
+export const AuthContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "30px",
+  overflow: "hidden",
+  position: "relative",
+  zIndex: 1,
+  padding: "20px",
+
+  [theme.breakpoints.down("sm")]: {
+    padding: "16px",
+    width: "100%",
+    borderRadius: "10px",
+  },
+}));
+
+export const CardWrapper = styled(Card)(({ theme }) => ({
+  width: "536px",
+  height: "fit-content",
+  borderRadius: "14px",
+  padding: "8px",
+  zIndex: 2,
+  background: "#fff",
+  textAlign: "center",
+  border: "1px solid #E9ECF2",
+  boxShadow: "rgba(47, 47, 101, 0.15) 0 4px 16px 0",
+
+  [theme.breakpoints.down("sm")]: {
+    padding: "16px",
+    width: "100%",
+    borderRadius: "10px",
+  },
+}));
+
+export const ImageCenter = styled(Box)(() => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "100%",
+  height: "100%",
+  cursor: "pointer",
 }));

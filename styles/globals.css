@@ -51,3 +51,46 @@ a {
     width: 0px;
   }
 }
+
+
+@font-face {
+  font-family: "UrbanistLight";
+  src: url("/fonts/Urbanist-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "UrbanistRegular";
+  src: url("/fonts/Urbanist-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "UrbanistMedium";
+  src: url("/fonts/Urbanist-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "UrbanistSemiBold";
+  src: url("/fonts/Urbanist-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "UrbanistBold";
+  src: url("/fonts/Urbanist-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "UrbanistExtraBold";
+  src: url("/fonts/Urbanist-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+}

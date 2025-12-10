@@ -42,98 +42,13 @@ export const theme = createTheme({
       light: "#585ed8",
     },
     text: {
-      primary: "#242428",
-      secondary: "#676768",
+      primary: "#12131C",
+      secondary: "#1034A6",
     },
   },
   typography: {
-    fontFamily: "'Urbanist', sans-serif",
-    fontWeightLight: 300,
-    fontWeightRegular: 500,
-    fontWeightMedium: 600,
-    fontWeightBold: 700,
-    h1: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 700,
-      fontSize: "48px",
-      lineHeight: 1.15,
-      letterSpacing: "-0.02em",
-    },
-    h2: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 700,
-      fontSize: "40px",
-      lineHeight: 1.2,
-      letterSpacing: "-0.02em",
-    },
-    h3: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 700,
-      fontSize: "32px",
-      lineHeight: 1.25,
-      letterSpacing: "-0.015em",
-    },
-    h4: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 600,
-      fontSize: "28px",
-      lineHeight: 1.3,
-    },
-    h5: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 600,
-      fontSize: "22px",
-      lineHeight: 1.35,
-    },
-    h6: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 600,
-      fontSize: "18px",
-      lineHeight: 1.4,
-    },
-    subtitle1: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 500,
-      fontSize: "16px",
-      lineHeight: 1.5,
-    },
-    subtitle2: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 600,
-      fontSize: "14px",
-      lineHeight: 1.45,
-    },
-    body1: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 400,
-      fontSize: "16px",
-      lineHeight: 1.6,
-    },
-    body2: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 400,
-      fontSize: "14px",
-      lineHeight: 1.6,
-    },
-    button: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 600,
-      fontSize: "16px",
-      lineHeight: 1.2,
-      textTransform: "none",
-    },
-    caption: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 500,
-      fontSize: "12px",
-      lineHeight: 1.4,
-    },
-    overline: {
-      fontFamily: "'Urbanist', sans-serif",
-      fontWeight: 700,
-      fontSize: "11px",
-      letterSpacing: "0.08em",
-      textTransform: "uppercase",
+    allVariants: {
+      fontFamily: "Poppins",
     },
   },
   components: {
@@ -252,7 +167,7 @@ export const theme = createTheme({
     MuiInputBase: {
       styleOverrides: {
         root: {
-          borderRadius: "20px",
+          borderRadius: "20px !important",
         },
       },
     },

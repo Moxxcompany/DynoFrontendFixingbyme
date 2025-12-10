@@ -789,7 +789,7 @@
 // export default Login;
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -801,13 +801,164 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import GoogleIcon from "@/assets/Images/googleIcon.svg";
-import Logo from "@/assets/Images/auth/dynopay-logo.png"; // replace with your logo
+import Logo from "@/assets/Images/auth/dynopay-logo.png";
 import { useTranslation } from "react-i18next";
-import { AuthContainer, CardWrapper, ImageCenter } from "./styled";
+import { AuthContainer, CardWrapper, ImageCenter } from "@/Containers/Login/styled";
+import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
+import InputField from "@/Components/UI/AuthLayout/InputFields";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router";
+import { rootReducer } from "@/utils/types";
+import * as yup from "yup";
+import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import axiosBaseApi from "@/axiosConfig";
+import {
+  USER_CONFIRM_CODE,
+  USER_EMAIL_CHECK,
+  USER_LOGIN,
+  UserAction,
+} from "@/Redux/Actions/UserAction";
+import Link from "next/link";
+import CustomButton from "@/Components/UI/Buttons";
+import { ContentWrapper } from "@/Containers/Login/styled";
+import { ArrowLeft, ArrowRight } from "@mui/icons-material";
 
 export default function Login() {
   const { t } = useTranslation("auth");
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const userState = useSelector((state: rootReducer) => state.userReducer);
+  const [viewPassword, setViewPassword] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [signInType, setSignInType] = useState("mobile");
+  const [collapse, setCollapse] = useState(false);
+  const [countdown, setCountdown] = useState(-1);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const loginSchema = yup.object().shape({
+    email: yup
+      .string()
+      .email("Please enter a valid email")
+      .required("email is required!"),
+  });
+  const passwordSchema = yup.object().shape({
+    password: yup.string().test("password", "password is required", (value) => {
+      let flag = true;
+      if (signInType === "password") {
+        if (value === "" || value === null) {
+          flag = false;
+        } else {
+          flag = true;
+        }
+      }
+      return flag;
+    }),
+    otp: yup.string().test("otp", "OTP is required", (value) => {
+      let flag = true;
+      if (signInType === "mobile") {
+        if (value === "" || value === null) {
+          flag = false;
+        } else {
+          flag = true;
+        }
+      }
+      return flag;
+    }),
+    emailOTP: yup.string().test("emailOTP", "OTP is required", (value) => {
+      let flag = true;
+      if (signInType === "emailOTP") {
+        if (value === "" || value === null) {
+          flag = false;
+        } else {
+          flag = true;
+        }
+      }
+      return flag;
+    }),
+  });
+
+  useEffect(() => {
+    if (userState.name) {
+      router.replace("/");
+    }
+  }, [userState]); // eslint-disable-line
+
+  useEffect(() => {
+    if (sent) {
+      setCountdown(30);
+      const timeOutId = setTimeout(() => {
+        setSent(false);
+      }, 30000);
+      return () => clearTimeout(timeOutId);
+    }
+  }, [sent]);
+
+  useEffect(() => {
+    if (countdown !== -1) {
+      const timerId = setInterval(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearInterval(timerId);
+    }
+  }, [countdown]);
+
+  const handleCheck = async (values: any) => {
+    try {
+      const {
+        data: { data },
+      } = await axiosBaseApi.get("/user/checkEmail?email=" + values.email);
+
+      if (data.validEmail) {
+        setEmail(values.email);
+        dispatch({ type: USER_EMAIL_CHECK, payload: data });
+        setCollapse(!collapse);
+      } else {
+        setEmailError("Email not found! please try again");
+      }
+    } catch (e: any) {
+      const message = e.response.data.message ?? e.message;
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
+  };
+  const handleSubmit2 = (values: any) => {
+    if (signInType === "password") {
+      dispatch(UserAction(USER_LOGIN, { email, password: values.password }));
+    } else if (signInType === "emailOTP") {
+      dispatch(UserAction(USER_CONFIRM_CODE, { email, otp: values.emailOTP }));
+    } else if (signInType === "mobile") {
+      dispatch(
+        UserAction(USER_CONFIRM_CODE, {
+          email,
+          otp: values.otp,
+          mobile: userState.mobile,
+        })
+      );
+    }
+  };
+
+  const connectSocial = async (token: any) => {
+    const {
+      data: { data, message },
+    } = await axiosBaseApi.post("user/connectSocial", {
+      ...token,
+    });
+    dispatch({
+      type: TOAST_SHOW,
+      payload: { message },
+    });
+    dispatch({
+      type: USER_LOGIN,
+      payload: { ...data.userData, accessToken: data.accessToken },
+    });
+  };
+
   return (
     <AuthContainer>
       <CardWrapper>
@@ -824,24 +975,129 @@ export default function Login() {
       </CardWrapper>
 
       {/* Login Card */}
-      <CardWrapper>
-        <Typography
-          variant="h2"
-          sx={{ fontSize: "20px", color: "#242428", fontWeight: 500 }}
-        >
-          {t("login")}
-        </Typography>
-        <Typography
-          variant="body2"
+      <CardWrapper sx={{ padding: "30px" }}>
+        {/* Login Title & Description */}
+        <TitleDescription
+          title={t("login")}
+          description={t("loginDescription")}
+          align="left"
+          titleVariant="h2"
+          descriptionVariant="p"
+        />
+
+        {/* Email Input field */}
+        <Box sx={{ marginTop: "24px" }}>
+          <InputField
+            label={t("email")}
+            type="email"
+            value=""
+            placeholder={t("emailPlaceHolder")}
+          />
+        </Box>
+
+        {/* Don't have acc */}
+        <Box
           sx={{
-            fontSize: "15px",
-            color: "#676768",
-            fontWeight: 500,
-            mt: "10px",
+            display: "flex",
+            gap: "7px",
+            marginTop: "16px",
+            textAlign: "start",
           }}
         >
-          {t("loginDescription")}
-        </Typography>
+          <Typography
+            width="100%"
+            sx={{
+              fontSize: "13px",
+              color: theme.palette.text.secondary,
+              fontFamily: "UrbanistMedium",
+            }}
+            fontWeight={500}
+          >
+            Don&apos;t have an account?{" "}
+            <Typography
+              component="span"
+              sx={{
+                fontSize: "13px",
+                color: "#0004FF",
+                fontWeight: 500,
+                textAlign: "start",
+                cursor: "pointer",
+                textDecoration: "underline",
+                textUnderlineOffset: "2px",
+                fontFamily: "UrbanistMedium",
+              }}
+              onClick={() => {
+                router.push("/auth/register");
+              }}
+            >
+              Create new account
+            </Typography>
+          </Typography>
+        </Box>
+
+        <Box sx={{ marginTop: "24px" }}>
+          <CustomButton
+            label="Continue"
+            variant="primary"
+            size="medium"
+            fullWidth
+          />
+        </Box>
+
+        <Box sx={{ marginTop: "24px" }}>
+          <Divider
+            sx={{
+              borderColor: "red",
+              "&::before, &::after": {
+                borderColor: "#E9ECF2",
+              },
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                fontFamily: "UrbanistMedium",
+                color: "#676768",
+                padding: "0 24px",
+              }}
+            >
+              Or
+            </Typography>
+          </Divider>
+        </Box>
+
+        <ContentWrapper sx={{ gap: "16px", padding: 0, marginTop: "24px" }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontSize: "15px",
+              fontFamily: "UrbanistMedium",
+              color: "#676768",
+            }}
+          >
+            Register / Log in with
+          </Typography>
+
+          <Box
+            sx={{
+              height: "40px",
+              width: "40px",
+              borderRadius: "100%",
+              border: "1px solid #E9ECF2",
+              backgroundColor: "#F4F6FA",
+            }}
+          >
+            <ImageCenter>
+              <Image
+                src={GoogleIcon}
+                alt="google login"
+                width={24}
+                height={24}
+                draggable={false}
+              />
+            </ImageCenter>
+          </Box>
+        </ContentWrapper>
       </CardWrapper>
     </AuthContainer>
   );
