@@ -1,16 +1,18 @@
 import styled from "@emotion/styled";
 import CheckIcon from "@mui/icons-material/Check";
 
-export const LangTrigger = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 12px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  cursor: pointer;
-  background: white;
-`;
+export const LangTrigger = styled.div(({ theme }: any) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  padding: "7px 12px",
+  borderRadius: "6px",
+  border: "1px solid",
+  borderColor: theme?.palette?.border?.main,
+  cursor: "pointer",
+  background: "white",
+  color: theme?.palette?.text?.primary ?? "#000",
+}));
 
 export const LangFlag = styled.img`
   width: 22px;
@@ -21,6 +23,7 @@ export const LangFlag = styled.img`
 export const LangText = styled.span`
   font-size: 14px;
   font-weight: 500;
+  font-family: UrbanistMedium;
 `;
 
 export const CheckIconStyled = styled(CheckIcon)`

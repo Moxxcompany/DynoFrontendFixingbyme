@@ -5,6 +5,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  useTheme,
 } from "@mui/material";
 import {
   LangFlag,
@@ -32,6 +33,7 @@ const languages = [
 
 export default function LanguageSwitcher() {
   const current = i18n.language || "en";
+  const theme = useTheme();
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -48,7 +50,7 @@ export default function LanguageSwitcher() {
 
   return (
     <>
-      <LangTrigger onClick={handleOpen}>
+      <LangTrigger onClick={handleOpen} theme={theme}>
         <LangFlag src={selected.flag.src} alt="flag" />
         <LangText>{selected.code.toUpperCase()}</LangText>
 
@@ -63,7 +65,7 @@ export default function LanguageSwitcher() {
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         PaperProps={{
           sx: {
-            borderRadius: "16px",
+            borderRadius: "6px",
             boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
             overflow: "hidden",
           },
@@ -90,6 +92,7 @@ export default function LanguageSwitcher() {
               </ListItemIcon>
 
               <ListItemText
+                sx={{ fontSize: "15px", fontFamily: "UrbanistMedium" ,fontWeight: 500}}
                 primary={`${lng.code.toUpperCase()} – ${lng.label}`}
               />
 

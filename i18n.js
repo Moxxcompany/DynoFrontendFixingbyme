@@ -13,14 +13,17 @@ i18n
       pt: {
         common: require("./public/locales/pt/common.json"),
         auth: require("./public/locales/pt/auth.json"),
+        dashboardLayout: require("./public/locales/pt/dashboardLayout.json"),
       },
       en: {
         common: require("./public/locales/en/common.json"),
         auth: require("./public/locales/en/auth.json"),
+        dashboardLayout: require("./public/locales/en/dashboardLayout.json"),
       },
       fr: {
         common: require("./public/locales/fr/common.json"),
         auth: require("./public/locales/fr/auth.json"),
+        
       },
       es: {
         common: require("./public/locales/es/common.json"),

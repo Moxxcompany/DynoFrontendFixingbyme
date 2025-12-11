@@ -79,7 +79,7 @@ const InputField: React.FC<InputFieldProps> = ({
 
   const borderColor = success ? "#4CAF50" : error ? "#F44336" : "#E9ECF2";
   const borderWidth = "1px";
-  const focusBorderColor = success ? "#4CAF50" : error ? "#F44336" : "#E5EDFF";
+  const focusBorderColor = success ? "#4CAF50" : error ? "#F44336" : theme.palette.primary.light;
 
   return (
     <Box

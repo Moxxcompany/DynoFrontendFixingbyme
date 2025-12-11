@@ -11,6 +11,19 @@ declare module "@mui/material/Button" {
   }
 }
 
+declare module "@mui/material/styles" {
+  interface Palette {
+    border: {
+      main: string;
+    };
+  }
+  interface PaletteOptions {
+    border?: {
+      main?: string;
+    };
+  }
+}
+
 export const toolbarHeight = 70;
 export const drawerWidth = 64;
 
@@ -30,15 +43,21 @@ export const theme = createTheme({
       black: "#12131C",
       white: "#fff",
     },
+    error: {
+      main: "#E8484A",
+    },
+    border: {
+      main: "#E9ECF2", //border color
+    },
     primary: {
-      main: "#12131C",
+      main: "#0004FF", //Dark Blue
       dark: "#000000",
-      light: "#383943",
+      light: "#E5EDFF", //Light Blue
       contrastText: "#fff",
     },
     secondary: {
-      main: "#1034A6",
-      dark: "#001076",
+      main: "#f4f6fa", //background color
+      dark: "#E9ECF2",
       light: "#585ed8",
     },
     text: {
