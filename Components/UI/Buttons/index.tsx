@@ -1,6 +1,8 @@
 import React from "react";
 import { Button as MuiButton, Box } from "@mui/material";
 import { borderRadius, fontFamily, SxProps, Theme } from "@mui/system";
+import Image from "next/image";
+import { StaticImageData } from "next/image";
 
 export interface CustomButtonProps {
   label: string;
@@ -8,8 +10,9 @@ export interface CustomButtonProps {
   size?: "small" | "medium" | "large";
   disabled?: boolean;
   fullWidth?: boolean;
-  startIcon?: React.ReactNode;
-  endIcon?: React.ReactNode;
+  startIcon?: React.ReactNode | StaticImageData;
+  endIcon?: React.ReactNode | StaticImageData;
+  iconSize?: number;
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   sx?: SxProps<Theme>;
@@ -30,6 +33,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   fullWidth = false,
   startIcon,
   endIcon,
+  iconSize,
   onClick,
   type = "button",
   sx,
@@ -38,7 +42,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   const sizeConfig = {
     small: {
       padding: "8px 16px",
-      fontSize: "12px",
+      fontSize: "13px",
       height: "32px",
       gap: "6px",
     },
@@ -75,6 +79,33 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 
   const variantStyle = variantConfig[variant];
 
+  // Helper function to render icon (handles both React components and image imports)
+  const renderIcon = (
+    icon: React.ReactNode | StaticImageData | undefined,
+    iconSize: number
+  ): React.ReactNode => {
+    if (!icon) return null;
+
+    // Check if it's a StaticImageData (image import from Next.js)
+    if (typeof icon === "object" && "src" in icon) {
+      return (
+        <Image
+          src={icon}
+          alt="icon"
+          width={iconSize}
+          height={iconSize}
+          style={{ display: "flex", objectFit: "contain" }}
+        />
+      );
+    }
+
+    // Otherwise, treat it as a React component
+    return icon as React.ReactNode;
+  };
+
+  // Calculate icon size: use prop if provided, otherwise default to 10px
+  const finalIconSize = iconSize ?? 10;
+
   return (
     <MuiButton
       type={type}
@@ -86,8 +117,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         fontSize: config.fontSize,
         height: config.height,
         borderRadius: "8px",
-        fontWeight: 600,
-        lineHeight: "1.5",
+        lineHeight: "1",
         textTransform: "none",
         cursor: disabled ? "not-allowed" : "pointer",
         transition: "all 0.3s ease",
@@ -97,11 +127,11 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         gap: config.gap,
         ...variantStyle,
         ...(disabled && {
-          backgroundColor: variant === "primary" ? "#B0BEC5" : "#F5F5F5",
-          color: variant === "primary" ? "#FFFFFF" : "#B0BEC5",
-          border: `1px solid ${variant === "primary" ? "#B0BEC5" : "#E0E0E0"}`,
+          backgroundColor: variant === "primary" ? "#B0BEC5" : "#FFFFFF",
+          color: variant === "primary" ? "#FFFFFF !important" : "#676768 !important",
+          border: `1px solid ${variant === "primary" ? "#B0BEC5" : "#676768"}`,
           cursor: "not-allowed",
-          opacity: 0.6,
+          lineHeight: "1",
         }),
         ...sx,
       }}
@@ -117,7 +147,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
               size === "small" ? "16px" : size === "medium" ? "18px" : "20px",
           }}
         >
-          {startIcon}
+          {renderIcon(startIcon, finalIconSize)}
         </Box>
       )}
 
@@ -131,10 +161,10 @@ const CustomButton: React.FC<CustomButtonProps> = ({
             alignItems: "center",
             justifyContent: "center",
             fontSize:
-              size === "small" ? "16px" : size === "medium" ? "18px" : "20px",
+              size === "small" ? "10px" : size === "medium" ? "10px" : "20px",
           }}
         >
-          {endIcon}
+          {renderIcon(endIcon, finalIconSize)}
         </Box>
       )}
     </MuiButton>

@@ -2,7 +2,6 @@ import { Box, Card, styled } from "@mui/material";
 
 export const LoginWrapper = styled(Box)(() => ({
   background: "#f4f6fa",
-  height: "100vh",
   width: "100%",
   position: "relative",
   overflow: "hidden",
@@ -11,28 +10,34 @@ export const LoginWrapper = styled(Box)(() => ({
 export const ContentWrapper = styled(Box)(() => ({
   position: "relative",
   zIndex: 20,
-  height: "100%",
   width: "100%",
   display: "flex",
   justifyContent: "center",
-  alignItems: "center",
+  alignItems: "flex-start",
+  padding: "60px 20px 40px 20px",
+  overflow: "visible",
+  scrollbarWidth: "none",
+  "&::-webkit-scrollbar": {
+    display: "none",
+  },
 }));
 
 export const AuthContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  justifyContent: "center",
+  justifyContent: "flex-start",
   alignItems: "center",
   gap: "30px",
-  overflow: "hidden",
+  overflow: "visible",
   position: "relative",
   zIndex: 1,
-  padding: "20px",
+  padding: "0",
+  width: "100%",
+  maxWidth: "536px",
 
   [theme.breakpoints.down("sm")]: {
-    padding: "16px",
+    padding: "0",
     width: "100%",
-    borderRadius: "10px",
   },
 }));
 

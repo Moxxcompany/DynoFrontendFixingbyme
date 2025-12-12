@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { SxProps, Theme } from "@mui/system";
+import useIsMobile from "@/hooks/useIsMobile";
 
 export interface TitleDescriptionProps {
   title?: React.ReactNode;
@@ -33,6 +34,7 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
   divider = false,
   sx,
 }) => {
+  const isMobile = useIsMobile("sm");
   if (!title && !description) return null;
 
   return (
@@ -52,6 +54,8 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
             fontSize: "20px",
             fontFamily: "UrbanistMedium",
             color: "#242428",
+            lineHeight: "1",
+            ...(isMobile && { fontSize: "15px" }),
           }}
         >
           {title}
@@ -65,6 +69,7 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
             marginTop: "12px",
             fontFamily: "UrbanistMedium",
             color: "#676768",
+            ...(isMobile && { fontSize: "13px" }),
           }}
         >
           {description}

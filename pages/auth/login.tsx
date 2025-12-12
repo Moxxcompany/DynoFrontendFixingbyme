@@ -797,14 +797,27 @@ import {
   Button,
   Divider,
   useTheme,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  InputAdornment,
 } from "@mui/material";
 import Image from "next/image";
 import GoogleIcon from "@/assets/Images/googleIcon.svg";
+import ArrowUpwardIcon from "@/assets/Icons/up-arrow-icon.png";
+import EditIcon from "@/assets/Icons/edit-icon.png";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Logo from "@/assets/Images/auth/dynopay-logo.png";
 import { useTranslation } from "react-i18next";
-import { AuthContainer, CardWrapper, ImageCenter } from "@/Containers/Login/styled";
+import {
+  AuthContainer,
+  CardWrapper,
+  ImageCenter,
+} from "@/Containers/Login/styled";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
+import CustomRadio from "@/Components/UI/RadioGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { rootReducer } from "@/utils/types";
@@ -820,11 +833,12 @@ import {
 import Link from "next/link";
 import CustomButton from "@/Components/UI/Buttons";
 import { ContentWrapper } from "@/Containers/Login/styled";
-import { ArrowLeft, ArrowRight } from "@mui/icons-material";
+import useIsMobile from "@/hooks/useIsMobile";
 
 export default function Login() {
   const { t } = useTranslation("auth");
   const theme = useTheme();
+  const isMobile = useIsMobile("md");
   const dispatch = useDispatch();
   const router = useRouter();
   const userState = useSelector((state: rootReducer) => state.userReducer);
@@ -835,6 +849,12 @@ export default function Login() {
   const [countdown, setCountdown] = useState(-1);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [loginMethod, setLoginMethod] = useState("sms");
+  const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState("");
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const loginSchema = yup.object().shape({
     email: yup
       .string()
@@ -960,14 +980,14 @@ export default function Login() {
 
   return (
     <AuthContainer>
-      <CardWrapper>
+      <CardWrapper sx={{ height: isMobile ? "40px" : "56px" }}>
         {/* Logo */}
         <ImageCenter>
           <Image
             src={Logo}
             alt="logo"
-            width={114}
-            height={39}
+            width={isMobile ? 86 : 114}
+            height={isMobile ? 29 : 39}
             draggable={false}
           />
         </ImageCenter>
@@ -991,7 +1011,277 @@ export default function Login() {
             type="email"
             value=""
             placeholder={t("emailPlaceHolder")}
+            sideButton={true}
+            sideButtonType="primary"
+            onSideButtonClick={() => {
+              router.push("/auth/forgot-password");
+            }}
+            sideButtonIcon={EditIcon}
           />
+        </Box>
+
+        <Box sx={{ marginTop: isMobile ? "12px" : "24px" }}>
+          <Typography
+            sx={{
+              textAlign: "start",
+              fontSize: isMobile ? "13px" : "15px",
+              fontFamily: "UrbanistMedium",
+              color: "#676768",
+            }}
+          >
+            Choose a login method
+          </Typography>
+
+          {/* Login Method Selection */}
+          <Box sx={{ marginTop: "16px" }}>
+            <RadioGroup
+              value={loginMethod}
+              onChange={(e) => setLoginMethod(e.target.value)}
+              sx={{
+                "& .MuiFormControlLabel-label": {
+                  fontSize: isMobile ? "13px" : "15px",
+                  fontFamily: "UrbanistMedium",
+                  color: "#242428",
+                  paddingLeft: "8px",
+                },
+              }}
+            >
+              {/* SMS Option */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "16px",
+                }}
+              >
+                <FormControlLabel
+                  value="sms"
+                  control={<CustomRadio />}
+                  label="Send the verification code via SMS"
+                  sx={{ margin: "0px" }}
+                />
+
+                {/* Get Code Button */}
+                {loginMethod === "sms" && !isMobile && !isOtpSent && (
+                  <Box sx={{ marginTop: "8px" }}>
+                    <CustomButton
+                      variant="secondary"
+                      size="medium"
+                      label="Get code"
+                      onClick={() => setIsOtpSent(true)}
+                      sx={{
+                        fontWeight: 500,
+                        padding: "11px 28px",
+                      }}
+                      endIcon={ArrowUpwardIcon}
+                    />
+                  </Box>
+                )}
+
+                {/* Resend Code Button */}
+                {loginMethod === "sms" && !isMobile && isOtpSent && (
+                  <Box sx={{ marginTop: "8px" }}>
+                    <CustomButton
+                      variant="secondary"
+                      disabled={isOtpSent}
+                      size="medium"
+                      label="Code in 30s"
+                      onClick={() => setIsOtpSent(true)}
+                      sx={{
+                        fontWeight: 500,
+                        padding: "11px 20px",
+                      }}
+                    />
+                  </Box>
+                )}
+              </Box>
+
+              {/* Mobile Input Field */}
+              {loginMethod === "sms" && isMobile && !isOtpSent && (
+                <Box sx={{ marginTop: "8px" }}>
+                  <InputField
+                    placeholder="Enter a mobile phone number"
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value)}
+                    type="text"
+                    sideButton={true}
+                    sideButtonType="secondary"
+                    sideButtonIcon={ArrowUpwardIcon}
+                    onSideButtonClick={() => setIsOtpSent(true)}
+                  />
+                </Box>
+              )}
+
+              {/* Resend Code Button */}
+              {loginMethod === "sms" && isMobile && isOtpSent && (
+                <Box sx={{ marginTop: "8px" }}>
+                  <CustomButton
+                    variant="secondary"
+                    disabled={isOtpSent}
+                    size="medium"
+                    label="Code in 30s"
+                    fullWidth
+                    onClick={() => setIsOtpSent(true)}
+                    sx={{
+                      height: "32px",
+                      fontSize: "13px",
+                      fontWeight: 500,
+                      padding: "8px 20px",
+                    }}
+                  />
+                </Box>
+              )}
+
+              {/* OTP Input Field (shown when SMS is selected) */}
+              {isOtpSent && loginMethod === "sms" && (
+                <Box sx={{ marginTop: "10px" }}>
+                  <InputField
+                    placeholder="Enter the OTP code"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    type="text"
+                    helperText="Enter the code sent to the number provided"
+                  />
+                </Box>
+              )}
+
+              {/* Email Option */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "16px",
+                }}
+              >
+                <FormControlLabel
+                  value="email"
+                  control={<CustomRadio />}
+                  label="Send me a verification code via email"
+                  sx={{ margin: "16px 0 0 0", color: "#242428" }}
+                />
+                {/* Get Code Button */}
+                {loginMethod === "email" && !isMobile && !isOtpSent && (
+                  <CustomButton
+                    variant="secondary"
+                    size="medium"
+                    label="Get code"
+                    onClick={() => setIsOtpSent(true)}
+                    sx={{
+                      fontWeight: 500,
+                      padding: "8px 28px",
+                    }}
+                    endIcon={ArrowUpwardIcon}
+                  />
+                )}
+
+                {/* Resend Code Button */}
+                {loginMethod === "email" && !isMobile && isOtpSent && (
+                  <CustomButton
+                    variant="secondary"
+                    disabled={isOtpSent}
+                    size="medium"
+                    label="Code in 30s"
+                    onClick={() => setIsOtpSent(true)}
+                    sx={{
+                      fontWeight: 500,
+                      padding: "11px 20px",
+                    }}
+                  />
+                )}
+              </Box>
+
+              {/* Get Code Button */}
+              {loginMethod === "email" && isMobile && (
+                <Box sx={{ marginTop: "16px" }}>
+                  <CustomButton
+                    variant="secondary"
+                    size="small"
+                    label={isOtpSent ? "Code in 30s" : "Get code"}
+                    fullWidth
+                    disabled={isOtpSent}
+                    onClick={() => setIsOtpSent(true)}
+                    sx={{
+                      fontWeight: 500,
+                      padding: "8px 28px",
+                    }}
+                    endIcon={isOtpSent ? undefined : ArrowUpwardIcon}
+                  />
+                </Box>
+              )}
+
+              {/* Email Input Field */}
+              {loginMethod === "email" && isOtpSent && (
+                <Box sx={{ marginTop: "16px" }}>
+                  <InputField
+                    placeholder="Enter the OTP code"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    helperText="Enter the code sent to the email address provided"
+                  />
+                </Box>
+              )}
+
+              {/* Password Option */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  margin: "16px 0 0 0",
+                }}
+              >
+                <FormControlLabel
+                  value="password"
+                  control={<CustomRadio />}
+                  label="Password"
+                  sx={{ margin: "0px", color: "#242428" }}
+                />
+
+                <Typography
+                  component="span"
+                  sx={{
+                    fontSize: "13px",
+                    color: theme.palette.primary.main,
+                    fontWeight: 500,
+                    textAlign: "start",
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                    textUnderlineOffset: "2px",
+                    fontFamily: "UrbanistMedium",
+                  }}
+                  onClick={() => {
+                    router.push("/auth/register");
+                  }}
+                >
+                  Forgot your password?
+                </Typography>
+              </Box>
+              {/* Password Input Field */}
+              {loginMethod === "password" && (
+                <Box sx={{ marginTop: "10px" }}>
+                  <InputField
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={t("passwordPlaceHolder")}
+                    sideButton={true}
+                    sideButtonType="primary"
+                    sideButtonIcon={
+                      <VisibilityIcon
+                        sx={{ color: "#676768", height: "18px", width: "16px" }}
+                      />
+                    }
+                    onSideButtonClick={() => {
+                      setShowPassword(!showPassword);
+                    }}
+                    showPasswordToggle={true}
+                  />
+                </Box>
+              )}
+            </RadioGroup>
+          </Box>
         </Box>
 
         {/* Don't have acc */}
@@ -1017,7 +1307,7 @@ export default function Login() {
               component="span"
               sx={{
                 fontSize: "13px",
-                color: "#0004FF",
+                color: theme.palette.primary.main,
                 fontWeight: 500,
                 textAlign: "start",
                 cursor: "pointer",
@@ -1038,8 +1328,11 @@ export default function Login() {
           <CustomButton
             label="Continue"
             variant="primary"
-            size="medium"
+            size={isMobile ? "small" : "medium"}
             fullWidth
+            sx={{
+              fontWeight: 700,
+            }}
           />
         </Box>
 
@@ -1058,6 +1351,7 @@ export default function Login() {
                 fontFamily: "UrbanistMedium",
                 color: "#676768",
                 padding: "0 24px",
+                fontSize: isMobile ? "10px" : "15px",
               }}
             >
               Or
@@ -1065,11 +1359,20 @@ export default function Login() {
           </Divider>
         </Box>
 
-        <ContentWrapper sx={{ gap: "16px", padding: 0, marginTop: "24px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "16px",
+            padding: 0,
+            marginTop: isMobile ? "16px" : "24px",
+          }}
+        >
           <Typography
             variant="body2"
             sx={{
-              fontSize: "15px",
+              fontSize: isMobile ? "13px" : "15px",
               fontFamily: "UrbanistMedium",
               color: "#676768",
             }}
@@ -1079,8 +1382,8 @@ export default function Login() {
 
           <Box
             sx={{
-              height: "40px",
-              width: "40px",
+              height: isMobile ? "32px" : "40px",
+              width: isMobile ? "32px" : "40px",
               borderRadius: "100%",
               border: "1px solid #E9ECF2",
               backgroundColor: "#F4F6FA",
@@ -1096,7 +1399,7 @@ export default function Login() {
               />
             </ImageCenter>
           </Box>
-        </ContentWrapper>
+        </Box>
       </CardWrapper>
     </AuthContainer>
   );
