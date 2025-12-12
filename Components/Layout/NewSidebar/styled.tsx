@@ -1,103 +1,163 @@
-import styled from "@emotion/styled";
+import { styled } from "@mui/material";
 
-export const SidebarWrapper = styled.aside`
-  width: 100%;
-  height: 100%;
-  background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  padding: 20px 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border-radius: 14px;
-`;
+export const SidebarWrapper = styled("aside")(({ theme }) => ({
+  width: "100%",
+  height: "65vh",
+  background: theme.palette.common.white,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  borderRadius: "14px",
+  outline: `1px solid ${theme.palette.border.main}`,
+  padding: "16px",
+}));
 
-export const Menu = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-`;
+export const Menu = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: "6px",
+  background: theme.palette.common.white,
+  borderRadius: "12px",
+}));
 
-export const MenuItem = styled.div<{ active?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  background: ${({ active }) => (active ? "#eef2ff" : "transparent")};
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ active }) => (active ? "#3b82f6" : "#111827")};
-  border-left: ${({ active }) =>
-    active ? "4px solid #3b82f6" : "4px solid transparent"};
+export const MenuItem = styled("div")<{ active?: boolean }>(
+  ({ active, theme }) => ({
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    padding: "10px 14px",
+    borderRadius: "7px",
+    cursor: "pointer",
+    background: active ? theme.palette.primary.light : "transparent",
+    fontSize: "14px",
+    fontWeight: 500,
+    color: active ? theme.palette.primary.main : theme.palette.text.primary,
+    transition: "all 0.2s ease",
+    position: "relative",
 
-  &:hover {
-    background: #f2f4f7;
-  }
-`;
+    "&:hover": {
+      background: active ? theme.palette.primary.light : "#f9fafb",
+    },
+  })
+);
 
-export const IconBox = styled.div<{ active?: boolean }>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  background: ${({ active }) => (active ? "#dbeafe" : "#f3f4f6")};
-`;
+export const ActiveIndicator = styled("div")<{ active?: boolean }>(
+  ({ active, theme }) => ({
+    position: "absolute",
+    left: "-16px",
+    top: 0,
+    bottom: 0,
+    width: "4px",
+    background: active ? theme.palette.primary.main : "transparent",
+    borderRadius: "0 7px 7px 0",
+    transition: "all 0.2s ease",
+  })
+);
 
-export const ReferralCard = styled.div`
-  background: #f9fafb;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  margin-bottom: 18px;
+export const IconBox = styled("div")<{ active?: boolean }>(
+  ({ active, theme }) => ({
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "26px",
+    height: "26px",
+    borderRadius: "6px",
+    background: active ? theme.palette.primary.light : "transparent",
 
-  .label {
-    font-size: 12px;
-    color: #6b7280;
-    margin-bottom: 6px;
-  }
-`;
+    "& img": {
+      filter: active
+        ? "brightness(0) saturate(100%) invert(13%) sepia(94%) saturate(7151%) hue-rotate(240deg) brightness(101%) contrast(150%)"
+        : "brightness(0) saturate(100%) invert(27%) sepia(8%) saturate(1018%) hue-rotate(182deg) brightness(95%) contrast(88%)",
+    },
+  })
+);
 
-export const ReferralCodeBox = styled.div`
-  background: white;
-  border: 1px solid #d1d5db;
-  padding: 10px 12px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+export const SidebarFooter = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: "16px",
+}));
 
-  span {
-    font-size: 14px;
-    font-weight: 600;
-    color: #3b82f6;
-  }
+export const KnowledgeBaseBtn = styled("button")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "8px",
+  padding: "10px 14px",
+  borderRadius: "6px",
+  cursor: "pointer",
+  background: theme.palette.common.white,
+  border: `1px solid ${theme.palette.border.main}`,
+  fontWeight: 500,
+  color: theme.palette.text.secondary,
+}));
 
-  .copy-btn {
-    background: #eef2ff;
-    border-radius: 8px;
-    padding: 6px;
-    cursor: pointer;
-  }
-`;
+export const KnowledgeBaseTitle = styled("div")(({ theme }) => ({
+  fontSize: "15px",
+  fontWeight: 500,
+  color: theme.palette.text.secondary,
+}));
 
-export const KnowledgeBaseBtn = styled.button`
-  width: 100%;
-  background: white;
-  border: 1px solid #e5e7eb;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+export const ReferralCard = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
+  padding: "14px",
+  borderRadius: "12px",
+  border: `1px solid ${theme.palette.border.main}`,
+  fontWeight: 500,
+  color: theme.palette.text.secondary,
+  background: theme.palette.secondary.main,
+  position: "relative",
+  overflow: "hidden",
+}));
 
-  &:hover {
-    background: #f3f4f6;
-  }
-`;
+export const ReferralCardTitle = styled("div")(({ theme }) => ({
+  fontSize: "15px",
+  fontWeight: 500,
+  fontFamily: "UrbanistMedium",
+  color: theme.palette.text.primary,
+}));
+
+export const ReferralCardContent = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: "8px",
+  zIndex: 1,
+  color: theme.palette.text.primary,
+  position: "relative",
+}));
+
+export const ReferralCardContentValueContainer = styled("div")(({ theme }) => ({
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: "12px",
+}));
+
+export const ReferralCardContentValue = styled("span")(({ theme }) => ({
+  borderRadius: "7px",
+  padding: "10px 12px",
+  border: `1px dashed ${theme.palette.border.main}`,
+  background: theme.palette.common.white,
+  fontSize: "15px",
+  fontWeight: 500,
+  fontFamily: "UrbanistMedium",
+  color: theme.palette.primary.main,
+  flex: 1,
+}));
+
+export const CopyButton = styled("button")(({ theme }) => ({
+  border: `1px solid ${theme.palette.primary.main}`,
+  borderRadius: "7px",
+  padding: "6px",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "40px",
+  height: "40px",
+  transition: "background 0.2s ease",
+  flexShrink: 0,
+}));

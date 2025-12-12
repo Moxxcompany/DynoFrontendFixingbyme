@@ -6,13 +6,13 @@ export const HeaderContainer = styled("div")(({ theme }) => ({
   width: "100%",
   boxShadow: "none",
   background: "transparent",
-  display: "flex",
-  flexDirection: "row",
-  color: theme.palette.primary.main,
-  [theme.breakpoints.down("sm")]: {
-    width: "100vw",
-  },
-  gap: "20px",
+  // display: "flex",
+  // flexDirection: "row",
+  // color: theme.palette.primary.main,
+  // [theme.breakpoints.down("sm")]: {
+  //   width: "100vw",
+  // },
+  // gap: "20px",
 }));
 
 export const LogoContainer = styled("div")(({ theme }) => ({
@@ -21,10 +21,6 @@ export const LogoContainer = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "start",
   padding: "10px 24px 9px ",
-  width: "20%",
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-  },
   borderRadius: "14px",
   outline: "1px solid ",
   outlineColor: theme?.palette?.border?.main,
@@ -40,15 +36,16 @@ export const MainContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  width: "80%",
-  [theme.breakpoints.down("sm")]: {
-    width: "100%",
-  },
   borderRadius: "14px",
   padding: 8,
   outline: "1px solid",
   outlineColor: theme?.palette?.border?.main,
+
+  [theme.breakpoints.down("md")]: {
+    padding: "8px 10px",
+  },
 }));
+
 export const RightSection = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",

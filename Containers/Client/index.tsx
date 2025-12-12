@@ -1,7 +1,7 @@
 import withAuth from "@/Components/Page/Common/HOC/withAuth";
 import { drawerWidth, toolbarHeight } from "@/styles/theme";
 import { LayoutProps, rootReducer } from "@/utils/types";
-import { Box, Drawer, useTheme } from "@mui/material";
+import { Box, Drawer, Grid, useTheme } from "@mui/material";
 import React from "react";
 import useTokenData from "@/hooks/useTokenData";
 import Header from "@/Components/Layout/Header";
@@ -18,13 +18,12 @@ const ClientLayout = ({ children, pageName, component }: LayoutProps) => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        height: "100vh",
         width: "100vw",
+        overflow: "hidden", // 🔒 prevent page scroll
         backgroundColor: theme.palette.secondary.main,
         display: "flex",
         flexDirection: "column",
-        gap: 3,
-        p: 3,
       }}
     >
       <Toast
@@ -34,26 +33,66 @@ const ClientLayout = ({ children, pageName, component }: LayoutProps) => {
         loading={ToastState.loading}
       />
 
-      <NewHeader />
+      <Box sx={{ px: { xs: 2, md: 3 }, pt: 3 }}>
+        <NewHeader />
+      </Box>
 
-      <Box sx={{ display: "flex", gap: "20px" }}>
-        <Box sx={{ flexGrow: 1, width: "20%" }}>
-          <NewSidebar />
-        </Box>
+      <Box
+        sx={{
+          flex: 1,
+          overflow: "hidden", // important
+          px: { xs: 2, md: 3 },
+          pb: { xs: 10, md: 3 }, // Add bottom padding on mobile for bottom nav
+          mt: 3,
+        }}
+      >
+        <Grid container spacing={3} sx={{ height: "100%" }}>
+          {/* Desktop Sidebar */}
+          <Grid
+            item
+            xs={0}
+            md={3}
+            lg={2.5}
+            sx={{
+              height: "100%",
+              overflow: "hidden",
+              display: { xs: "none", md: "block" },
+            }}
+          >
+            <NewSidebar />
+          </Grid>
 
-        {/* <Header pageName={pageName} component={component} /> */}
+          {/* Main Content */}
+          <Grid
+            item
+            xs={12}
+            md={9}
+            lg={9.5}
+            sx={{
+              height: "100%",
+              overflowY: "auto",
+              overflowX: "hidden",
+            }}
+          >
+            {children}
+          </Grid>
+        </Grid>
+      </Box>
 
-        <Box
-          component="main"
-          sx={{
-            width: "80%",
-            // pt: 2.5,
-            // px: { lg: 3, sm: 2.5, xs: 1.5 },
-          }}
-        >
-          {/* Here Where the Pages will load */}
-          {children}
-        </Box>
+      {/* Mobile Bottom Navigation */}
+      <Box
+        sx={{
+          display: { xs: "block", md: "none" },
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          px: 2,
+          pb: 2,
+        }}
+      >
+        <NewSidebar />
       </Box>
     </Box>
   );

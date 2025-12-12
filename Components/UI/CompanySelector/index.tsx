@@ -41,11 +41,13 @@ export default function CompanySelector() {
     <>
       {/* TRIGGER */}
       <SelectorTrigger onClick={handleOpen}>
-        <BusinessCenterIcon
-          sx={{ color: theme.palette.primary.main, fontSize: 20 }}
-        />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <BusinessCenterIcon
+            sx={{ color: theme.palette.primary.main, fontSize: 20 }}
+          />
 
-        <TriggerText>{selected?.name}</TriggerText>
+          <TriggerText>{selected?.name}</TriggerText>
+        </Box>
 
         <VerticalLine />
 
@@ -70,7 +72,7 @@ export default function CompanySelector() {
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         PaperProps={{
           sx: {
-             borderRadius: "6px",
+            borderRadius: "6px",
             boxShadow: "0 4px 18px rgba(0,0,0,0.12)",
             overflow: "hidden",
             width: 330,
@@ -98,7 +100,7 @@ export default function CompanySelector() {
             >
               <ItemLeft>
                 <Box className="info">
-                  <Box sx={{ display: "flex", alignItems: "center" ,gap:1}}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <BusinessCenterIcon
                       sx={{
                         color:

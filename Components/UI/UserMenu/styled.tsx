@@ -3,23 +3,25 @@ import { styled } from "@mui/material";
 export const UserTrigger = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  gap: "10px",
+  gap: 10,
   background: theme.palette.common.white,
-  padding: "4px 16px",
-  borderRadius: "14px",
+  padding: "6px 14px",
+  borderRadius: 14,
   cursor: "pointer",
   transition: "0.2s ease",
 
-//   "&:hover": {
-//     background: "#f4f6f9",
-//   },
+  [theme.breakpoints.down("md")]: {
+    padding: "0px",
+    gap: "8px",
+    border: "none",
+  },
 }));
 
 export const UserName = styled("span")(({ theme }) => ({
-  fontSize: "15px",
   fontWeight: 500,
   color: theme.palette.text.primary,
   fontFamily: "UrbanistMedium",
+  whiteSpace: "nowrap",
 }));
 
 export const PopWrapper = styled("div")(() => ({
@@ -34,18 +36,18 @@ export const UserRow = styled("div")(() => ({
   marginBottom: "18px",
 }));
 
-export const MenuItemRow = styled("div")(() => ({
+export const MenuItemRow = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
-  gap: "12px",
-  marginBottom: "8px",
+  gap: 12,
+  padding: "8px 4px",
   cursor: "pointer",
-  fontSize: "15px",
+  fontSize: 15,
   fontWeight: 500,
-  justifyContent:"center",
 
   "&:hover": {
-    opacity: 0.9,
+    background: theme.palette.action.hover,
+    borderRadius: 6,
   },
 }));
 

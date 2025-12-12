@@ -11,6 +11,11 @@ export const SelectorTrigger = styled("div")(({ theme }) => ({
   cursor: "pointer",
   background: "white",
   color: theme?.palette?.text?.primary,
+  [theme.breakpoints.down("md")]: {
+    padding: "0px",
+    gap: "8px",
+    border: "none",
+  },
 }));
 
 export const TriggerText = styled("span")(({ theme }) => ({
@@ -20,6 +25,9 @@ export const TriggerText = styled("span")(({ theme }) => ({
   fontSize: "14px",
   lineHeight: "16px",
   fontFamily: "UrbanistMedium",
+  [theme.breakpoints.down("md")]: {
+    fontSize: "13px",
+  },
 }));
 
 export const CompanyListWrapper = styled("div")(({ theme }) => ({

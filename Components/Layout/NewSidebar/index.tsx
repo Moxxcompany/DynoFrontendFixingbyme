@@ -4,9 +4,16 @@ import {
   Menu,
   MenuItem,
   IconBox,
-  ReferralCard,
-  ReferralCodeBox,
+  ActiveIndicator,
+  SidebarFooter,
   KnowledgeBaseBtn,
+  KnowledgeBaseTitle,
+  ReferralCard,
+  ReferralCardContent,
+  ReferralCardTitle,
+  ReferralCardContentValue,
+  ReferralCardContentValueContainer,
+  CopyButton,
 } from "./styled";
 import Image from "next/image";
 import DashboardIcon from "@/assets/Icons/dashboard-icon.svg";
@@ -15,49 +22,146 @@ import WalletsIcon from "@/assets/Icons/wallet-icon.svg";
 import APIIcon from "@/assets/Icons/key-icon.svg";
 import NotificationsIcon from "@/assets/Icons/notification-icon.svg";
 import AddIcon from "@mui/icons-material/Add";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import useIsMobile from "@/hooks/useIsMobile";
+import { useRouter } from "next/router";
+import { Box, useTheme } from "@mui/material";
+import BGOverlay from "@/assets/Images/bg-overlay.png";
+import CopyIcon from "@/assets/Icons/cpoy-icon.svg";
 
 const NewSidebar = () => {
+  const isMobile = useIsMobile("md");
+  const router = useRouter();
+  const theme = useTheme();
+
   const menuItems = [
-    { label: "Dashboard", icon: DashboardIcon, active: true },
-    { label: "Transactions", icon: TransactionsIcon, plus: true },
-    { label: "Wallets", icon: WalletsIcon },
-    { label: "API", icon: APIIcon },
-    { label: "Notifications", icon: NotificationsIcon },
+    { label: "Dashboard", icon: DashboardIcon, path: "/" },
+    {
+      label: "Transactions",
+      icon: TransactionsIcon,
+      path: "/transactions",
+      plus: true,
+    },
+    { label: "Wallets", icon: WalletsIcon, path: "/wallet" },
+    { label: "API", icon: APIIcon, path: "/apis" },
+    { label: "Notifications", icon: NotificationsIcon, path: "/notifications" },
   ];
+
+  const isActiveRoute = (path: string) => {
+    if (path === "/") return router.pathname === "/";
+    return router.pathname.startsWith(path);
+  };
 
   return (
     <SidebarWrapper>
       <Menu>
-        {menuItems.map((item, i) => (
-          <MenuItem key={i} active={item.active}>
-            <IconBox active={item.active}>
-              <Image src={item.icon} width={20} height={20} alt={item.label} />
-            </IconBox>
+        {menuItems.map((item, i) => {
+          const isActive = isActiveRoute(item.path);
 
-            <span>{item.label}</span>
+          return (
+            <MenuItem
+              key={i}
+              active={isActive}
+              onClick={() => router.push(item.path)}
+            >
+              <ActiveIndicator active={isActive} />
+              <IconBox active={isActive}>
+                <Image
+                  src={item.icon}
+                  width={20}
+                  height={20}
+                  alt={item.label}
+                />
+              </IconBox>
 
-            {item.plus && <AddIcon sx={{ marginLeft: "auto" }} />}
-          </MenuItem>
-        ))}
+              <Box
+                component="span"
+                sx={{
+                  fontSize: isMobile ? "11px" : "14px",
+                  fontWeight: 500,
+                  textAlign: "center",
+                  lineHeight: 1.2,
+                  [theme.breakpoints.down("md")]: {
+                    fontSize: "11px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    maxWidth: "100%",
+                  },
+                }}
+              >
+                {isMobile ? item.label.split(" ")[0] : item.label}
+              </Box>
+
+              {item.plus && !isMobile && (
+                <Box
+                  sx={{
+                    background: theme.palette.primary.light,
+                    borderRadius: "50%",
+                    padding: "4px",
+                    width: "28px",
+                    height: "28px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginLeft: "auto",
+                  }}
+                >
+                  <AddIcon
+                    sx={{
+                      marginLeft: "auto",
+                      color: theme.palette.primary.main,
+                      fontSize: "20px",
+                    }}
+                  />
+                </Box>
+              )}
+            </MenuItem>
+          );
+        })}
       </Menu>
 
-      {/* REFERRAL CARD */}
-      <ReferralCard>
-        <p className="label">Your Referral Code</p>
+      <SidebarFooter>
+        <ReferralCard>
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              userSelect: "none",
+            }}
+          >
+            <Image src={BGOverlay} alt="BG Overlay" width={150} height={100} draggable={false} />
+          </Box>
+          <ReferralCardContent>
+            <ReferralCardTitle>Your Referral Code</ReferralCardTitle>
 
-        <ReferralCodeBox>
-          <span>DYNO2024XYZ</span>
-          <div className="copy-btn">
-            <Image src="/icons/copy.svg" width={18} height={18} alt="copy" />
-          </div>
-        </ReferralCodeBox>
-      </ReferralCard>
+            <ReferralCardContentValueContainer>
+              <ReferralCardContentValue>DYNO2024XYZ</ReferralCardContentValue>
+              <CopyButton
+                onClick={() => {
+                  navigator.clipboard.writeText("DYNO2024XYZ");
+                }}
+              >
+                <Image src={CopyIcon} alt="Copy Icon" width={20} height={20} />
+              </CopyButton>
+            </ReferralCardContentValueContainer>
+          </ReferralCardContent>
+        </ReferralCard>
 
-      {/* KNOWLEDGE BASE BUTTON */}
-      <KnowledgeBaseBtn>
-        <Image src="/icons/book.svg" width={16} height={16} alt="icon" />
-        Knowledge Base
-      </KnowledgeBaseBtn>
+        <KnowledgeBaseBtn>
+          <MenuBookIcon
+            sx={{
+              fontSize: "16px",
+              color: theme.palette.text.primary,
+            }}
+          />
+          <KnowledgeBaseTitle>Knowledge Base</KnowledgeBaseTitle>
+        </KnowledgeBaseBtn>
+      </SidebarFooter>
     </SidebarWrapper>
   );
 };
