@@ -16,6 +16,9 @@ export interface CustomButtonProps {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   sx?: SxProps<Theme>;
+  hideLabelWhenLoading?: boolean;
+  showSuccessAnimation?: boolean;
+  showErrorAnimation?: boolean;
 }
 
 /**
@@ -37,6 +40,9 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   onClick,
   type = "button",
   sx,
+  hideLabelWhenLoading = false,
+  showSuccessAnimation = false,
+  showErrorAnimation = false,
 }) => {
   // Size configuration
   const sizeConfig = {
@@ -106,12 +112,20 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   // Calculate icon size: use prop if provided, otherwise default to 10px
   const finalIconSize = iconSize ?? 10;
 
+  const shouldHideLabel = hideLabelWhenLoading && disabled;
+  const animationClass = showSuccessAnimation
+    ? "success-pulse"
+    : showErrorAnimation
+    ? "error-shake"
+    : "";
+
   return (
     <MuiButton
       type={type}
       disabled={disabled}
       fullWidth={fullWidth}
       onClick={onClick}
+      className={animationClass}
       sx={{
         padding: config.padding,
         fontSize: config.fontSize,
@@ -133,6 +147,34 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           cursor: "not-allowed",
           lineHeight: "1",
         }),
+        ...(showSuccessAnimation && {
+          animation: "successPulse 0.6s ease-in-out",
+          "@keyframes successPulse": {
+            "0%": {
+              backgroundColor: variant === "primary" ? "#0004FF" : "#FFFFFF",
+            },
+            "50%": {
+              backgroundColor: "#4CAF50",
+            },
+            "100%": {
+              backgroundColor: variant === "primary" ? "#0004FF" : "#FFFFFF",
+            },
+          },
+        }),
+        ...(showErrorAnimation && {
+          animation: "errorShake 0.5s ease-in-out",
+          "@keyframes errorShake": {
+            "0%, 100%": {
+              transform: "translateX(0)",
+            },
+            "10%, 30%, 50%, 70%, 90%": {
+              transform: "translateX(-5px)",
+            },
+            "20%, 40%, 60%, 80%": {
+              transform: "translateX(5px)",
+            },
+          },
+        }),
         ...sx,
       }}
     >
@@ -151,7 +193,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         </Box>
       )}
 
-      <span>{label}</span>
+      {!shouldHideLabel && <span>{label}</span>}
 
       {endIcon && (
         <Box

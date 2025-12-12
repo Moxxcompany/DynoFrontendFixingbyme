@@ -42,6 +42,7 @@ export interface InputFieldProps {
   multiline?: boolean;
   rows?: number;
   maxLength?: number;
+  inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
 }
 
 /**
@@ -78,6 +79,7 @@ const InputField: React.FC<InputFieldProps> = ({
   multiline = false,
   rows = 1,
   maxLength,
+  inputMode,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
@@ -198,6 +200,7 @@ const InputField: React.FC<InputFieldProps> = ({
           inputProps={{
             readOnly: readOnly,
             maxLength: maxLength,
+            inputMode: inputMode,
             style: {
               cursor: readOnly ? "not-allowed" : "auto",
             },
@@ -207,6 +210,12 @@ const InputField: React.FC<InputFieldProps> = ({
           rows={multiline ? rows : undefined}
           error={error}
           helperText={helperText || undefined}
+          FormHelperTextProps={{
+            sx: {
+              margin: error ? "4px 0 0 0 !important" : "0px",
+              minHeight: error ? "auto" : "0px",
+            },
+          }}
           InputProps={{
             startAdornment: startAdornment ? (
               <InputAdornment position="start">{startAdornment}</InputAdornment>
@@ -274,11 +283,13 @@ const InputField: React.FC<InputFieldProps> = ({
               WebkitTextFillColor: "#B0BEC5",
             },
             "& .MuiFormHelperText-root": {
-              margin: "4px 0 0 0 !important",
+              margin: error ? "4px 0 0 0 !important" : "0px !important",
               fontSize: isMobile ? "10px" : "13px",
               fontFamily: "UrbanistMedium",
               color: error ? "#F44336" : "#676768",
               lineHeight: "1.5",
+              minHeight: error ? "auto" : "0px",
+              display: error || helperText ? "block" : "none",
             },
           }}
         />

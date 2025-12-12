@@ -16,7 +16,7 @@ const LoginLayout = ({ children }: LayoutProps) => {
       <Toast
         open={ToastState.open}
         message={ToastState.message}
-        severity={ToastState.severity ?? "success"}
+        severity={ToastState.severity ? ToastState.severity : "success"}
         loading={ToastState.loading}
       />
 

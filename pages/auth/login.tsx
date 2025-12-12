@@ -825,15 +825,19 @@ import * as yup from "yup";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import axiosBaseApi from "@/axiosConfig";
 import {
+  USER_API_ERROR,
   USER_CONFIRM_CODE,
   USER_EMAIL_CHECK,
   USER_LOGIN,
+  USER_SEND_OTP,
   UserAction,
 } from "@/Redux/Actions/UserAction";
 import Link from "next/link";
 import CustomButton from "@/Components/UI/Buttons";
 import { ContentWrapper } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
+import LoadingIcon from "@/assets/Icons/LoadingIcon";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
   const { t } = useTranslation("auth");
@@ -842,101 +846,169 @@ export default function Login() {
   const dispatch = useDispatch();
   const router = useRouter();
   const userState = useSelector((state: rootReducer) => state.userReducer);
-  const [viewPassword, setViewPassword] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [signInType, setSignInType] = useState("mobile");
-  const [collapse, setCollapse] = useState(false);
-  const [countdown, setCountdown] = useState(-1);
-  const [email, setEmail] = useState("");
+
+  // Email check state
+  const [emailInput, setEmailInput] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [loginMethod, setLoginMethod] = useState("sms");
-  const [mobile, setMobile] = useState("");
-  const [otp, setOtp] = useState("");
-  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [showLoginMethods, setShowLoginMethods] = useState(false);
+  const [verifiedEmail, setVerifiedEmail] = useState("");
+
+  // Login method state
+  const [loginMethod, setLoginMethod] = useState("email");
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const loginSchema = yup.object().shape({
+
+  // Email OTP state
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [emailOtp, setEmailOtp] = useState("");
+  const [emailOtpError, setEmailOtpError] = useState("");
+  const [emailOtpTouched, setEmailOtpTouched] = useState(false);
+  const [emailOtpCountdown, setEmailOtpCountdown] = useState(0);
+
+  // SMS state
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [mobile, setMobile] = useState("");
+  const [mobileError, setMobileError] = useState("");
+  const [mobileTouched, setMobileTouched] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [otpTouched, setOtpTouched] = useState(false);
+  const [smsOtpCountdown, setSmsOtpCountdown] = useState(0);
+
+  // Animation states
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [showErrorAnimation, setShowErrorAnimation] = useState(false);
+  const [previousLoadingState, setPreviousLoadingState] = useState(false);
+
+  // Validation schemas
+  const emailSchema = yup.object().shape({
     email: yup
       .string()
       .email("Please enter a valid email")
-      .required("email is required!"),
-  });
-  const passwordSchema = yup.object().shape({
-    password: yup.string().test("password", "password is required", (value) => {
-      let flag = true;
-      if (signInType === "password") {
-        if (value === "" || value === null) {
-          flag = false;
-        } else {
-          flag = true;
-        }
-      }
-      return flag;
-    }),
-    otp: yup.string().test("otp", "OTP is required", (value) => {
-      let flag = true;
-      if (signInType === "mobile") {
-        if (value === "" || value === null) {
-          flag = false;
-        } else {
-          flag = true;
-        }
-      }
-      return flag;
-    }),
-    emailOTP: yup.string().test("emailOTP", "OTP is required", (value) => {
-      let flag = true;
-      if (signInType === "emailOTP") {
-        if (value === "" || value === null) {
-          flag = false;
-        } else {
-          flag = true;
-        }
-      }
-      return flag;
-    }),
+      .required("Email is required!"),
   });
 
+  const passwordSchema = yup.object().shape({
+    password: yup.string().required("Password is required!"),
+  });
+
+  const emailOtpSchema = yup.object().shape({
+    emailOTP: yup.string().required("OTP is required!"),
+  });
+
+  // Navigate to home if user is logged in
   useEffect(() => {
     if (userState.name) {
-      router.replace("/");
+      setShowSuccessAnimation(true);
+      setTimeout(() => {
+        router.replace("/");
+      }, 600);
     }
-  }, [userState]); // eslint-disable-line
+  }, [userState, router]);
 
+  // Handle loading state changes for animations and ensure loading stops on error
   useEffect(() => {
-    if (sent) {
-      setCountdown(30);
-      const timeOutId = setTimeout(() => {
-        setSent(false);
-      }, 30000);
-      return () => clearTimeout(timeOutId);
+    // When loading changes from true to false, check if it was an error
+    if (previousLoadingState && !userState.loading) {
+      // If user is not logged in and loading stopped, it was likely an error
+      if (!userState.name && showLoginMethods) {
+        setShowErrorAnimation(true);
+        setTimeout(() => {
+          setShowErrorAnimation(false);
+        }, 500);
+        
+        // Clear OTP error states after API error so user can retry
+        // This ensures that after a wrong OTP, the user can enter a new OTP and submit again
+        if (loginMethod === "email" && emailOtp) {
+          // Don't set error here - let the toast handle it
+          // Just ensure touched state allows retry
+          setEmailOtpTouched(false);
+        } else if (loginMethod === "sms" && otp) {
+          setOtpTouched(false);
+        }
+      }
     }
-  }, [sent]);
+    setPreviousLoadingState(userState.loading);
+  }, [userState.loading, userState.name, previousLoadingState, showLoginMethods, loginMethod, emailOtp, otp]);
 
+  // Ensure loading stops if there's an error (safety check)
   useEffect(() => {
-    if (countdown !== -1) {
-      const timerId = setInterval(() => {
-        setCountdown(countdown - 1);
+    // If loading is stuck, reset it after a timeout (safety mechanism)
+    if (userState.loading) {
+      const timeout = setTimeout(() => {
+        // Only reset if user is not logged in (meaning it's an error)
+        if (!userState.name) {
+          dispatch({ type: USER_API_ERROR });
+        }
+      }, 10000); // 10 second timeout
+      return () => clearTimeout(timeout);
+    }
+  }, [userState.loading, userState.name, dispatch]);
+
+  // Email OTP countdown timer
+  useEffect(() => {
+    if (emailOtpCountdown > 0) {
+      const timerId = setTimeout(() => {
+        setEmailOtpCountdown(emailOtpCountdown - 1);
       }, 1000);
-      return () => clearInterval(timerId);
+      return () => clearTimeout(timerId);
     }
-  }, [countdown]);
+    // Don't reset emailOtpSent when countdown ends - keep showing resend button
+  }, [emailOtpCountdown]);
 
-  const handleCheck = async (values: any) => {
+  // SMS OTP countdown timer
+  useEffect(() => {
+    if (smsOtpCountdown > 0) {
+      const timerId = setTimeout(() => {
+        setSmsOtpCountdown(smsOtpCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timerId);
+    }
+    // Don't reset isOtpSent when countdown ends - keep showing resend button
+  }, [smsOtpCountdown]);
+
+  // Validate email (only called on button click)
+  const validateEmail = async () => {
+    if (!emailInput) {
+      setEmailError("Email is required!");
+      return false;
+    }
+    try {
+      await emailSchema.validate({ email: emailInput });
+      setEmailError("");
+      return true;
+    } catch (err: any) {
+      setEmailError(err.message);
+      return false;
+    }
+  };
+
+  // Handle email check on continue
+  const handleEmailCheck = async () => {
+    setEmailTouched(true);
+    const isValid = await validateEmail();
+    if (!isValid) return;
+
     try {
       const {
         data: { data },
-      } = await axiosBaseApi.get("/user/checkEmail?email=" + values.email);
+      } = await axiosBaseApi.get("/user/checkEmail?email=" + emailInput);
 
       if (data.validEmail) {
-        setEmail(values.email);
+        setVerifiedEmail(emailInput);
         dispatch({ type: USER_EMAIL_CHECK, payload: data });
-        setCollapse(!collapse);
+        setShowLoginMethods(true);
+        setEmailError("");
       } else {
-        setEmailError("Email not found! please try again");
+        setEmailError("Email not found! Please try again");
       }
     } catch (e: any) {
-      const message = e.response.data.message ?? e.message;
+      const message =
+        e.response?.data?.message ?? e.message ?? "An error occurred";
+      setEmailError(message);
       dispatch({
         type: TOAST_SHOW,
         payload: {
@@ -946,35 +1018,277 @@ export default function Login() {
       });
     }
   };
-  const handleSubmit2 = (values: any) => {
-    if (signInType === "password") {
-      dispatch(UserAction(USER_LOGIN, { email, password: values.password }));
-    } else if (signInType === "emailOTP") {
-      dispatch(UserAction(USER_CONFIRM_CODE, { email, otp: values.emailOTP }));
-    } else if (signInType === "mobile") {
+
+  // Handle send email OTP
+  const handleSendEmailOtp = async () => {
+    try {
+      dispatch(
+        UserAction(USER_SEND_OTP, {
+          email: verifiedEmail,
+          mobile: null,
+        })
+      );
+      setEmailOtpSent(true);
+      setEmailOtpCountdown(30);
+      // Clear any previous errors
+      setEmailOtpError("");
+      setEmailOtpTouched(false);
+    } catch (e: any) {
+      const message =
+        e.response?.data?.message ?? e.message ?? "Failed to send OTP";
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
+  };
+
+  // Validate mobile number
+  const validateMobile = () => {
+    if (!mobile || mobile.trim() === "") {
+      setMobileError("Mobile number is required!");
+      return false;
+    }
+    // Basic validation - should be at least 10 digits
+    const cleanedMobile = mobile.replace(/\D/g, "");
+    if (cleanedMobile.length < 10) {
+      setMobileError("Please enter a valid mobile number");
+      return false;
+    }
+    setMobileError("");
+    return true;
+  };
+
+  // Handle send SMS OTP
+  const handleSendSmsOtp = async () => {
+    // If mobile is available from userState (from email check), use it directly
+    if (userState.mobile) {
+      try {
+        dispatch(
+          UserAction(USER_SEND_OTP, {
+            email: verifiedEmail,
+            mobile: userState.mobile,
+          })
+        );
+        setIsOtpSent(true);
+        setSmsOtpCountdown(30);
+        // Clear any previous errors
+        setOtpError("");
+        setOtpTouched(false);
+        setMobileError("");
+        setMobileTouched(false);
+        return;
+      } catch (e: any) {
+        const message =
+          e.response?.data?.message ?? e.message ?? "Failed to send OTP";
+        dispatch({
+          type: TOAST_SHOW,
+          payload: {
+            message: message,
+            severity: "error",
+          },
+        });
+        return;
+      }
+    }
+
+    // If no mobile in userState, validate input mobile
+    setMobileTouched(true);
+    if (!validateMobile()) {
+      return;
+    }
+
+    try {
+      dispatch(
+        UserAction(USER_SEND_OTP, {
+          email: verifiedEmail,
+          mobile: mobile,
+        })
+      );
+      setIsOtpSent(true);
+      setSmsOtpCountdown(30);
+      // Clear any previous errors
+      setOtpError("");
+      setOtpTouched(false);
+      setMobileError("");
+    } catch (e: any) {
+      const message =
+        e.response?.data?.message ?? e.message ?? "Failed to send OTP";
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
+  };
+
+  // Validate SMS OTP
+  const validateSmsOtp = () => {
+    if (!otp || otp.trim().length !== 6) {
+      setOtpError("Please enter a valid 6-digit OTP code");
+      return false;
+    }
+    setOtpError("");
+    return true;
+  };
+
+  // Validate password
+  const validatePassword = async () => {
+    if (!password) {
+      setPasswordError("Password is required!");
+      return false;
+    }
+    try {
+      await passwordSchema.validate({ password });
+      setPasswordError("");
+      return true;
+    } catch (err: any) {
+      setPasswordError(err.message);
+      return false;
+    }
+  };
+
+  // Validate email OTP
+  const validateEmailOtp = async () => {
+    if (!emailOtp) {
+      setEmailOtpError("OTP is required!");
+      return false;
+    }
+    try {
+      await emailOtpSchema.validate({ emailOTP: emailOtp });
+      setEmailOtpError("");
+      return true;
+    } catch (err: any) {
+      setEmailOtpError(err.message);
+      return false;
+    }
+  };
+
+  // Handle login submit
+  const handleLoginSubmit = async () => {
+    if (loginMethod === "password") {
+      setPasswordTouched(true);
+      const isValid = await validatePassword();
+      if (!isValid) {
+        return;
+      }
+
+      dispatch(UserAction(USER_LOGIN, { email: verifiedEmail, password }));
+    } else if (loginMethod === "email") {
+      if (!emailOtpSent) {
+        dispatch({
+          type: TOAST_SHOW,
+          payload: {
+            message: "Please get the verification code first",
+            severity: "error",
+          },
+        });
+        return;
+      }
+      
+      // Basic validation - just check if OTP is entered and is 6 digits
+      if (!emailOtp || emailOtp.trim().length !== 6) {
+        setEmailOtpTouched(true);
+        setEmailOtpError("Please enter a valid 6-digit OTP code");
+        return;
+      }
+
+      // Clear any previous errors before submitting (only if validation passes)
+      setEmailOtpError("");
+      setEmailOtpTouched(false);
+
+      // All validation passed - call API
+      dispatch(
+        UserAction(USER_CONFIRM_CODE, { email: verifiedEmail, otp: emailOtp.trim() })
+      );
+    } else if (loginMethod === "sms") {
+      if (!isOtpSent) {
+        dispatch({
+          type: TOAST_SHOW,
+          payload: {
+            message: "Please get the verification code first",
+            severity: "error",
+          },
+        });
+        return;
+      }
+
+      // Clear any previous errors when submitting
+      setOtpError("");
+      setOtpTouched(false);
+
+      // Validate OTP
+      if (!validateSmsOtp()) {
+        setOtpTouched(true);
+        return;
+      }
+
+      // Get mobile number - use input or from userState
+      const mobileToUse = mobile || userState.mobile;
+      if (!mobileToUse) {
+        setMobileError("Mobile number is required!");
+        return;
+      }
+
+      // All validation passed - call API
       dispatch(
         UserAction(USER_CONFIRM_CODE, {
-          email,
-          otp: values.otp,
-          mobile: userState.mobile,
+          email: verifiedEmail,
+          otp: otp.trim(),
+          mobile: mobileToUse,
         })
       );
     }
   };
 
-  const connectSocial = async (token: any) => {
-    const {
-      data: { data, message },
-    } = await axiosBaseApi.post("user/connectSocial", {
-      ...token,
-    });
-    dispatch({
-      type: TOAST_SHOW,
-      payload: { message },
-    });
-    dispatch({
-      type: USER_LOGIN,
-      payload: { ...data.userData, accessToken: data.accessToken },
+  // Reset to email input
+  const handleChangeEmail = () => {
+    setShowLoginMethods(false);
+    setVerifiedEmail("");
+    setEmailOtpSent(false);
+    setEmailOtp("");
+    setPassword("");
+    setLoginMethod("email");
+    setEmailOtpCountdown(0);
+    // Clear all errors
+    setPasswordError("");
+    setPasswordTouched(false);
+    setEmailOtpError("");
+    setEmailOtpTouched(false);
+    // Clear SMS state
+    setIsOtpSent(false);
+    setMobile("");
+    setMobileError("");
+    setMobileTouched(false);
+    setOtp("");
+    setOtpError("");
+    setOtpTouched(false);
+    setSmsOtpCountdown(0);
+  };
+
+  // Handle login method change - clear errors when switching
+  const handleLoginMethodChange = (value: string) => {
+    setLoginMethod(value);
+    // Clear errors when switching methods
+    setPasswordError("");
+    setPasswordTouched(false);
+    setEmailOtpError("");
+    setEmailOtpTouched(false);
+    setOtpError("");
+    setOtpTouched(false);
+    setMobileError("");
+    setMobileTouched(false);
+  };
+
+  // Handle Google social login
+  const handleGoogleLogin = () => {
+    signIn("google", {
+      callbackUrl: "/auth/validateSocialLogin",
     });
   };
 
@@ -1004,241 +1318,42 @@ export default function Login() {
           descriptionVariant="p"
         />
 
-        {/* Email Input field */}
-        <Box sx={{ marginTop: "24px" }}>
-          <InputField
-            label={t("email")}
-            type="email"
-            value=""
-            placeholder={t("emailPlaceHolder")}
-            sideButton={true}
-            sideButtonType="primary"
-            onSideButtonClick={() => {
-              router.push("/auth/forgot-password");
-            }}
-            sideButtonIcon={EditIcon}
-          />
-        </Box>
+        {/* Email Input field - shown initially or when changing email */}
+        {!showLoginMethods ? (
+          <>
+            <Box sx={{ marginTop: "24px" }}>
+              <InputField
+                label={t("email")}
+                type="email"
+                value={emailInput}
+                onChange={(e) => {
+                  setEmailInput(e.target.value);
+                }}
+                placeholder={t("emailPlaceHolder")}
+                error={emailTouched && !!emailError}
+                helperText={emailTouched && emailError ? emailError : ""}
+              />
+            </Box>
 
-        <Box sx={{ marginTop: isMobile ? "12px" : "24px" }}>
-          <Typography
-            sx={{
-              textAlign: "start",
-              fontSize: isMobile ? "13px" : "15px",
-              fontFamily: "UrbanistMedium",
-              color: "#676768",
-            }}
-          >
-            Choose a login method
-          </Typography>
-
-          {/* Login Method Selection */}
-          <Box sx={{ marginTop: "16px" }}>
-            <RadioGroup
-              value={loginMethod}
-              onChange={(e) => setLoginMethod(e.target.value)}
+            {/* Don't have acc */}
+            <Box
               sx={{
-                "& .MuiFormControlLabel-label": {
-                  fontSize: isMobile ? "13px" : "15px",
-                  fontFamily: "UrbanistMedium",
-                  color: "#242428",
-                  paddingLeft: "8px",
-                },
+                display: "flex",
+                gap: "7px",
+                marginTop: "16px",
+                textAlign: "start",
               }}
             >
-              {/* SMS Option */}
-              <Box
+              <Typography
+                width="100%"
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "16px",
+                  fontSize: "13px",
+                  color: theme.palette.text.secondary,
+                  fontFamily: "UrbanistMedium",
                 }}
+                fontWeight={500}
               >
-                <FormControlLabel
-                  value="sms"
-                  control={<CustomRadio />}
-                  label="Send the verification code via SMS"
-                  sx={{ margin: "0px" }}
-                />
-
-                {/* Get Code Button */}
-                {loginMethod === "sms" && !isMobile && !isOtpSent && (
-                  <Box sx={{ marginTop: "8px" }}>
-                    <CustomButton
-                      variant="secondary"
-                      size="medium"
-                      label="Get code"
-                      onClick={() => setIsOtpSent(true)}
-                      sx={{
-                        fontWeight: 500,
-                        padding: "11px 28px",
-                      }}
-                      endIcon={ArrowUpwardIcon}
-                    />
-                  </Box>
-                )}
-
-                {/* Resend Code Button */}
-                {loginMethod === "sms" && !isMobile && isOtpSent && (
-                  <Box sx={{ marginTop: "8px" }}>
-                    <CustomButton
-                      variant="secondary"
-                      disabled={isOtpSent}
-                      size="medium"
-                      label="Code in 30s"
-                      onClick={() => setIsOtpSent(true)}
-                      sx={{
-                        fontWeight: 500,
-                        padding: "11px 20px",
-                      }}
-                    />
-                  </Box>
-                )}
-              </Box>
-
-              {/* Mobile Input Field */}
-              {loginMethod === "sms" && isMobile && !isOtpSent && (
-                <Box sx={{ marginTop: "8px" }}>
-                  <InputField
-                    placeholder="Enter a mobile phone number"
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
-                    type="text"
-                    sideButton={true}
-                    sideButtonType="secondary"
-                    sideButtonIcon={ArrowUpwardIcon}
-                    onSideButtonClick={() => setIsOtpSent(true)}
-                  />
-                </Box>
-              )}
-
-              {/* Resend Code Button */}
-              {loginMethod === "sms" && isMobile && isOtpSent && (
-                <Box sx={{ marginTop: "8px" }}>
-                  <CustomButton
-                    variant="secondary"
-                    disabled={isOtpSent}
-                    size="medium"
-                    label="Code in 30s"
-                    fullWidth
-                    onClick={() => setIsOtpSent(true)}
-                    sx={{
-                      height: "32px",
-                      fontSize: "13px",
-                      fontWeight: 500,
-                      padding: "8px 20px",
-                    }}
-                  />
-                </Box>
-              )}
-
-              {/* OTP Input Field (shown when SMS is selected) */}
-              {isOtpSent && loginMethod === "sms" && (
-                <Box sx={{ marginTop: "10px" }}>
-                  <InputField
-                    placeholder="Enter the OTP code"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    type="text"
-                    helperText="Enter the code sent to the number provided"
-                  />
-                </Box>
-              )}
-
-              {/* Email Option */}
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "16px",
-                }}
-              >
-                <FormControlLabel
-                  value="email"
-                  control={<CustomRadio />}
-                  label="Send me a verification code via email"
-                  sx={{ margin: "16px 0 0 0", color: "#242428" }}
-                />
-                {/* Get Code Button */}
-                {loginMethod === "email" && !isMobile && !isOtpSent && (
-                  <CustomButton
-                    variant="secondary"
-                    size="medium"
-                    label="Get code"
-                    onClick={() => setIsOtpSent(true)}
-                    sx={{
-                      fontWeight: 500,
-                      padding: "8px 28px",
-                    }}
-                    endIcon={ArrowUpwardIcon}
-                  />
-                )}
-
-                {/* Resend Code Button */}
-                {loginMethod === "email" && !isMobile && isOtpSent && (
-                  <CustomButton
-                    variant="secondary"
-                    disabled={isOtpSent}
-                    size="medium"
-                    label="Code in 30s"
-                    onClick={() => setIsOtpSent(true)}
-                    sx={{
-                      fontWeight: 500,
-                      padding: "11px 20px",
-                    }}
-                  />
-                )}
-              </Box>
-
-              {/* Get Code Button */}
-              {loginMethod === "email" && isMobile && (
-                <Box sx={{ marginTop: "16px" }}>
-                  <CustomButton
-                    variant="secondary"
-                    size="small"
-                    label={isOtpSent ? "Code in 30s" : "Get code"}
-                    fullWidth
-                    disabled={isOtpSent}
-                    onClick={() => setIsOtpSent(true)}
-                    sx={{
-                      fontWeight: 500,
-                      padding: "8px 28px",
-                    }}
-                    endIcon={isOtpSent ? undefined : ArrowUpwardIcon}
-                  />
-                </Box>
-              )}
-
-              {/* Email Input Field */}
-              {loginMethod === "email" && isOtpSent && (
-                <Box sx={{ marginTop: "16px" }}>
-                  <InputField
-                    placeholder="Enter the OTP code"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    helperText="Enter the code sent to the email address provided"
-                  />
-                </Box>
-              )}
-
-              {/* Password Option */}
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  margin: "16px 0 0 0",
-                }}
-              >
-                <FormControlLabel
-                  value="password"
-                  control={<CustomRadio />}
-                  label="Password"
-                  sx={{ margin: "0px", color: "#242428" }}
-                />
-
+                Don&apos;t have an account?{" "}
                 <Typography
                   component="span"
                   sx={{
@@ -1255,86 +1370,515 @@ export default function Login() {
                     router.push("/auth/register");
                   }}
                 >
-                  Forgot your password?
+                  Create new account
                 </Typography>
-              </Box>
-              {/* Password Input Field */}
-              {loginMethod === "password" && (
-                <Box sx={{ marginTop: "10px" }}>
-                  <InputField
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder={t("passwordPlaceHolder")}
-                    sideButton={true}
-                    sideButtonType="primary"
-                    sideButtonIcon={
-                      <VisibilityIcon
-                        sx={{ color: "#676768", height: "18px", width: "16px" }}
-                      />
-                    }
-                    onSideButtonClick={() => {
-                      setShowPassword(!showPassword);
+              </Typography>
+            </Box>
+
+            <Box sx={{ marginTop: "24px" }}>
+              <CustomButton
+                label="Continue"
+                variant="primary"
+                size={isMobile ? "small" : "medium"}
+                fullWidth
+                disabled={userState.loading}
+                onClick={handleEmailCheck}
+                hideLabelWhenLoading={true}
+                showSuccessAnimation={showSuccessAnimation}
+                showErrorAnimation={showErrorAnimation}
+                sx={{
+                  fontWeight: 700,
+                }}
+                endIcon={
+                  userState.loading ? <LoadingIcon size={20} /> : undefined
+                }
+              />
+            </Box>
+          </>
+        ) : (
+          <>
+            {/* Show verified email in InputBox with edit button */}
+            <Box sx={{ marginTop: "24px" }}>
+              <InputField
+                label={t("email")}
+                type="email"
+                value={verifiedEmail}
+                readOnly={true}
+                sideButton={true}
+                sideButtonType="primary"
+                sideButtonIcon={EditIcon}
+                onSideButtonClick={handleChangeEmail}
+              />
+            </Box>
+
+            <Box sx={{ marginTop: isMobile ? "12px" : "24px" }}>
+              <Typography
+                sx={{
+                  textAlign: "start",
+                  fontSize: isMobile ? "13px" : "15px",
+                  fontFamily: "UrbanistMedium",
+                  color: "#676768",
+                }}
+              >
+                Choose a login method
+              </Typography>
+
+              {/* Login Method Selection */}
+              <Box sx={{ marginTop: "16px" }}>
+                <RadioGroup
+                  value={loginMethod}
+                  onChange={(e) => handleLoginMethodChange(e.target.value)}
+                  sx={{
+                    "& .MuiFormControlLabel-label": {
+                      fontSize: isMobile ? "13px" : "15px",
+                      fontFamily: "UrbanistMedium",
+                      color: "#242428",
+                      paddingLeft: "8px",
+                    },
+                  }}
+                >
+                  {/* SMS Option */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
                     }}
-                    showPasswordToggle={true}
-                  />
-                </Box>
-              )}
-            </RadioGroup>
-          </Box>
-        </Box>
+                  >
+                    <FormControlLabel
+                      value="sms"
+                      control={<CustomRadio />}
+                      label="Send the verification code via SMS"
+                      sx={{ margin: "0px", flex: 1 }}
+                    />
 
-        {/* Don't have acc */}
-        <Box
-          sx={{
-            display: "flex",
-            gap: "7px",
-            marginTop: "16px",
-            textAlign: "start",
-          }}
-        >
-          <Typography
-            width="100%"
-            sx={{
-              fontSize: "13px",
-              color: theme.palette.text.secondary,
-              fontFamily: "UrbanistMedium",
-            }}
-            fontWeight={500}
-          >
-            Don&apos;t have an account?{" "}
-            <Typography
-              component="span"
-              sx={{
-                fontSize: "13px",
-                color: theme.palette.primary.main,
-                fontWeight: 500,
-                textAlign: "start",
-                cursor: "pointer",
-                textDecoration: "underline",
-                textUnderlineOffset: "2px",
-                fontFamily: "UrbanistMedium",
-              }}
-              onClick={() => {
-                router.push("/auth/register");
-              }}
-            >
-              Create new account
-            </Typography>
-          </Typography>
-        </Box>
+                    {/* Get Code Button - Desktop */}
+                    {loginMethod === "sms" && !isMobile && !isOtpSent && (
+                      <CustomButton
+                        variant="secondary"
+                        size="medium"
+                        label="Get code"
+                        onClick={handleSendSmsOtp}
+                        disabled={userState.loading}
+                        sx={{
+                          fontWeight: 500,
+                          padding: "11px 28px",
+                        }}
+                        endIcon={ArrowUpwardIcon}
+                      />
+                    )}
 
-        <Box sx={{ marginTop: "24px" }}>
-          <CustomButton
-            label="Continue"
-            variant="primary"
-            size={isMobile ? "small" : "medium"}
-            fullWidth
-            sx={{
-              fontWeight: 700,
-            }}
-          />
-        </Box>
+                    {/* Resend Code Button - Desktop */}
+                    {loginMethod === "sms" && !isMobile && isOtpSent && (
+                      <CustomButton
+                        variant="secondary"
+                        disabled={smsOtpCountdown > 0 || userState.loading}
+                        size="medium"
+                        label={
+                          smsOtpCountdown > 0
+                            ? `Code in ${smsOtpCountdown}s`
+                            : "Resend code"
+                        }
+                        onClick={handleSendSmsOtp}
+                        endIcon={ArrowUpwardIcon}
+                        sx={{
+                          fontWeight: 500,
+                          padding: "11px 20px",
+                        }}
+                      />
+                    )}
+                  </Box>
+
+                  {/* Show mobile number if available from userState */}
+                  {loginMethod === "sms" && userState.mobile && (
+                    <Box sx={{ marginTop: "8px", marginLeft: "32px" }}>
+                      <Typography
+                        sx={{
+                          fontSize: "12px",
+                          color: "#676768",
+                          fontFamily: "UrbanistMedium",
+                        }}
+                      >
+                        Code will be sent to: +xxxxxxx{userState.mobile.substring(7)}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Mobile Input Field - Desktop (only show if mobile not in userState) */}
+                  {loginMethod === "sms" && !isMobile && !isOtpSent && !userState.mobile && (
+                    <Box sx={{ marginTop: "8px", marginLeft: "32px" }}>
+                      <InputField
+                        placeholder="Enter a mobile phone number"
+                        value={mobile}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "");
+                          setMobile(value);
+                          // Clear error when typing
+                          if (mobileError) {
+                            setMobileError("");
+                            setMobileTouched(false);
+                          }
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        error={mobileTouched && !!mobileError}
+                        helperText={mobileTouched && mobileError ? mobileError : ""}
+                      />
+                    </Box>
+                  )}
+
+                  {/* Mobile Input Field - Mobile (only show if mobile not in userState) */}
+                  {loginMethod === "sms" && isMobile && !isOtpSent && !userState.mobile && (
+                    <Box sx={{ marginTop: "8px" }}>
+                      <InputField
+                        placeholder="Enter a mobile phone number"
+                        value={mobile}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "");
+                          setMobile(value);
+                          // Clear error when typing
+                          if (mobileError) {
+                            setMobileError("");
+                            setMobileTouched(false);
+                          }
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        error={mobileTouched && !!mobileError}
+                        helperText={mobileTouched && mobileError ? mobileError : ""}
+                        sideButton={true}
+                        sideButtonType="secondary"
+                        sideButtonIcon={ArrowUpwardIcon}
+                        onSideButtonClick={handleSendSmsOtp}
+                      />
+                    </Box>
+                  )}
+
+                  {/* Get Code Button - Mobile (when mobile is in userState) */}
+                  {loginMethod === "sms" && isMobile && !isOtpSent && userState.mobile && (
+                    <Box sx={{ marginTop: "8px" }}>
+                      <CustomButton
+                        variant="secondary"
+                        size="small"
+                        label="Get code"
+                        fullWidth
+                        disabled={userState.loading}
+                        onClick={handleSendSmsOtp}
+                        sx={{
+                          fontWeight: 500,
+                          padding: "8px 28px",
+                        }}
+                        endIcon={ArrowUpwardIcon}
+                      />
+                    </Box>
+                  )}
+
+                  {/* Resend Code Button - Mobile */}
+                  {loginMethod === "sms" && isMobile && isOtpSent && (
+                    <Box sx={{ marginTop: "8px" }}>
+                      <CustomButton
+                        variant="secondary"
+                        disabled={smsOtpCountdown > 0 || userState.loading}
+                        size="small"
+                        label={
+                          smsOtpCountdown > 0
+                            ? `Code in ${smsOtpCountdown}s`
+                            : "Resend code"
+                        }
+                        fullWidth
+                        onClick={handleSendSmsOtp}
+                        endIcon={ArrowUpwardIcon}
+                        sx={{
+                          height: "32px",
+                          fontSize: "13px",
+                          fontWeight: 500,
+                          padding: "8px 20px",
+                        }}
+                      />
+                    </Box>
+                  )}
+
+                  {/* OTP Input Field (shown when SMS is selected) */}
+                  {isOtpSent && loginMethod === "sms" && (
+                    <Box sx={{ marginTop: "10px" }}>
+                      <InputField
+                        placeholder="Enter the OTP code"
+                        value={otp}
+                        onChange={(e) => {
+                          // Only allow numbers and max 6 digits
+                          const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                          setOtp(value);
+                          // Clear error when typing
+                          if (otpError) {
+                            setOtpError("");
+                            setOtpTouched(false);
+                          }
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        error={otpTouched && !!otpError}
+                        helperText={
+                          otpTouched && otpError
+                            ? otpError
+                            : "Enter the code sent to the number provided"
+                        }
+                      />
+                    </Box>
+                  )}
+
+                  {/* Email Option */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      marginTop: "16px",
+                    }}
+                  >
+                    <FormControlLabel
+                      value="email"
+                      control={<CustomRadio />}
+                      label="Send me a verification code via email"
+                      sx={{ margin: "0px", color: "#242428", flex: 1 }}
+                    />
+                    {/* Get Code Button */}
+                    {loginMethod === "email" && !isMobile && !emailOtpSent && (
+                      <CustomButton
+                        variant="secondary"
+                        size="medium"
+                        label="Get code"
+                        onClick={handleSendEmailOtp}
+                        disabled={userState.loading}
+                        sx={{
+                          fontWeight: 500,
+                          padding: "8px 28px",
+                        }}
+                        endIcon={ArrowUpwardIcon}
+                      />
+                    )}
+
+                    {/* Resend Code Button */}
+                    {loginMethod === "email" && !isMobile && emailOtpSent && (
+                      <CustomButton
+                        variant="secondary"
+                        disabled={emailOtpCountdown > 0}
+                        size="medium"
+                        label={
+                          emailOtpCountdown > 0
+                            ? `Code in ${emailOtpCountdown}s`
+                            : "Resend code"
+                        }
+                        onClick={handleSendEmailOtp}
+                        endIcon={ArrowUpwardIcon}
+                        sx={{
+                          fontWeight: 500,
+                          padding: "11px 20px",
+                        }}
+                      />
+                    )}
+                  </Box>
+
+                  {/* Get Code Button - Mobile */}
+                  {loginMethod === "email" && isMobile && !emailOtpSent && (
+                    <Box sx={{ marginTop: "16px" }}>
+                      <CustomButton
+                        variant="secondary"
+                        size="small"
+                        label="Get code"
+                        fullWidth
+                        disabled={userState.loading}
+                        onClick={handleSendEmailOtp}
+                        sx={{
+                          fontWeight: 500,
+                          padding: "8px 28px",
+                        }}
+                        endIcon={ArrowUpwardIcon}
+                      />
+                    </Box>
+                  )}
+
+                  {/* Resend Code Button - Mobile */}
+                  {loginMethod === "email" && isMobile && emailOtpSent && (
+                    <Box sx={{ marginTop: "16px" }}>
+                      <CustomButton
+                        variant="secondary"
+                        size="small"
+                        label={
+                          emailOtpCountdown > 0
+                            ? `Code in ${emailOtpCountdown}s`
+                            : "Resend code"
+                        }
+                        fullWidth
+                        disabled={emailOtpCountdown > 0}
+                        endIcon={ArrowUpwardIcon}
+                        onClick={handleSendEmailOtp}
+                        sx={{
+                          fontWeight: 500,
+                          padding: "8px 20px",
+                        }}
+                      />
+                    </Box>
+                  )}
+
+                  {/* Email OTP Input Field */}
+                  {loginMethod === "email" && emailOtpSent && (
+                    <Box sx={{ marginTop: "10px" }}>
+                      <InputField
+                        placeholder="Enter the OTP code"
+                        value={emailOtp}
+                        onChange={(e) => {
+                          // Only allow numbers and max 6 digits
+                          const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                          setEmailOtp(value);
+                          // Always clear error and touched state when user types
+                          // This ensures user can retry after a wrong OTP
+                          setEmailOtpError("");
+                          setEmailOtpTouched(false);
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        error={
+                          loginMethod === "email" &&
+                          emailOtpTouched &&
+                          !!emailOtpError
+                        }
+                        helperText={
+                          loginMethod === "email" &&
+                          emailOtpTouched &&
+                          emailOtpError
+                            ? emailOtpError
+                            : "Enter the code sent to the email address provided"
+                        }
+                        onFocus={() => {
+                          // Clear error when user focuses on the input
+                          setEmailOtpError("");
+                          setEmailOtpTouched(false);
+                        }}
+                      />
+                    </Box>
+                  )}
+
+                  {/* Password Option */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      margin: "16px 0 0 0",
+                    }}
+                  >
+                    <FormControlLabel
+                      value="password"
+                      control={<CustomRadio />}
+                      label="Password"
+                      sx={{ margin: "0px", color: "#242428" }}
+                    />
+                    {loginMethod === "password" && (
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "13px",
+                          color: theme.palette.primary.main,
+                          fontWeight: 500,
+                          textAlign: "start",
+                          cursor: "pointer",
+                          textDecoration: "underline",
+                          textUnderlineOffset: "2px",
+                          fontFamily: "UrbanistMedium",
+                        }}
+                        onClick={() => {
+                          router.push("/auth/forgot-password");
+                        }}
+                      >
+                        Forgot your password?
+                      </Typography>
+                    )}
+                  </Box>
+                  {/* Password Input Field */}
+                  {loginMethod === "password" && (
+                    <Box sx={{ marginTop: "10px" }}>
+                      <InputField
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                        }}
+                        placeholder={t("passwordPlaceHolder")}
+                        error={
+                          loginMethod === "password" &&
+                          passwordTouched &&
+                          !!passwordError
+                        }
+                        helperText={
+                          loginMethod === "password" &&
+                          passwordTouched &&
+                          passwordError
+                            ? passwordError
+                            : ""
+                        }
+                        sideButton={true}
+                        sideButtonType="primary"
+                        sideButtonIcon={
+                          showPassword ? (
+                            <VisibilityOffIcon
+                              sx={{
+                                color: "#676768",
+                                height: "18px",
+                                width: "16px",
+                              }}
+                            />
+                          ) : (
+                            <VisibilityIcon
+                              sx={{
+                                color: "#676768",
+                                height: "18px",
+                                width: "16px",
+                              }}
+                            />
+                          )
+                        }
+                        onSideButtonClick={() => {
+                          setShowPassword(!showPassword);
+                        }}
+                        showPasswordToggle={true}
+                      />
+                    </Box>
+                  )}
+                </RadioGroup>
+              </Box>
+            </Box>
+
+            {/* Continue Button - shown when login methods are visible */}
+            <Box sx={{ marginTop: "24px" }}>
+              <CustomButton
+                label="Continue"
+                variant="primary"
+                size={isMobile ? "small" : "medium"}
+                fullWidth
+                disabled={userState.loading}
+                onClick={() => {
+                  // Ensure we can submit even after previous errors
+                  handleLoginSubmit();
+                }}
+                hideLabelWhenLoading={true}
+                showSuccessAnimation={showSuccessAnimation}
+                showErrorAnimation={showErrorAnimation}
+                sx={{
+                  fontWeight: 700,
+                }}
+                endIcon={
+                  userState.loading ? <LoadingIcon size={20} /> : undefined
+                }
+              />
+            </Box>
+          </>
+        )}
+
+        {/* Social Login Section - shown only when login methods are visible */}
 
         <Box sx={{ marginTop: "24px" }}>
           <Divider
@@ -1387,7 +1931,17 @@ export default function Login() {
               borderRadius: "100%",
               border: "1px solid #E9ECF2",
               backgroundColor: "#F4F6FA",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                backgroundColor: "#E9ECF2",
+                borderColor: "#D0D5DD",
+              },
             }}
+            onClick={handleGoogleLogin}
           >
             <ImageCenter>
               <Image

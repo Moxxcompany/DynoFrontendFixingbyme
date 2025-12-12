@@ -20,7 +20,7 @@ const AdminLayout = ({ children, pageName, component }: LayoutProps) => {
       <Toast
         open={ToastState.open}
         message={ToastState.message}
-        severity={ToastState.severity ?? "success"}
+        severity={ToastState.severity || "success"}
         loading={ToastState.loading}
       />
       <Box component="nav" sx={{ sm: "block", xs: "none" }}>

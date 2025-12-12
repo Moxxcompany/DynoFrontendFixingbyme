@@ -15,7 +15,8 @@ const toastReducer = (state = ToastInitialState, action: any) => {
       return {
         open: true,
         message: payload.message,
-        severity: payload.severity,
+        // Preserve "error" severity explicitly, default to "success" only if not provided
+        severity: payload.severity === "error" ? "error" : (payload.severity || "success"),
         loading: payload.loading ?? false,
       };
 
