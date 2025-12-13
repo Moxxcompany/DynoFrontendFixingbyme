@@ -37,6 +37,7 @@ export const MainContainer = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "space-between",
   borderRadius: "14px",
+  gap: "10px",
   padding: 8,
   outline: "1px solid",
   outlineColor: theme?.palette?.border?.main,

@@ -18,6 +18,7 @@ import "../i18n";
 export default function App({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter();
   const [pageName, setPageName] = useState("");
+  const [pageDescription, setPageDescription] = useState("");
   return (
     <>
       <Provider store={store}>
@@ -26,25 +27,25 @@ export default function App({ Component, pageProps }: AppProps) {
             {!pathname.includes("auth") &&
               !pathname.includes("payment") &&
               !pathname.includes("admin") && (
-                <ClientLayout pageName={pageName}>
-                  <Component {...pageProps} setPageName={setPageName} />
+                <ClientLayout pageName={pageName} pageDescription={pageDescription}>
+                  <Component {...pageProps} setPageName={setPageName} setPageDescription={setPageDescription} />
                 </ClientLayout>
               )}
             {(pathname.includes("auth") ||
               pathname.includes("admin/login")) && (
-              <LoginLayout pageName={pageName}>
-                <Component {...pageProps} setPageName={setPageName} />
+              <LoginLayout pageName={pageName} pageDescription={pageDescription}>
+                <Component {...pageProps} setPageName={setPageName} setPageDescription={setPageDescription} />
               </LoginLayout>
             )}
             {pathname.includes("payment") && (
-              <PaymentLayout pageName={pageName}>
-                <Component {...pageProps} setPageName={setPageName} />
+              <PaymentLayout pageName={pageName} pageDescription={pageDescription}>
+                <Component {...pageProps} setPageName={setPageName} setPageDescription={setPageDescription} />
               </PaymentLayout>
             )}
             {pathname.includes("admin") &&
               !pathname.includes("admin/login") && (
-                <AdminLayout pageName={pageName}>
-                  <Component {...pageProps} setPageName={setPageName} />
+                <AdminLayout pageName={pageName} pageDescription={pageDescription}>
+                  <Component {...pageProps} setPageName={setPageName} setPageDescription={setPageDescription} />
                 </AdminLayout>
               )}
           </ThemeProvider>

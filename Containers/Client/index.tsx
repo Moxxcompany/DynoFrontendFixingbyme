@@ -1,7 +1,6 @@
 import withAuth from "@/Components/Page/Common/HOC/withAuth";
-import { drawerWidth, toolbarHeight } from "@/styles/theme";
 import { LayoutProps, rootReducer } from "@/utils/types";
-import { Box, Drawer, Grid, useTheme } from "@mui/material";
+import { Box, Grid, useTheme } from "@mui/material";
 import React from "react";
 import useTokenData from "@/hooks/useTokenData";
 import Header from "@/Components/Layout/Header";
@@ -10,8 +9,15 @@ import Toast from "@/Components/UI/Toast";
 import { useSelector } from "react-redux";
 import NewHeader from "@/Components/Layout/NewHeader";
 import NewSidebar from "@/Components/Layout/NewSidebar";
+import MobileNavigationBar from "@/Components/Layout/MobileNavigationBar";
+import { PageHeader, PageHeaderDescription, PageHeaderTitle } from "./styled";
 
-const ClientLayout = ({ children, pageName, component }: LayoutProps) => {
+const ClientLayout = ({
+  children,
+  pageName,
+  pageDescription,
+  component,
+}: LayoutProps) => {
   const theme = useTheme();
   const tokenData = useTokenData();
   const ToastState = useSelector((state: rootReducer) => state.toastReducer);
@@ -41,8 +47,8 @@ const ClientLayout = ({ children, pageName, component }: LayoutProps) => {
         sx={{
           flex: 1,
           overflow: "hidden", // important
-          px: { xs: 2, md: 3 },
-          pb: { xs: 10, md: 3 }, // Add bottom padding on mobile for bottom nav
+          px: { xs: 2, lg: 3 },
+          pb: { xs: 10, lg: 3 }, // Add bottom padding on mobile for bottom nav
           mt: 3,
         }}
       >
@@ -56,7 +62,7 @@ const ClientLayout = ({ children, pageName, component }: LayoutProps) => {
             sx={{
               height: "100%",
               overflow: "hidden",
-              display: { xs: "none", md: "block" },
+              display: { xs: "none", lg: "block" },
             }}
           >
             <NewSidebar />
@@ -66,7 +72,7 @@ const ClientLayout = ({ children, pageName, component }: LayoutProps) => {
           <Grid
             item
             xs={12}
-            md={9}
+            md={12}
             lg={9.5}
             sx={{
               height: "100%",
@@ -74,6 +80,18 @@ const ClientLayout = ({ children, pageName, component }: LayoutProps) => {
               overflowX: "hidden",
             }}
           >
+            {(pageName || pageDescription) && (
+              <PageHeader>
+                {pageName && (
+                  <PageHeaderTitle variant="h1">{pageName}</PageHeaderTitle>
+                )}
+                {pageDescription && (
+                  <PageHeaderDescription variant="body1">
+                    {pageDescription}
+                  </PageHeaderDescription>
+                )}
+              </PageHeader>
+            )}
             {children}
           </Grid>
         </Grid>
@@ -82,17 +100,10 @@ const ClientLayout = ({ children, pageName, component }: LayoutProps) => {
       {/* Mobile Bottom Navigation */}
       <Box
         sx={{
-          display: { xs: "block", md: "none" },
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-          px: 2,
-          pb: 2,
+          display: { xs: "block", lg: "none" },
         }}
       >
-        <NewSidebar />
+        <MobileNavigationBar />
       </Box>
     </Box>
   );

@@ -2,7 +2,8 @@ import { styled } from "@mui/material";
 
 export const SidebarWrapper = styled("aside")(({ theme }) => ({
   width: "100%",
-  height: "65vh",
+  height: "100%",
+  // minHeight: "65vh",
   background: theme.palette.common.white,
   display: "flex",
   flexDirection: "column",
@@ -10,6 +11,7 @@ export const SidebarWrapper = styled("aside")(({ theme }) => ({
   borderRadius: "14px",
   outline: `1px solid ${theme.palette.border.main}`,
   padding: "16px",
+  overflow: "auto",
 }));
 
 export const Menu = styled("div")(({ theme }) => ({

@@ -22,30 +22,32 @@ import WalletsIcon from "@/assets/Icons/wallet-icon.svg";
 import APIIcon from "@/assets/Icons/key-icon.svg";
 import NotificationsIcon from "@/assets/Icons/notification-icon.svg";
 import AddIcon from "@mui/icons-material/Add";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useRouter } from "next/router";
 import { Box, useTheme } from "@mui/material";
 import BGOverlay from "@/assets/Images/bg-overlay.png";
 import CopyIcon from "@/assets/Icons/cpoy-icon.svg";
+import FileIcon from "@/assets/Icons/file-icon.svg";
+import { useTranslation } from "react-i18next";
 
 const NewSidebar = () => {
   const isMobile = useIsMobile("md");
   const router = useRouter();
   const theme = useTheme();
+  const { t } = useTranslation("dashboardLayout");
 
   const menuItems = [
-    { label: "Dashboard", icon: DashboardIcon, path: "/" },
+    { label: t("dashboard"), icon: DashboardIcon, path: "/" },
     {
-      label: "Transactions",
+      label: t("transactions"),
       icon: TransactionsIcon,
       path: "/transactions",
       plus: true,
     },
-    { label: "Wallets", icon: WalletsIcon, path: "/wallet" },
-    { label: "API", icon: APIIcon, path: "/apis" },
-    { label: "Notifications", icon: NotificationsIcon, path: "/notifications" },
+    { label: t("wallets"), icon: WalletsIcon, path: "/wallet" },
+    { label: t("api"), icon: APIIcon, path: "/apis" },
+    { label: t("notifications"), icon: NotificationsIcon, path: "/notifications" },
   ];
 
   const isActiveRoute = (path: string) => {
@@ -134,10 +136,16 @@ const NewSidebar = () => {
               userSelect: "none",
             }}
           >
-            <Image src={BGOverlay} alt="BG Overlay" width={150} height={100} draggable={false} />
+            <Image
+              src={BGOverlay}
+              alt="BG Overlay"
+              width={150}
+              height={100}
+              draggable={false}
+            />
           </Box>
           <ReferralCardContent>
-            <ReferralCardTitle>Your Referral Code</ReferralCardTitle>
+            <ReferralCardTitle>{t("yourReferralCode")}</ReferralCardTitle>
 
             <ReferralCardContentValueContainer>
               <ReferralCardContentValue>DYNO2024XYZ</ReferralCardContentValue>
@@ -153,13 +161,8 @@ const NewSidebar = () => {
         </ReferralCard>
 
         <KnowledgeBaseBtn>
-          <MenuBookIcon
-            sx={{
-              fontSize: "16px",
-              color: theme.palette.text.primary,
-            }}
-          />
-          <KnowledgeBaseTitle>Knowledge Base</KnowledgeBaseTitle>
+          <Image src={FileIcon} alt="File Icon" width={18} height={18} />
+          <KnowledgeBaseTitle>{t("knowledgeBase")}</KnowledgeBaseTitle>
         </KnowledgeBaseBtn>
       </SidebarFooter>
     </SidebarWrapper>

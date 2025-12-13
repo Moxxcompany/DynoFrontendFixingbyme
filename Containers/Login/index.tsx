@@ -8,7 +8,7 @@ import bg from "@/assets/Images/auth/bg-auth.png";
 import smallbg from "@/assets/Images/auth/bg-auth-small.png";
 import { Box } from "@mui/material";
 
-const LoginLayout = ({ children }: LayoutProps) => {
+const LoginLayout = ({ children, pageName, pageDescription }: LayoutProps) => {
   const ToastState = useSelector((state: rootReducer) => state.toastReducer);
 
   return (

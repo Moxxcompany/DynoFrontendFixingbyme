@@ -22,6 +22,13 @@ export const UserName = styled("span")(({ theme }) => ({
   color: theme.palette.text.primary,
   fontFamily: "UrbanistMedium",
   whiteSpace: "nowrap",
+  display: "inline-block",
+  maxWidth: "130px",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  [theme.breakpoints.down("xl")]: {
+    maxWidth: "100px",
+  },
 }));
 
 export const PopWrapper = styled("div")(() => ({

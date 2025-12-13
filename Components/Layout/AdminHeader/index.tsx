@@ -28,10 +28,11 @@ import { drawerWidth } from "@/styles/theme";
 
 interface AdminHeaderProps {
   pageName: string;
+  pageDescription?: string;
   component?: any;
 }
 
-const AdminHeader = ({ pageName, component }: AdminHeaderProps) => {
+const AdminHeader = ({ pageName, pageDescription, component }: AdminHeaderProps) => {
   /**
    *
    * Initializations
@@ -104,13 +105,24 @@ const AdminHeader = ({ pageName, component }: AdminHeaderProps) => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ fontSize: "24px", fontWeight: 600, whiteSpace: "nowrap" }}
-          >
-            {pageName ?? ""}
-          </Typography>
+          <Box>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ fontSize: "24px", fontWeight: 600, whiteSpace: "nowrap" }}
+            >
+              {pageName ?? ""}
+            </Typography>
+            {pageDescription && (
+              <Typography
+                variant="body2"
+                component="div"
+                sx={{ fontSize: "14px", color: theme.palette.text.secondary }}
+              >
+                {pageDescription}
+              </Typography>
+            )}
+          </Box>
           <Box
             sx={{
               ml: 3,
@@ -229,13 +241,24 @@ const AdminHeader = ({ pageName, component }: AdminHeaderProps) => {
               justifyContent: "space-between",
             }}
           >
-            <Typography
-              variant="h6"
-              component="div"
-              sx={{ fontSize: "24px", fontWeight: 600 }}
-            >
-              {pageName ?? ""}
-            </Typography>
+            <Box>
+              <Typography
+                variant="h6"
+                component="div"
+                sx={{ fontSize: "24px", fontWeight: 600 }}
+              >
+                {pageName ?? ""}
+              </Typography>
+              {pageDescription && (
+                <Typography
+                  variant="body2"
+                  component="div"
+                  sx={{ fontSize: "14px", color: theme.palette.text.secondary }}
+                >
+                  {pageDescription}
+                </Typography>
+              )}
+            </Box>
             <Box>Hello</Box>
           </Box>
         </Box>

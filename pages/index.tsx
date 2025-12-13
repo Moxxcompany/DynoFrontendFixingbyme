@@ -1,14 +1,26 @@
 import { pageProps } from "@/utils/types";
 import Head from "next/head";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
-export default function Home({ setPageName }: pageProps) {
-  const { t } = useTranslation("common");
+export default function Home({ setPageName, setPageDescription }: pageProps) {
+  const namespaces = ["dashboardLayout", "common"];
+
+  const { t } = useTranslation(namespaces);
+
+  const tDashboard = useCallback(
+    (key: string) => t(key, { ns: "dashboardLayout" }),
+    [t]
+  );
+  const tCommon = useCallback((key: string) => t(key, { ns: "common" }), [t]);
 
   useEffect(() => {
-    setPageName("Home");
-  }, [setPageName]);
+    if (setPageName && setPageDescription) {
+      // Using dashboardLayout namespace
+      setPageName(tDashboard("dashboard"));
+      setPageDescription(tDashboard("dashboardDescription"));
+    }
+  }, [setPageName, setPageDescription, tDashboard]);
 
   return (
     <>
@@ -19,8 +31,9 @@ export default function Home({ setPageName }: pageProps) {
       </Head>
 
       <main>
-        <h1>{t("homeHeading")}</h1>
-        <p>{t("homeTagline")}</p>
+        {/* Using common namespace */}
+        <h1>{tCommon("homeHeading")}</h1>
+        <p>{tCommon("homeTagline")}</p>
       </main>
     </>
   );

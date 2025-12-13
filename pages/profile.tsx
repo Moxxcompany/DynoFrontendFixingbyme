@@ -3,13 +3,16 @@ import React, { useEffect } from "react";
 import ProfilePage from "@/Components/Page/Profile/ProfilePage";
 import { pageProps } from "@/utils/types";
 
-const Profile = ({ setPageName }: pageProps) => {
+const Profile = ({ setPageName, setPageDescription }: pageProps) => {
   const tokenData = useTokenData();
   useEffect(() => {
-    setPageName("Profile");
+    if (setPageName && setPageDescription) {
+      setPageName("Profile");
+      setPageDescription("Manage your profile information and settings.");
+    }
   }, []);
 
-  return <>{tokenData && <ProfilePage tokenData={tokenData} />}</>;
+  return <>{tokenData && <ProfilePage tokenData={tokenData} />}</>
 };
 
 export default Profile;

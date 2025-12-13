@@ -140,6 +140,7 @@ export interface toastReducer {
 export interface LayoutProps {
   children: JSX.Element | JSX.Element[];
   pageName: string;
+  pageDescription?: string;
   component?: any;
 }
 
@@ -160,7 +161,9 @@ export interface IconProps {
 
 export interface pageProps {
   setPageName: Function;
+  setPageDescription?: Function;
   setComponent: Function;
+  discription: Function;
 }
 
 export interface IToastProps {
