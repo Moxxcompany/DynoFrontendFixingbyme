@@ -14,9 +14,6 @@ export const PageHeader = styled(Box)(({ theme }) => ({
   top: 0,
   zIndex: 10,
   backgroundColor: theme.palette.secondary.main,
-  pt: 0,
-  pb: 1,
-  mb: 0,
 }));
 
 export const PageHeaderTitle = styled(Typography)(({ theme }) => ({

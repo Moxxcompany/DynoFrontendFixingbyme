@@ -16,11 +16,13 @@ i18n.use(initReactI18next).init({
       common: require("./langs/locales/en/common.json"),
       auth: require("./langs/locales/en/auth.json"),
       dashboardLayout: require("./langs/locales/en/dashboardLayout.json"),
+      profile: require("./langs/locales/en/profile.json"),
     },
     pt: {
       common: require("./langs/locales/pt/common.json"),
       auth: require("./langs/locales/pt/auth.json"),
       dashboardLayout: require("./langs/locales/pt/dashboardLayout.json"),
+      profile: require("./langs/locales/pt/profile.json"),
     },
     fr: {
       common: require("./langs/locales/fr/common.json"),

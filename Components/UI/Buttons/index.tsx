@@ -3,10 +3,11 @@ import { Button as MuiButton, Box } from "@mui/material";
 import { borderRadius, fontFamily, SxProps, Theme } from "@mui/system";
 import Image from "next/image";
 import { StaticImageData } from "next/image";
+import { theme } from "@/styles/theme";
 
 export interface CustomButtonProps {
   label: string;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "outlined";
   size?: "small" | "medium" | "large";
   disabled?: boolean;
   fullWidth?: boolean;
@@ -81,6 +82,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       color: "#0004FF",
       border: "1px solid #0004FF",
     },
+    outlined: {
+      backgroundColor: "#FFFFFF",
+      color: theme.palette.text.primary,
+      border: `1px solid ${theme.palette.border.main}`,
+      fontFamily: "UrbanistRegular",
+      fontSize: "15px",
+    },
   };
 
   const variantStyle = variantConfig[variant];
@@ -140,6 +148,12 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         justifyContent: "center",
         gap: config.gap,
         ...variantStyle,
+        ...(variant === "primary" && !disabled && {
+          "&:hover": {
+            backgroundColor: "#0004FF99",
+            color: "#FFFFFF",
+          },
+        }),
         ...(disabled && {
           backgroundColor: variant === "primary" ? "#B0BEC5" : "#FFFFFF",
           color: variant === "primary" ? "#FFFFFF !important" : "#676768 !important",

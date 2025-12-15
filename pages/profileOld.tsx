@@ -1,10 +1,10 @@
 import useTokenData from "@/hooks/useTokenData";
 import React, { useCallback, useEffect } from "react";
-import ProfilePage from "@/Components/Page/Profile/ProfilePage";
 import { pageProps } from "@/utils/types";
 import { useTranslation } from "react-i18next";
+import ProfilePageOld from "@/Components/Page/Profile/ProfilePageOld";
 
-const Profile = ({ setPageName, setPageDescription }: pageProps) => {
+const ProfileOld = ({ setPageName, setPageDescription }: pageProps) => {
   const tokenData = useTokenData();
   const namespaces = ["profile", "common"];
   const { t } = useTranslation(namespaces);
@@ -17,7 +17,7 @@ const Profile = ({ setPageName, setPageDescription }: pageProps) => {
     }
   }, [setPageName, setPageDescription, tProfile]);
 
-  return <>{tokenData && <ProfilePage tokenData={tokenData} />}</>;
+  return <>{tokenData && <ProfilePageOld tokenData={tokenData} />}</>;
 };
 
-export default Profile;
+export default ProfileOld;

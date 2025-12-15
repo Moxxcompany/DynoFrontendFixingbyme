@@ -81,7 +81,7 @@ const ClientLayout = ({
             }}
           >
             {(pageName || pageDescription) && (
-              <PageHeader>
+              <PageHeader sx={{ pt: 0, pb: 1, mb: 0 }}>
                 {pageName && (
                   <PageHeaderTitle variant="h1">{pageName}</PageHeaderTitle>
                 )}

@@ -19,6 +19,7 @@ export interface InputFieldProps {
   label?: string;
   placeholder?: string;
   value?: string;
+  name?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
@@ -43,6 +44,8 @@ export interface InputFieldProps {
   multiline?: boolean;
   rows?: number;
   maxLength?: number;
+  inputHeight?: string;
+  iconBoxSize?: string;
   inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
 }
 
@@ -57,6 +60,7 @@ const InputField: React.FC<InputFieldProps> = ({
   label,
   placeholder,
   value = "",
+  name,
   onChange,
   onBlur,
   onFocus,
@@ -82,6 +86,8 @@ const InputField: React.FC<InputFieldProps> = ({
   rows = 1,
   maxLength,
   inputMode,
+  inputHeight,
+  iconBoxSize,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
@@ -176,6 +182,7 @@ const InputField: React.FC<InputFieldProps> = ({
             fontSize: isMobile ? "13px" : "15px",
             textAlign: "start",
             color: disabled ? "#B0BEC5" : "#242428",
+            lineHeight: "1.2",
           }}
         >
           {label}
@@ -196,7 +203,6 @@ const InputField: React.FC<InputFieldProps> = ({
           onChange={onChange}
           onBlur={onBlur}
           onFocus={onFocus}
-          onKeyDown={onKeyDown}
           type={inputType}
           variant={variant}
           disabled={disabled}
@@ -301,8 +307,6 @@ const InputField: React.FC<InputFieldProps> = ({
           <IconButton
             onClick={onSideButtonClick}
             disabled={disabled}
-            tabIndex={-1}
-            aria-label="Toggle visibility"
             sx={{
               width: isMobile ? "32px" : "40px",
               height: isMobile ? "32px" : "40px",

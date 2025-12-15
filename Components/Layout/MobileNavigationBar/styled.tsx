@@ -8,7 +8,7 @@ export const NavigationBarContainer = styled(Box)(({ theme }) => ({
   right: 0,
   display: "flex",
   justifyContent: "center",
-  padding: "12px 16px",
+  padding: "0px 16px 8px",
   zIndex: 1000,
   background: "transparent",
 
