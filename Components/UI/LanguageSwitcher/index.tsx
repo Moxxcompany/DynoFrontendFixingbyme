@@ -95,7 +95,7 @@ export default function LanguageSwitcher({ sx }: { sx?: SxProps<Theme> }) {
             <ExpandMoreIcon
               style={{
                 color: theme.palette.text.secondary,
-                width: isMobile ? "16px" : "24px",  
+                width: isMobile ? "16px" : "24px",
                 height: isMobile ? "16px" : "24px",
               }}
             />
@@ -103,7 +103,7 @@ export default function LanguageSwitcher({ sx }: { sx?: SxProps<Theme> }) {
             <ExpandLess
               style={{
                 color: theme.palette.text.secondary,
-                width: isMobile ? "16px" : "24px",  
+                width: isMobile ? "16px" : "24px",
                 height: isMobile ? "16px" : "24px",
               }}
             />
@@ -131,9 +131,10 @@ export default function LanguageSwitcher({ sx }: { sx?: SxProps<Theme> }) {
               onClick={() => changeLang(lng.code)}
               sx={{
                 borderRadius: "50px",
+                fontSize: isMobile ? "12px !important" : "15px",
                 mb: 0.5,
-                py: 1,
-                gap: 2,
+                py: isMobile ? "4px" : 1,
+                gap: isMobile ? "4px" : 2,
                 background: lng.code === current ? "#E8F0FF" : "transparent",
                 "&:hover": {
                   background: "#E8F0FF",
@@ -146,9 +147,13 @@ export default function LanguageSwitcher({ sx }: { sx?: SxProps<Theme> }) {
 
               <ListItemText
                 sx={{
-                  fontSize: "15px",
                   fontFamily: "UrbanistMedium",
                   fontWeight: 500,
+                }}
+                primaryTypographyProps={{
+                  sx: {
+                    fontSize: isMobile ? "13px !important" : "15px",
+                  },
                 }}
                 primary={`${lng.code.toUpperCase()} – ${lng.label}`}
               />

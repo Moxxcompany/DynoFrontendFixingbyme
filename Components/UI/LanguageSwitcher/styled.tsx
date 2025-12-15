@@ -15,6 +15,10 @@ export const LangTrigger = muiStyled(Box)(({ theme }: any) => ({
   background: "white",
   color: theme?.palette?.text?.primary ?? "#000",
   minWidth: "fit-content",
+
+  "&.MuiTypography-root span": {
+    fontSize: theme.breakpoints.down("sm") ? "12px" : "15px",
+  },
 }));
 
 export const LangFlag = styled.img`

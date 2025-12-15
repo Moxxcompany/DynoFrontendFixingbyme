@@ -22,6 +22,7 @@ export interface InputFieldProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   type?: "text" | "email" | "password" | "number" | "tel" | "url";
   variant?: "outlined" | "filled" | "standard";
   size?: "small" | "medium";
@@ -59,6 +60,7 @@ const InputField: React.FC<InputFieldProps> = ({
   onChange,
   onBlur,
   onFocus,
+  onKeyDown,
   type = "text",
   variant = "outlined",
   size = "medium",
@@ -194,6 +196,7 @@ const InputField: React.FC<InputFieldProps> = ({
           onChange={onChange}
           onBlur={onBlur}
           onFocus={onFocus}
+          onKeyDown={onKeyDown}
           type={inputType}
           variant={variant}
           disabled={disabled}
@@ -298,6 +301,8 @@ const InputField: React.FC<InputFieldProps> = ({
           <IconButton
             onClick={onSideButtonClick}
             disabled={disabled}
+            tabIndex={-1}
+            aria-label="Toggle visibility"
             sx={{
               width: isMobile ? "32px" : "40px",
               height: isMobile ? "32px" : "40px",

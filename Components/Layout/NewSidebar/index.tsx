@@ -27,7 +27,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useRouter } from "next/router";
 import { Box, useTheme } from "@mui/material";
 import BGOverlay from "@/assets/Images/bg-overlay.png";
-import CopyIcon from "@/assets/Icons/cpoy-icon.svg";
+import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import FileIcon from "@/assets/Icons/file-icon.svg";
 import { useTranslation } from "react-i18next";
 

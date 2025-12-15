@@ -1321,6 +1321,10 @@ export default function Login() {
           width={isMobile ? 86 : 114}
           height={isMobile ? 29 : 39}
           draggable={false}
+          onClick={() => {
+            router.push("/");
+          }}
+          style={{ cursor: "pointer" }}
         />
 
         <Box>
@@ -1538,7 +1542,7 @@ export default function Login() {
                     !isMobile &&
                     !isOtpSent &&
                     !userState.mobile && (
-                      <Box sx={{ marginTop: "8px", marginLeft: "32px" }}>
+                      <Box sx={{ marginTop: "8px" }}>
                         <InputField
                           placeholder={t("enterMobilePlaceholder")}
                           value={mobile}
