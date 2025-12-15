@@ -6,6 +6,9 @@ import {
   ListItemIcon,
   ListItemText,
   useTheme,
+  SxProps,
+  Theme,
+  Box,
 } from "@mui/material";
 import {
   LangFlag,
@@ -23,6 +26,7 @@ import spainFlag from "@/assets/Images/Icons/flags/spain-flag.png";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ExpandLess } from "@mui/icons-material";
 import i18n from "i18next";
+import useIsMobile from "@/hooks/useIsMobile";
 
 const languages = [
   { code: "pt", label: "Português", flag: portugalFlag },
@@ -31,9 +35,10 @@ const languages = [
   { code: "es", label: "Español", flag: spainFlag },
 ];
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ sx }: { sx?: SxProps<Theme> }) {
   const current = i18n.language || "en";
   const theme = useTheme();
+  const isMobile = useIsMobile("md");
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
@@ -50,12 +55,60 @@ export default function LanguageSwitcher() {
 
   return (
     <>
-      <LangTrigger onClick={handleOpen} theme={theme}>
-        <LangFlag src={selected.flag.src} alt="flag" />
-        <LangText>{selected.code.toUpperCase()}</LangText>
+      <LangTrigger
+        onClick={handleOpen}
+        sx={[
+          { maxHeight: isMobile ? "28px" : "40px" },
+          ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+        ]}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <LangFlag
+            src={selected.flag.src}
+            alt="flag"
+            style={{
+              height: isMobile ? "14px" : "20px",
+              width: isMobile ? "14px" : "20px",
+            }}
+          />
+          <LangText style={{ fontSize: isMobile ? "10.5px" : "15px" }}>
+            {selected.code.toUpperCase()}
+          </LangText>
+        </Box>
 
-        <VerticalLine />
-        {!anchorEl ? <ExpandMoreIcon /> : <ExpandLess />}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            paddingLeft: "4px",
+            gap: 0.2,
+          }}
+        >
+          <VerticalLine
+            style={{
+              height: isMobile ? "14px" : "20px",
+              minHeight: isMobile ? "14px" : "20px",
+              marginRight: isMobile ? "4px" : "9px",
+            }}
+          />
+          {!anchorEl ? (
+            <ExpandMoreIcon
+              style={{
+                color: theme.palette.text.secondary,
+                width: isMobile ? "16px" : "24px",  
+                height: isMobile ? "16px" : "24px",
+              }}
+            />
+          ) : (
+            <ExpandLess
+              style={{
+                color: theme.palette.text.secondary,
+                width: isMobile ? "16px" : "24px",  
+                height: isMobile ? "16px" : "24px",
+              }}
+            />
+          )}
+        </Box>
       </LangTrigger>
 
       <Popover
@@ -92,7 +145,11 @@ export default function LanguageSwitcher() {
               </ListItemIcon>
 
               <ListItemText
-                sx={{ fontSize: "15px", fontFamily: "UrbanistMedium" ,fontWeight: 500}}
+                sx={{
+                  fontSize: "15px",
+                  fontFamily: "UrbanistMedium",
+                  fontWeight: 500,
+                }}
                 primary={`${lng.code.toUpperCase()} – ${lng.label}`}
               />
 

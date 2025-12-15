@@ -14,6 +14,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { Provider } from "react-redux";
 import "../i18n";
+import LanguageBootstrap from "@/helpers/LanguageBootstrap";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter();
@@ -22,6 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Provider store={store}>
+      <LanguageBootstrap />
         <SessionProvider session={pageProps.session}>
           <ThemeProvider theme={theme}>
             {!pathname.includes("auth") &&

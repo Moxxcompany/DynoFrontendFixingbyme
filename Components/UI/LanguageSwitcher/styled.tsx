@@ -1,10 +1,12 @@
 import styled from "@emotion/styled";
+import { styled as muiStyled } from "@mui/material/styles";
+import { Box } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 
-export const LangTrigger = styled.div(({ theme }: any) => ({
+export const LangTrigger = muiStyled(Box)(({ theme }: any) => ({
   display: "flex",
   alignItems: "center",
-  gap: "10px",
+  gap: "8px",
   padding: "7px 12px",
   borderRadius: "6px",
   border: "1px solid",
@@ -12,6 +14,7 @@ export const LangTrigger = styled.div(({ theme }: any) => ({
   cursor: "pointer",
   background: "white",
   color: theme?.palette?.text?.primary ?? "#000",
+  minWidth: "fit-content",
 }));
 
 export const LangFlag = styled.img`

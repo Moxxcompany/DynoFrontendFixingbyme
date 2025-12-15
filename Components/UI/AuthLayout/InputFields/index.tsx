@@ -102,7 +102,7 @@ const InputField: React.FC<InputFieldProps> = ({
 
   // Helper function to render the side button icon
   const renderSideButtonIcon = () => {
-    const iconSize = isMobile ? "12px" : "13px";
+    const iconSize = isMobile ? "16px" : "18px";
 
     if (!sideButtonIcon) {
       return (
