@@ -1,12 +1,5 @@
-import { EditRounded, CameraAlt, DeleteOutline } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Grid,
-  IconButton,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { CameraAlt, DeleteOutline, AccountBox } from "@mui/icons-material";
+import { Box, Grid, IconButton, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -16,12 +9,14 @@ import { MuiTelInput } from "mui-tel-input";
 import { TokenData } from "@/utils/types";
 import PanelCard from "@/Components/UI/PanelCard";
 import FormManager from "../Common/FormManager";
-import TextBox from "@/Components/UI/TextBox";
 import { UserAction } from "@/Redux/Actions";
 import { USER_UPDATE } from "@/Redux/Actions/UserAction";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import Image from "next/image";
 import CustomButton from "@/Components/UI/Buttons";
+import useIsMobile from "@/hooks/useIsMobile";
+import CameraIcon from "@/assets/Icons/camera-icon.svg";
+import TrashIcon from "@/assets/Icons/trash-icon.svg";
 
 const initialValue = {
   firstName: "",
@@ -35,9 +30,10 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
   const theme = useTheme();
 
   const fileRef = useRef<any>();
+  const isMobile = useIsMobile("md");
   const [media, setMedia] = useState<any>();
-  const [editable, setEditable] = useState(false);
   const [initialUser, setInitialUser] = useState({ ...initialValue });
+  const [initialPhoto, setInitialPhoto] = useState("");
   const [userPhoto, setUserPhoto] = useState("");
 
   const registerSchema = yup.object().shape({
@@ -58,7 +54,23 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       mobile: tokenData.mobile,
     });
     setUserPhoto(tokenData.photo);
+    setInitialPhoto(tokenData.photo);
   }, [tokenData]);
+
+  const hasChanges = (values: any) => {
+    const hasFormChanges =
+      values.firstName !== initialUser.firstName ||
+      values.lastName !== initialUser.lastName ||
+      values.email !== initialUser.email ||
+      values.mobile !== initialUser.mobile;
+
+    // Check if photo has changed (uploaded new photo or removed existing one)
+    const hasPhotoChanges =
+      (media !== undefined && media !== null) || // New photo uploaded
+      userPhoto !== initialPhoto; // Photo changed or removed
+
+    return hasFormChanges || hasPhotoChanges;
+  };
 
   const handleSubmit = (values: any) => {
     const { firstName, lastName, email, mobile } = values;
@@ -68,10 +80,20 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       mobile,
     };
     const formData = new FormData();
-    formData.append("image", media);
+    if (media) {
+      formData.append("image", media);
+    }
     formData.append("data", JSON.stringify({ ...finalPayload }));
     dispatch(UserAction(USER_UPDATE, formData));
-    setEditable(false);
+    // Reset initial values after successful update
+    setInitialUser({
+      firstName,
+      lastName,
+      email,
+      mobile,
+    });
+    setInitialPhoto(userPhoto);
+    setMedia(undefined);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,18 +104,21 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
     }
   };
 
+  const handleRemovePhoto = () => {
+    setUserPhoto("");
+    setMedia(null);
+  };
+
   return (
     <PanelCard
       bodyPadding={`${theme.spacing(2, 2.5, 2.5, 2.5)}`}
       title="Account Setting"
-      headerAction={
-        !editable && (
-          <IconButton onClick={() => setEditable(true)}>
-            <EditRounded color="action" />
-          </IconButton>
-        )
-      }
       showHeaderBorder={false}
+      headerAction={
+        <IconButton>
+          <AccountBox color="action" />
+        </IconButton>
+      }
     >
       <Box>
         {/* Avatar */}
@@ -121,26 +146,66 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
         </Box>
 
         {/* Actions */}
-        <Box  mt={"2px"}>
-          <Grid container columnSpacing={2}>
-            <Grid item md={6} sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Box mt={"4px"}>
+          <Grid container columnSpacing={2} rowSpacing={2}>
+            <Grid
+              item
+              xs={6}
+              sm={6}
+              sx={{
+                display: "flex",
+                justifyContent: { xs: "center", sm: "flex-end" },
+              }}
+            >
               <CustomButton
                 label="Upload new photo"
                 variant="outlined"
                 size="medium"
-                startIcon={<CameraAlt />}
+                startIcon={
+                  <Image
+                    src={CameraIcon.src}
+                    alt="camera-icon"
+                    width={14}
+                    height={12}
+                  />
+                }
                 iconSize={18}
                 onClick={() => fileRef.current?.click()}
+                sx={{
+                  width: { xs: "100%", sm: "auto" },
+                  padding: "0px 16px",
+                  fontSize: { xs: "13px", sm: "15px" },
+                }}
               />
             </Grid>
-            <Grid item md={6}>
+            <Grid
+              item
+              xs={6}
+              sm={6}
+              sx={{
+                display: "flex",
+                justifyContent: { xs: "center", sm: "flex-start" },
+              }}
+            >
               <CustomButton
                 label="Remove"
                 variant="outlined"
                 size="medium"
-                startIcon={<DeleteOutline />}
+                startIcon={
+                  <Image
+                    src={TrashIcon.src}
+                    alt="trash-icon"
+                    width={12}
+                    height={12}
+                  />
+                }
                 iconSize={18}
-                onClick={() => setUserPhoto("")}
+                onClick={handleRemovePhoto}
+                sx={{
+                  width: { xs: "100%", sm: "auto" },
+                  padding: "0px 16px",
+                  fontSize: { xs: "13px", sm: "15px" },
+                }}
               />
             </Grid>
           </Grid>
@@ -178,11 +243,11 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 mt: "14px",
               }}
             >
-              <Grid container columnSpacing={2}>
-                <Grid item md={6}>
+              <Grid container columnSpacing={2} rowSpacing={2}>
+                <Grid item xs={12} sm={6}>
                   <InputField
                     fullWidth={true}
-                    inputHeight="38px"
+                    inputHeight={isMobile ? "32px" : "38px"}
                     label="First Name"
                     placeholder="Enter your first name"
                     value={values.firstName}
@@ -193,13 +258,12 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                     helperText={
                       touched.firstName && errors.firstName && errors.firstName
                     }
-                    disabled={!editable}
                   />
                 </Grid>
-                <Grid item md={6}>
+                <Grid item xs={12} sm={6}>
                   <InputField
                     fullWidth={true}
-                    inputHeight="38px"
+                    inputHeight={isMobile ? "32px" : "38px"}
                     label="Surname"
                     placeholder="Enter your surname"
                     name="lastName"
@@ -210,28 +274,26 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                     helperText={
                       touched.lastName && errors.lastName && errors.lastName
                     }
-                    disabled={!editable}
                   />
                 </Grid>
               </Grid>
 
-              <Grid container columnSpacing={2}>
-                <Grid item md={6}>
+              <Grid container columnSpacing={2} rowSpacing={2}>
+                <Grid item xs={12} sm={6}>
                   <InputField
                     fullWidth={true}
-                    inputHeight="38px"
+                    inputHeight={isMobile ? "32px" : "38px"}
                     label="E-mail"
                     placeholder="Enter your email"
                     name="email"
                     value={values.email}
                     error={touched.email && errors.email}
                     helperText={touched.email && errors.email && errors.email}
-                    disabled={!editable}
                     onChange={handleChange}
                     onBlur={handleBlur}
                   />
                 </Grid>
-                <Grid item md={6}>
+                <Grid item xs={12} sm={6}>
                   <Box
                     sx={{
                       width: "100%",
@@ -246,7 +308,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                         fontWeight: 500,
                         fontSize: "15px",
                         textAlign: "start",
-                        color: !editable ? "#B0BEC5" : "#242428",
+                        color: "#242428",
                         lineHeight: "1.2",
                       }}
                     >
@@ -259,7 +321,6 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                       forceCallingCode
                       disableFormatting
                       defaultCountry="US"
-                      disabled={!editable}
                       value={values.mobile}
                       onChange={(newValue, info) => {
                         const e: any = {
@@ -276,7 +337,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                         boxShadow: "none",
                         fontFamily: "UrbanistMedium",
                         "& .MuiInputBase-root": {
-                          height: "38px",
+                          height: isMobile ? "32px" : "38px",
                           borderRadius: "6px",
                           boxSizing: "border-box",
                           "& input": {
@@ -284,7 +345,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                             boxSizing: "border-box",
                             fontSize: "15px",
                             lineHeight: "1.5",
-                            color: !editable ? "#B0BEC5" : "#333",
+                            color: "#333",
                             "&::placeholder": {
                               color: "#BDBDBD",
                               fontFamily: "UrbanistMedium",
@@ -294,7 +355,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                         },
                         "& .MuiOutlinedInput-root": {
                           borderRadius: "6px",
-                          backgroundColor: !editable ? "#F5F5F5" : "#FFFFFF",
+                          backgroundColor: "#FFFFFF",
                           transition: "all 0.3s ease",
                           boxShadow: "rgba(16, 24, 40, 0.05) 0px 1px 2px 0px",
                           "& fieldset": {
@@ -302,17 +363,11 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                             borderWidth: "1px",
                           },
                           "&:hover fieldset": {
-                            borderColor: !editable
-                              ? "#E9ECF2"
-                              : theme.palette.primary.light,
+                            borderColor: theme.palette.primary.light,
                           },
                           "&.Mui-focused fieldset": {
                             borderColor: theme.palette.primary.light,
                             borderWidth: "1px",
-                          },
-                          "&.Mui-disabled": {
-                            backgroundColor: "#F5F5F5",
-                            opacity: 0.6,
                           },
                           "& input": {
                             "&:-webkit-autofill": {
@@ -320,9 +375,6 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                               WebkitTextFillColor: "#333",
                             },
                           },
-                        },
-                        "& .MuiOutlinedInput-input.Mui-disabled": {
-                          WebkitTextFillColor: "#B0BEC5",
                         },
                         // Style for the country selector button (flag + dropdown)
                         "& button": {
@@ -362,27 +414,19 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "flex-end",
+                  justifyContent: { xs: "stretch", sm: "flex-end" },
                   gap: "10px",
+                  width: "100%",
                 }}
               >
-                <Stack direction="row" spacing={2}>
-                  <CustomButton
-                    variant="primary"
-                    size="medium"
-                    type="submit"
-                    disabled={submitDisable ? submitDisable : !editable}
-                    label="Update"
-                  />
-                  {editable && (
-                    <CustomButton
-                      variant="outlined"
-                      size="medium"
-                      onClick={() => setEditable(false)}
-                      label="Cancel"
-                    />
-                  )}
-                </Stack>
+                <CustomButton
+                  variant="primary"
+                  size="medium"
+                  type="submit"
+                  disabled={submitDisable || !hasChanges(values)}
+                  label="Update"
+                  sx={{ width: { xs: "100%", sm: "auto" } }}
+                />
               </Box>
             </Box>
           </>

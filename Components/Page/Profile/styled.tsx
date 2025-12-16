@@ -20,6 +20,9 @@ export const InfoText = styled(Typography)(({ theme }) => ({
   lineHeight: "1.23",
   fontFamily: "UrbanistMedium",
   flex: 1,
+  [theme.breakpoints.down("md")]: {
+    fontSize: "10px",
+  },
 }));
 
 export const InfoIconBox = styled(Box)(({ theme }) => ({

@@ -46,7 +46,15 @@ export interface InputFieldProps {
   maxLength?: number;
   inputHeight?: string;
   iconBoxSize?: string;
-  inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
+  inputMode?:
+    | "none"
+    | "text"
+    | "tel"
+    | "url"
+    | "email"
+    | "numeric"
+    | "decimal"
+    | "search";
 }
 
 /**
@@ -192,153 +200,168 @@ const InputField: React.FC<InputFieldProps> = ({
       <Box
         sx={{
           display: "flex",
-          alignItems: "center",
-          gap: "8px",
+          flexDirection: "column",
           width: fullWidth ? "100%" : "auto",
         }}
       >
-        <TextField
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          onBlur={onBlur}
-          onFocus={onFocus}
-          type={inputType}
-          variant={variant}
-          disabled={disabled}
-          inputProps={{
-            readOnly: readOnly,
-            maxLength: maxLength,
-            inputMode: inputMode,
-            style: {
-              cursor: readOnly ? "not-allowed" : "auto",
-            },
-          }}
-          fullWidth={sideButton ? false : fullWidth}
-          multiline={multiline}
-          rows={multiline ? rows : undefined}
-          error={error}
-          helperText={helperText || undefined}
-          FormHelperTextProps={{
-            sx: {
-              margin: error ? "4px 0 0 0 !important" : "0px",
-              minHeight: error ? "auto" : "0px",
-            },
-          }}
-          InputProps={{
-            startAdornment: startAdornment ? (
-              <InputAdornment position="start">{startAdornment}</InputAdornment>
-            ) : undefined,
-            endAdornment: endAdornment ? (
-              <InputAdornment position="end">{endAdornment}</InputAdornment>
-            ) : undefined,
-          }}
+        <Box
           sx={{
-            ...(sideButton && { flex: 1 }),
-            borderRadius: "6px !important",
-            boxShadow: "none",
-            fontFamily: "UrbanistMedium",
-            "& .MuiInputBase-root": {
-              height: isMobile ? "32px" : "40px",
-              borderRadius: "6px",
-              boxSizing: "border-box",
-              "& input, & textarea": {
-                padding: "12px 14px",
-                boxSizing: "border-box",
-                fontSize: isMobile ? "10px" : "13px",
-                lineHeight: "1.5",
-                color: disabled ? "#B0BEC5" : "#333",
-                "&::placeholder": {
-                  color: "#BDBDBD",
-                  fontFamily: "UrbanistMedium",
-                },
-                fontFamily: "UrbanistMedium",
-              },
-            },
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "6px",
-              backgroundColor: disabled
-                ? "#F5F5F5"
-                : success
-                ? "#F1F8F6"
-                : error
-                ? "#FFFBFB"
-                : "#FFFFFF",
-              transition: "all 0.3s ease",
-              boxShadow: "rgba(16, 24, 40, 0.05) 0px 1px 2px 0px",
-              "& fieldset": {
-                borderColor: borderColor,
-                borderWidth: borderWidth,
-              },
-              "&:hover fieldset": {
-                borderColor: disabled ? borderColor : focusBorderColor,
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: focusBorderColor,
-                borderWidth: "1px",
-              },
-              "&.Mui-disabled": {
-                backgroundColor: "#F5F5F5",
-                opacity: 0.6,
-              },
-              "& input": {
-                "&:-webkit-autofill": {
-                  WebkitBoxShadow: "0 0 0 1000px white inset",
-                  WebkitTextFillColor: "#333",
-                },
-              },
-            },
-            "& .MuiOutlinedInput-input.Mui-disabled": {
-              WebkitTextFillColor: "#B0BEC5",
-            },
-            "& .MuiFormHelperText-root": {
-              margin: error ? "4px 0 0 0 !important" : "0px !important",
-              fontSize: isMobile ? "10px" : "13px",
-              fontFamily: "UrbanistMedium",
-              color: error ? "#F44336" : "#676768",
-              lineHeight: "1.5",
-              minHeight: error ? "auto" : "0px",
-              display: error || helperText ? "block" : "none",
-            },
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            width: fullWidth ? "100%" : "auto",
           }}
-        />
-
-        {sideButton && (
-          <IconButton
-            onClick={onSideButtonClick}
+        >
+          <TextField
+            placeholder={placeholder}
+            value={value}
+            name={name}
+            onChange={onChange}
+            onBlur={onBlur}
+            onFocus={onFocus}
+            onKeyDown={onKeyDown}
+            type={inputType}
+            variant={variant}
             disabled={disabled}
-            sx={{
-              width: isMobile ? "32px" : "40px",
-              height: isMobile ? "32px" : "40px",
-              minWidth: isMobile ? "32px" : "40px",
-              minHeight: isMobile ? "32px" : "40px",
-              maxWidth: isMobile ? "32px" : "40px",
-              maxHeight: isMobile ? "32px" : "40px",
-              borderRadius: "6px",
-              border: `1px solid ${
-                sideButtonType === "primary" ? "#676768" : "#0004FF"
-              }`,
-              backgroundColor: "#FFFFFF",
-              color: "#242428",
-              padding: isMobile ? "8px" : "11px",
-              flexShrink: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxSizing: "border-box",
-              "&:hover": {
-                backgroundColor: "#F5F5F5",
-                borderColor: "#E9ECF2",
-              },
-              "&:disabled": {
-                backgroundColor: "#F5F5F5",
-                opacity: 0.6,
-                borderColor: "#E9ECF2",
+            inputProps={{
+              readOnly: readOnly,
+              maxLength: maxLength,
+              inputMode: inputMode,
+              style: {
+                cursor: readOnly ? "not-allowed" : "auto",
               },
             }}
+            fullWidth={sideButton ? false : fullWidth}
+            multiline={multiline}
+            rows={multiline ? rows : undefined}
+            error={error}
+            helperText={undefined}
+            InputProps={{
+              startAdornment: startAdornment ? (
+                <InputAdornment position="start">
+                  {startAdornment}
+                </InputAdornment>
+              ) : undefined,
+              endAdornment: endAdornment ? (
+                <InputAdornment position="end">{endAdornment}</InputAdornment>
+              ) : undefined,
+            }}
+            sx={{
+              ...(sideButton && { flex: 1 }),
+              borderRadius: "6px !important",
+              boxShadow: "none",
+              fontFamily: "UrbanistMedium",
+              "& .MuiInputBase-root": {
+                height: inputHeight ?? (isMobile ? "32px" : "40px"),
+                borderRadius: "6px",
+                boxSizing: "border-box",
+                "& input, & textarea & input[type='password']": {
+                  padding: "12px 14px",
+                  boxSizing: "border-box",
+                  fontSize: isMobile ? "13px" : "15px",
+                  lineHeight: "1.5",
+                  color: disabled ? "#B0BEC5" : "#333",
+                  "&::placeholder": {
+                    color: "#BDBDBD",
+                    fontFamily: "UrbanistMedium",
+                  },
+                  fontFamily: "UrbanistMedium",
+                },
+              },
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "6px",
+                backgroundColor: disabled
+                  ? "#F5F5F5"
+                  : success
+                  ? "#F1F8F6"
+                  : error
+                  ? "#FFFBFB"
+                  : "#FFFFFF",
+                transition: "all 0.3s ease",
+                boxShadow: "rgba(16, 24, 40, 0.05) 0px 1px 2px 0px",
+                "& fieldset": {
+                  borderColor: borderColor,
+                  borderWidth: borderWidth,
+                },
+                "&:hover fieldset": {
+                  borderColor: disabled ? borderColor : focusBorderColor,
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: focusBorderColor,
+                  borderWidth: "1px",
+                },
+                "&.Mui-disabled": {
+                  backgroundColor: "#F5F5F5",
+                  opacity: 0.6,
+                },
+                "& input": {
+                  "&:-webkit-autofill": {
+                    WebkitBoxShadow: "0 0 0 1000px white inset",
+                    WebkitTextFillColor: "#333",
+                  },
+                },
+              },
+              "& .MuiOutlinedInput-input.Mui-disabled": {
+                WebkitTextFillColor: "#B0BEC5",
+              },
+            }}
+          />
+
+          {sideButton && (
+            <IconButton
+              onClick={onSideButtonClick}
+              disabled={disabled}
+              tabIndex={-1}
+              aria-label="Toggle visibility"
+              sx={{
+                width: iconBoxSize ?? (isMobile ? "32px" : "40px"),
+                height: iconBoxSize ?? (isMobile ? "32px" : "40px"),
+                minWidth: iconBoxSize ?? (isMobile ? "32px" : "40px"),
+                minHeight: iconBoxSize ?? (isMobile ? "32px" : "40px"),
+                maxWidth: isMobile ? "32px" : "40px",
+                maxHeight: iconBoxSize ?? (isMobile ? "32px" : "40px"),
+                borderRadius: "6px",
+                border: `1px solid ${
+                  sideButtonType === "primary" ? "#676768" : "#0004FF"
+                }`,
+                backgroundColor: "#FFFFFF",
+                color: "#242428",
+                padding: isMobile ? "8px" : "11px",
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxSizing: "border-box",
+                "&:hover": {
+                  backgroundColor: "#F5F5F5",
+                  borderColor: "#E9ECF2",
+                },
+                "&:disabled": {
+                  backgroundColor: "#F5F5F5",
+                  opacity: 0.6,
+                  borderColor: "#E9ECF2",
+                },
+              }}
+            >
+              {renderSideButtonIcon()}
+            </IconButton>
+          )}
+        </Box>
+
+        {helperText && (
+          <Typography
+            sx={{
+              margin: "4px 0 0 0",
+              fontSize: isMobile ? "10px" : "13px",
+              // fontFamily: "UrbanistRegular",
+              fontWeight: 500,
+              color: error ? "#F44336" : "#676768",
+              lineHeight: "1.5",
+              textAlign: "start",
+            }}
           >
-            {renderSideButtonIcon()}
-          </IconButton>
+            {helperText}
+          </Typography>
         )}
       </Box>
     </Box>

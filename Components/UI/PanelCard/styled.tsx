@@ -1,3 +1,4 @@
+import { theme } from "@/styles/theme";
 import { Box, Card, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -68,3 +69,11 @@ export const CardFooter = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1.5),
 }));
 
+export const HeaderSubTitle = styled(Typography)(({ theme }) => ({
+  fontSize: "15px",
+  fontWeight: 400,
+  lineHeight: 1.2,
+  letterSpacing: "-0.02em",
+  color: theme.palette.text.secondary,
+  fontFamily: "UrbanistRegular",
+}));

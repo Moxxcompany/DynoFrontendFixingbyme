@@ -37,6 +37,7 @@ import {
   CardBody,
   CardFooter,
   HeaderTitle,
+  HeaderSubTitle,
 } from "./styled";
 
 export interface PanelCardProps {
@@ -44,6 +45,10 @@ export interface PanelCardProps {
    * Title displayed in the card header
    */
   title?: string;
+  /**
+   * Subtitle displayed in the card header
+   */
+  subTitle?: string;
   /**
    * Optional icon element displayed next to the title
    */
@@ -104,6 +109,7 @@ export interface PanelCardProps {
 
 const PanelCard: React.FC<PanelCardProps> = ({
   title,
+  subTitle,
   headerIcon,
   headerAction,
   children,
@@ -127,11 +133,12 @@ const PanelCard: React.FC<PanelCardProps> = ({
         >
           <HeaderContent>
             {headerIcon && <HeaderIcon>{headerIcon}</HeaderIcon>}
-            {title && (
-              <HeaderTitle variant="h6" fontWeight={600}>
-                {title}
-              </HeaderTitle>
-            )}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+              {title && (
+                <HeaderTitle>{title}</HeaderTitle>
+              )}
+              {subTitle && <HeaderSubTitle>{subTitle}</HeaderSubTitle>}
+            </Box>
           </HeaderContent>
           {headerAction && (
             <Box
