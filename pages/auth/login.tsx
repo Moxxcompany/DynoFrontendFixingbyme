@@ -805,7 +805,7 @@ import {
 import Image from "next/image";
 import GoogleIcon from "@/assets/Images/googleIcon.svg";
 import ArrowUpwardIcon from "@/assets/Icons/up-arrow-icon.png";
-import EditIcon from "@/assets/Icons/edit-icon.png";
+import EditIcon from "@/assets/Icons/editicon.png";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Logo from "@/assets/Images/auth/dynopay-logo.png";
@@ -895,20 +895,20 @@ export default function Login() {
   const [forgotPasswordOtpCountdown, setForgotPasswordOtpCountdown] = useState(0);
   const [forgotPasswordOtpError, setForgotPasswordOtpError] = useState("");
 
-  // Validation schemas
+  // Validation schemas - use translation keys instead of translated strings
   const emailSchema = yup.object().shape({
     email: yup
       .string()
-      .email("Please enter a valid email")
-      .required("Email is required!"),
+      .email("emailInvalid")
+      .required("emailRequired"),
   });
 
   const passwordSchema = yup.object().shape({
-    password: yup.string().required("Password is required!"),
+    password: yup.string().required("passwordRequired"),
   });
 
   const emailOtpSchema = yup.object().shape({
-    emailOTP: yup.string().required("OTP is required!"),
+    emailOTP: yup.string().required("otpRequired"),
   });
 
   // Navigate to home if user is logged in
@@ -997,7 +997,7 @@ export default function Login() {
   // Validate email (only called on button click)
   const validateEmail = async () => {
     if (!emailInput) {
-      setEmailError("Email is required!");
+      setEmailError("emailRequired");
       return false;
     }
     try {
@@ -1005,7 +1005,8 @@ export default function Login() {
       setEmailError("");
       return true;
     } catch (err: any) {
-      setEmailError(err.message);
+      // Store translation key instead of translated message
+      setEmailError(err.message || "emailInvalid");
       return false;
     }
   };
@@ -1027,9 +1028,10 @@ export default function Login() {
         setShowLoginMethods(true);
         setEmailError("");
       } else {
-        setEmailError("Email not found! Please try again");
+        setEmailError("emailNotFound");
       }
     } catch (e: any) {
+      // For API errors, keep the message as-is (it's from the server)
       const message =
         e.response?.data?.message ?? e.message ?? "An error occurred";
       setEmailError(message);
@@ -1080,7 +1082,7 @@ export default function Login() {
 
     // Validate and submit
     if (!otp || otp.trim().length !== 6) {
-      setEmailOtpError("Please enter a valid 6-digit OTP code");
+      setEmailOtpError("otpInvalid6Digit");
       setEmailOtpTouched(true);
       return;
     }
@@ -1097,13 +1099,13 @@ export default function Login() {
   // Validate mobile number
   const validateMobile = () => {
     if (!mobile || mobile.trim() === "") {
-      setMobileError("Mobile number is required!");
+      setMobileError("mobileRequired");
       return false;
     }
     // Basic validation - should be at least 10 digits
     const cleanedMobile = mobile.replace(/\D/g, "");
     if (cleanedMobile.length < 10) {
-      setMobileError("Please enter a valid mobile number");
+      setMobileError("mobileInvalid");
       return false;
     }
     setMobileError("");
@@ -1178,7 +1180,7 @@ export default function Login() {
   // Validate SMS OTP
   const validateSmsOtp = () => {
     if (!otp || otp.trim().length !== 6) {
-      setOtpError("Please enter a valid 6-digit OTP code");
+      setOtpError("otpInvalid6Digit");
       return false;
     }
     setOtpError("");
@@ -1188,7 +1190,7 @@ export default function Login() {
   // Validate password
   const validatePassword = async () => {
     if (!password) {
-      setPasswordError("Password is required!");
+      setPasswordError("passwordRequired");
       return false;
     }
     try {
@@ -1196,7 +1198,8 @@ export default function Login() {
       setPasswordError("");
       return true;
     } catch (err: any) {
-      setPasswordError(err.message);
+      // Store translation key instead of translated message
+      setPasswordError(err.message || "passwordRequired");
       return false;
     }
   };
@@ -1204,7 +1207,7 @@ export default function Login() {
   // Validate email OTP
   const validateEmailOtp = async () => {
     if (!emailOtp) {
-      setEmailOtpError("OTP is required!");
+      setEmailOtpError("otpRequired");
       return false;
     }
     try {
@@ -1212,7 +1215,8 @@ export default function Login() {
       setEmailOtpError("");
       return true;
     } catch (err: any) {
-      setEmailOtpError(err.message);
+      // Store translation key instead of translated message
+      setEmailOtpError(err.message || "otpRequired");
       return false;
     }
   };
@@ -1232,7 +1236,7 @@ export default function Login() {
         dispatch({
           type: TOAST_SHOW,
           payload: {
-            message: "Please get the verification code first",
+            message: t("pleaseGetVerificationCodeFirst"),
             severity: "error",
           },
         });
@@ -1247,7 +1251,7 @@ export default function Login() {
       // Basic validation - just check if OTP is entered and is 6 digits
       if (!emailOtp || emailOtp.trim().length !== 6) {
         setEmailOtpTouched(true);
-        setEmailOtpError("Please enter a valid 6-digit OTP code");
+        setEmailOtpError("otpInvalid6Digit");
         // Reopen dialog if OTP is not valid
         setEmailOtpDialogOpen(true);
         return;
@@ -1289,7 +1293,7 @@ export default function Login() {
       // Get mobile number - use input or from userState
       const mobileToUse = mobile || userState.mobile;
       if (!mobileToUse) {
-        setMobileError("Mobile number is required!");
+        setMobileError("mobileRequired");
         return;
       }
 
@@ -1383,7 +1387,7 @@ export default function Login() {
         setForgotPasswordOtpCountdown(30);
         setForgotPasswordEmailError("");
       } else {
-        setForgotPasswordEmailError("Email not found! Please try again");
+        setForgotPasswordEmailError("emailNotFound");
       }
     } catch (e: any) {
       const message =
@@ -1404,7 +1408,7 @@ export default function Login() {
     setForgotPasswordOtpError("");
     
     if (!otp || otp.trim().length !== 5) {
-      setForgotPasswordOtpError("Please enter a valid 5-digit OTP code");
+      setForgotPasswordOtpError("otpInvalid5Digit");
       return;
     }
 
@@ -1509,10 +1513,15 @@ export default function Login() {
                 value={emailInput}
                 onChange={(e) => {
                   setEmailInput(e.target.value);
+                  // Clear error when typing
+                  if (emailError) {
+                    setEmailError("");
+                    setEmailTouched(false);
+                  }
                 }}
                 placeholder={t("emailPlaceHolder")}
                 error={emailTouched && !!emailError}
-                helperText={emailTouched && emailError ? emailError : ""}
+                helperText={emailTouched && emailError ? (emailError.includes(" ") ? emailError : t(emailError)) : ""}
               />
             </Box>
 
@@ -1674,9 +1683,10 @@ export default function Login() {
 
                   {/* Show mobile number if available from userState */}
                   {loginMethod === "sms" && userState.mobile && (
-                    <Box sx={{ marginTop: "8px", marginLeft: "32px" }}>
+                    <Box sx={{ marginLeft: "32px" }}>
                       <Typography
                         sx={{
+                          textAlign: "start",
                           fontSize: "12px",
                           color: "#676768",
                           fontFamily: "UrbanistMedium",
@@ -1710,7 +1720,7 @@ export default function Login() {
                           inputMode="numeric"
                           error={mobileTouched && !!mobileError}
                           helperText={
-                            mobileTouched && mobileError ? mobileError : ""
+                            mobileTouched && mobileError ? (mobileError.includes(" ") ? mobileError : t(mobileError)) : ""
                           }
                         />
                       </Box>
@@ -1738,7 +1748,7 @@ export default function Login() {
                           inputMode="numeric"
                           error={mobileTouched && !!mobileError}
                           helperText={
-                            mobileTouched && mobileError ? mobileError : ""
+                            mobileTouched && mobileError ? (mobileError.includes(" ") ? mobileError : t(mobileError)) : ""
                           }
                           sideButton={true}
                           sideButtonType="secondary"
@@ -1819,7 +1829,7 @@ export default function Login() {
                         error={otpTouched && !!otpError}
                         helperText={
                           otpTouched && otpError
-                            ? otpError
+                            ? (otpError.includes(" ") ? otpError : t(otpError))
                             : t("enterCodeSentToNumber")
                         }
                       />
@@ -1971,6 +1981,11 @@ export default function Login() {
                         value={password}
                         onChange={(e) => {
                           setPassword(e.target.value);
+                          // Clear error when typing
+                          if (passwordError) {
+                            setPasswordError("");
+                            setPasswordTouched(false);
+                          }
                         }}
                         placeholder={t("passwordPlaceHolder")}
                         error={
@@ -1982,7 +1997,7 @@ export default function Login() {
                           loginMethod === "password" &&
                           passwordTouched &&
                           passwordError
-                            ? passwordError
+                            ? (passwordError.includes(" ") ? passwordError : t(passwordError))
                             : ""
                         }
                         sideButton={true}
@@ -2142,7 +2157,7 @@ export default function Login() {
           onVerify={handleEmailOtpVerify}
           countdown={emailOtpCountdown}
           loading={userState.loading}
-          error={emailOtpTouched && emailOtpError ? emailOtpError : undefined}
+          error={emailOtpTouched && emailOtpError ? (emailOtpError.includes(" ") ? emailOtpError : t(emailOtpError)) : undefined}
         />
       )}
 
@@ -2162,8 +2177,8 @@ export default function Login() {
         onResendCode={handleForgotPasswordResendCode}
         countdown={forgotPasswordOtpCountdown}
         loading={userState.loading}
-        emailError={forgotPasswordEmailError}
-        otpError={forgotPasswordOtpError}
+        emailError={forgotPasswordEmailError ? (forgotPasswordEmailError.includes(" ") ? forgotPasswordEmailError : t(forgotPasswordEmailError)) : undefined}
+        otpError={forgotPasswordOtpError ? (forgotPasswordOtpError.includes(" ") ? forgotPasswordOtpError : t(forgotPasswordOtpError)) : undefined}
       />
     </AuthContainer>
   );

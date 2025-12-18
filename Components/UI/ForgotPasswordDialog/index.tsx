@@ -25,13 +25,6 @@ export interface ForgotPasswordDialogProps {
   otpError?: string;
 }
 
-const emailSchema = yup.object().shape({
-  email: yup
-    .string()
-    .email("Please enter a valid email")
-    .required("Email is required!"),
-});
-
 const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
   open,
   onClose,
@@ -50,6 +43,13 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
   const [email, setEmail] = useState("");
   const [emailTouched, setEmailTouched] = useState(false);
   const [localEmailError, setLocalEmailError] = useState("");
+
+  const emailSchema = yup.object().shape({
+    email: yup
+      .string()
+      .email(t("emailInvalid") || "Please enter a valid email")
+      .required(t("emailRequired") || "Email is required!"),
+  });
 
   // Reset state when dialog closes
   useEffect(() => {
@@ -70,7 +70,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
 
   const validateEmail = async () => {
     if (!email) {
-      setLocalEmailError("Email is required!");
+      setLocalEmailError(t("emailRequired") || "Email is required!");
       return false;
     }
     try {
