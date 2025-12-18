@@ -1672,7 +1672,7 @@ export default function Login() {
                             : t("resendCode")
                         }
                         onClick={handleSendSmsOtp}
-                        endIcon={ArrowUpwardIcon}
+                        endIcon={smsOtpCountdown > 0 || userState.loading ? undefined : ArrowUpwardIcon}
                         sx={{
                           fontWeight: 500,
                           padding: "11px 20px",
@@ -1794,7 +1794,7 @@ export default function Login() {
                         }
                         fullWidth
                         onClick={handleSendSmsOtp}
-                        endIcon={ArrowUpwardIcon}
+                        endIcon={smsOtpCountdown > 0 || userState.loading ? undefined : ArrowUpwardIcon}
                         sx={{
                           height: "32px",
                           fontSize: "13px",
@@ -1885,7 +1885,7 @@ export default function Login() {
                             : t("resendCode")
                         }
                         onClick={handleSendEmailOtp}
-                        endIcon={ArrowUpwardIcon}
+                        endIcon={emailOtpCountdown > 0 ? undefined : ArrowUpwardIcon}
                         sx={{
                           fontWeight: 500,
                           padding: "11px 20px",
@@ -1926,7 +1926,7 @@ export default function Login() {
                         }
                         fullWidth
                         disabled={emailOtpCountdown > 0}
-                        endIcon={ArrowUpwardIcon}
+                        endIcon={emailOtpCountdown > 0 ? undefined : ArrowUpwardIcon}
                         onClick={handleSendEmailOtp}
                         sx={{
                           fontWeight: 500,
@@ -2144,15 +2144,15 @@ export default function Login() {
             setEmailOtpDialogOpen(false);
             // Don't reset emailOtpSent so resend button still shows
           }}
-          title={t("emailVerification") || "E-mail Verification"}
-          subtitle={t("emailVerificationSubtitle") || "We have sent a verification code to your email address"}
+          title={t("emailVerification")}
+          subtitle={t("emailVerificationSubtitle")}
           contactInfo={verifiedEmail}
           contactType="email"
           resendCodeLabel={t("resendCode")}
           resendCodeCountdownLabel={(seconds) =>
             `${t("codeIn")} ${seconds}s`
           }
-          primaryButtonLabel={t("checkAndAdd") || "Check and Add"}
+          primaryButtonLabel={t("checkAndAdd")}
           onResendCode={handleSendEmailOtp}
           onVerify={handleEmailOtpVerify}
           countdown={emailOtpCountdown}

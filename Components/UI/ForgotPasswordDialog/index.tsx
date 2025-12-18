@@ -44,12 +44,17 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
   const [emailTouched, setEmailTouched] = useState(false);
   const [localEmailError, setLocalEmailError] = useState("");
 
-  const emailSchema = yup.object().shape({
-    email: yup
-      .string()
-      .email(t("emailInvalid") || "Please enter a valid email")
-      .required(t("emailRequired") || "Email is required!"),
-  });
+  // Create email schema with translations
+  const emailSchema = React.useMemo(
+    () =>
+      yup.object().shape({
+        email: yup
+          .string()
+          .email(t("emailInvalid"))
+          .required(t("emailRequired")),
+      }),
+    [t]
+  );
 
   // Reset state when dialog closes
   useEffect(() => {
@@ -70,7 +75,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
 
   const validateEmail = async () => {
     if (!email) {
-      setLocalEmailError(t("emailRequired") || "Email is required!");
+      setLocalEmailError(t("emailRequired"));
       return false;
     }
     try {
@@ -147,7 +152,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
         }}
       >
         <PanelCard
-          title={t("passwordRecovery") || "Password recovery"}
+          title={t("passwordRecovery")}
           headerIcon={<Lock sx={{ width: 24, height: 24, color: "#242428" }} />}
           headerAction={
             <DialogCloseButton onClick={handleClose}>
@@ -194,8 +199,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               lineHeight: "1.5",
             }}
           >
-            {t("passwordRecoveryInstructions") ||
-              "Enter your email address and we will send you a password recovery code."}
+            {t("passwordRecoveryInstructions")}
           </Typography>
 
           {/* Email Input Field */}
@@ -205,7 +209,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               type="email"
               value={email}
               onChange={handleEmailChange}
-              placeholder={t("emailPlaceHolder") || "Enter your email"}
+              placeholder={t("emailPlaceHolder")}
               error={emailTouched && (!!localEmailError || !!emailError)}
               helperText={
                 emailTouched ? localEmailError || emailError || "" : ""
@@ -218,7 +222,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             <CustomButton
               variant="primary"
               size="medium"
-              label={t("getCode") || "Get code"}
+              label={t("getCode")}
               onClick={handleEmailSubmit}
               disabled={loading}
               fullWidth
@@ -260,7 +264,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               }}
             >
               <ArrowBack sx={{ fontSize: "16px", color: "#6B7280" }} />
-              {t("returnToAuthorization") || "Return to authorization"}
+              {t("returnToAuthorization")}
             </Link>
           </Box>
         </PanelCard>
@@ -273,19 +277,14 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
     <OtpDialog
       open={open}
       onClose={handleClose}
-      title={t("passwordRecovery") || "Password recovery"}
-      subtitle={
-        t("emailVerificationSubtitle") ||
-        "We have sent a verification code to your email address"
-      }
+      title={t("passwordRecovery")}
+      subtitle=""
       contactInfo={email}
       contactType="email"
       otpLength={6}
-      resendCodeLabel={t("resendCode") || "Resend Code"}
-      resendCodeCountdownLabel={(seconds) =>
-        `${t("codeIn")} ${seconds}s` || `Code in ${seconds}s`
-      }
-      primaryButtonLabel={t("confirm") || "Confirm"}
+      resendCodeLabel={t("resendCode")}
+      resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
+      primaryButtonLabel={t("confirm")}
       onResendCode={handleResendCode}
       onVerify={handleOtpVerify}
       countdown={countdown}
