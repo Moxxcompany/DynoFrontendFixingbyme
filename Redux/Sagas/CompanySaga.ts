@@ -76,7 +76,7 @@ export function* updateCompany(payload: any): unknown {
     const { id, formData } = payload;
     const {
       data: { data, message },
-    } = yield call(axios.post, "company/updateCompany/" + id, formData, {
+    } = yield call(axios.put, "company/updateCompany/" + id, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

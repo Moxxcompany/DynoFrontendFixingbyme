@@ -108,7 +108,7 @@ export default function UserMenu() {
           <Box mt={2}>
             <CustomButton
               label={t("logout")}
-              // onClick={handleLogout}
+              onClick={handleLogout}
               variant="secondary"
               endIcon={
                 <Image src={LogoutIcon} alt="logout" width={18} height={18} />

@@ -839,6 +839,8 @@ import useIsMobile from "@/hooks/useIsMobile";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import { signIn } from "next-auth/react";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
+import OtpDialog from "@/Components/UI/OtpDialog";
+import ForgotPasswordDialog from "@/Components/UI/ForgotPasswordDialog";
 
 export default function Login() {
   const { t } = useTranslation("auth");
@@ -868,6 +870,7 @@ export default function Login() {
   const [emailOtpError, setEmailOtpError] = useState("");
   const [emailOtpTouched, setEmailOtpTouched] = useState(false);
   const [emailOtpCountdown, setEmailOtpCountdown] = useState(0);
+  const [emailOtpDialogOpen, setEmailOtpDialogOpen] = useState(false);
 
   // SMS state
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -883,6 +886,14 @@ export default function Login() {
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [showErrorAnimation, setShowErrorAnimation] = useState(false);
   const [previousLoadingState, setPreviousLoadingState] = useState(false);
+
+  // Forgot password state
+  const [forgotPasswordDialogOpen, setForgotPasswordDialogOpen] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [forgotPasswordEmailError, setForgotPasswordEmailError] = useState("");
+  const [forgotPasswordOtpSent, setForgotPasswordOtpSent] = useState(false);
+  const [forgotPasswordOtpCountdown, setForgotPasswordOtpCountdown] = useState(0);
+  const [forgotPasswordOtpError, setForgotPasswordOtpError] = useState("");
 
   // Validation schemas
   const emailSchema = yup.object().shape({
@@ -904,6 +915,7 @@ export default function Login() {
   useEffect(() => {
     if (userState.name) {
       setShowSuccessAnimation(true);
+      setEmailOtpDialogOpen(false); // Close dialog on successful login
       setTimeout(() => {
         router.replace("/");
       }, 600);
@@ -921,11 +933,15 @@ export default function Login() {
           setShowErrorAnimation(false);
         }, 500);
 
-        // Clear OTP error states after API error so user can retrys
+        // Clear OTP error states after API error so user can retry
         if (loginMethod === "email" && emailOtp) {
           // Don't set error here - let the toast handle it
           // Just ensure touched state allows retry
           setEmailOtpTouched(false);
+          // Keep dialog open so user can retry
+          if (!emailOtpDialogOpen) {
+            setEmailOtpDialogOpen(true);
+          }
         } else if (loginMethod === "sms" && otp) {
           setOtpTouched(false);
         }
@@ -1038,6 +1054,7 @@ export default function Login() {
       );
       setEmailOtpSent(true);
       setEmailOtpCountdown(30);
+      setEmailOtpDialogOpen(true);
       // Clear any previous errors
       setEmailOtpError("");
       setEmailOtpTouched(false);
@@ -1052,6 +1069,29 @@ export default function Login() {
         },
       });
     }
+  };
+
+  // Handle OTP verification from dialog
+  const handleEmailOtpVerify = (otp: string) => {
+    setEmailOtp(otp);
+    // Clear any previous errors before submitting
+    setEmailOtpError("");
+    setEmailOtpTouched(false);
+
+    // Validate and submit
+    if (!otp || otp.trim().length !== 6) {
+      setEmailOtpError("Please enter a valid 6-digit OTP code");
+      setEmailOtpTouched(true);
+      return;
+    }
+
+    // Submit - don't close dialog yet, let the API response handle it
+    dispatch(
+      UserAction(USER_CONFIRM_CODE, {
+        email: verifiedEmail,
+        otp: otp.trim(),
+      })
+    );
   };
 
   // Validate mobile number
@@ -1199,10 +1239,17 @@ export default function Login() {
         return;
       }
 
+      // If dialog is open, don't submit here - let dialog handle it
+      if (emailOtpDialogOpen) {
+        return;
+      }
+
       // Basic validation - just check if OTP is entered and is 6 digits
       if (!emailOtp || emailOtp.trim().length !== 6) {
         setEmailOtpTouched(true);
         setEmailOtpError("Please enter a valid 6-digit OTP code");
+        // Reopen dialog if OTP is not valid
+        setEmailOtpDialogOpen(true);
         return;
       }
 
@@ -1301,6 +1348,110 @@ export default function Login() {
     signIn("google", {
       callbackUrl: "/auth/validateSocialLogin",
     });
+  };
+
+  // Forgot password countdown timer
+  useEffect(() => {
+    if (forgotPasswordOtpCountdown > 0) {
+      const timerId = setTimeout(() => {
+        setForgotPasswordOtpCountdown(forgotPasswordOtpCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timerId);
+    }
+  }, [forgotPasswordOtpCountdown]);
+
+  // Handle forgot password email submit
+  const handleForgotPasswordEmailSubmit = async (email: string) => {
+    setForgotPasswordEmail(email);
+    setForgotPasswordEmailError("");
+    
+    try {
+      // Check if email exists
+      const {
+        data: { data },
+      } = await axiosBaseApi.get("/user/checkEmail?email=" + email);
+
+      if (data.validEmail) {
+        // Send OTP for password recovery
+        dispatch(
+          UserAction(USER_SEND_OTP, {
+            email: email,
+            mobile: null,
+          })
+        );
+        setForgotPasswordOtpSent(true);
+        setForgotPasswordOtpCountdown(30);
+        setForgotPasswordEmailError("");
+      } else {
+        setForgotPasswordEmailError("Email not found! Please try again");
+      }
+    } catch (e: any) {
+      const message =
+        e.response?.data?.message ?? e.message ?? "An error occurred";
+      setForgotPasswordEmailError(message);
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
+  };
+
+  // Handle forgot password OTP verify
+  const handleForgotPasswordOtpVerify = async (otp: string, email: string) => {
+    setForgotPasswordOtpError("");
+    
+    if (!otp || otp.trim().length !== 5) {
+      setForgotPasswordOtpError("Please enter a valid 5-digit OTP code");
+      return;
+    }
+
+    try {
+      // Verify OTP for password recovery
+      dispatch(
+        UserAction(USER_CONFIRM_CODE, {
+          email: email,
+          otp: otp.trim(),
+        })
+      );
+    } catch (e: any) {
+      const message =
+        e.response?.data?.message ?? e.message ?? "Failed to verify OTP";
+      setForgotPasswordOtpError(message);
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
+  };
+
+  // Handle forgot password resend code
+  const handleForgotPasswordResendCode = async (email: string) => {
+    try {
+      dispatch(
+        UserAction(USER_SEND_OTP, {
+          email: email,
+          mobile: null,
+        })
+      );
+      setForgotPasswordOtpCountdown(30);
+      setForgotPasswordOtpError("");
+    } catch (e: any) {
+      const message =
+        e.response?.data?.message ?? e.message ?? "Failed to send OTP";
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: message,
+          severity: "error",
+        },
+      });
+    }
   };
 
   return (
@@ -1775,46 +1926,6 @@ export default function Login() {
                     </Box>
                   )}
 
-                  {/* Email OTP Input Field */}
-                  {loginMethod === "email" && emailOtpSent && (
-                    <Box sx={{ marginTop: "10px" }}>
-                      <InputField
-                        placeholder={t("enterOTPPlaceHolder")}
-                        value={emailOtp}
-                        onChange={(e) => {
-                          // Only allow numbers and max 6 digits
-                          const value = e.target.value
-                            .replace(/\D/g, "")
-                            .slice(0, 6);
-                          setEmailOtp(value);
-                          // Always clear error and touched state when user types
-                          // This ensures user can retry after a wrong OTP
-                          setEmailOtpError("");
-                          setEmailOtpTouched(false);
-                        }}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={6}
-                        error={
-                          loginMethod === "email" &&
-                          emailOtpTouched &&
-                          !!emailOtpError
-                        }
-                        helperText={
-                          loginMethod === "email" &&
-                          emailOtpTouched &&
-                          emailOtpError
-                            ? emailOtpError
-                            : t("enterCodeSentToEmail")
-                        }
-                        onFocus={() => {
-                          // Clear error when user focuses on the input
-                          setEmailOtpError("");
-                          setEmailOtpTouched(false);
-                        }}
-                      />
-                    </Box>
-                  )}
 
                   {/* Password Option */}
                   <Box
@@ -1845,7 +1956,7 @@ export default function Login() {
                           fontFamily: "UrbanistMedium",
                         }}
                         onClick={() => {
-                          router.push("/auth/forgot-password");
+                          setForgotPasswordDialogOpen(true);
                         }}
                       >
                         {t("forgotYourPassword")}
@@ -2009,6 +2120,51 @@ export default function Login() {
           </Box>
         </Box>
       </CardWrapper>
+
+      {/* Email OTP Dialog */}
+      {loginMethod === "email" && (
+        <OtpDialog
+          open={emailOtpDialogOpen}
+          onClose={() => {
+            setEmailOtpDialogOpen(false);
+            // Don't reset emailOtpSent so resend button still shows
+          }}
+          title={t("emailVerification") || "E-mail Verification"}
+          subtitle={t("emailVerificationSubtitle") || "We have sent a verification code to your email address"}
+          contactInfo={verifiedEmail}
+          contactType="email"
+          resendCodeLabel={t("resendCode")}
+          resendCodeCountdownLabel={(seconds) =>
+            `${t("codeIn")} ${seconds}s`
+          }
+          primaryButtonLabel={t("checkAndAdd") || "Check and Add"}
+          onResendCode={handleSendEmailOtp}
+          onVerify={handleEmailOtpVerify}
+          countdown={emailOtpCountdown}
+          loading={userState.loading}
+          error={emailOtpTouched && emailOtpError ? emailOtpError : undefined}
+        />
+      )}
+
+      {/* Forgot Password Dialog */}
+      <ForgotPasswordDialog
+        open={forgotPasswordDialogOpen}
+        onClose={() => {
+          setForgotPasswordDialogOpen(false);
+          setForgotPasswordEmail("");
+          setForgotPasswordEmailError("");
+          setForgotPasswordOtpSent(false);
+          setForgotPasswordOtpCountdown(0);
+          setForgotPasswordOtpError("");
+        }}
+        onEmailSubmit={handleForgotPasswordEmailSubmit}
+        onOtpVerify={handleForgotPasswordOtpVerify}
+        onResendCode={handleForgotPasswordResendCode}
+        countdown={forgotPasswordOtpCountdown}
+        loading={userState.loading}
+        emailError={forgotPasswordEmailError}
+        otpError={forgotPasswordOtpError}
+      />
     </AuthContainer>
   );
 }

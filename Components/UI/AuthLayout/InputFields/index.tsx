@@ -55,6 +55,7 @@ export interface InputFieldProps {
     | "numeric"
     | "decimal"
     | "search";
+  inputRef?: React.Ref<HTMLInputElement>;
 }
 
 /**
@@ -96,6 +97,7 @@ const InputField: React.FC<InputFieldProps> = ({
   inputMode,
   inputHeight,
   iconBoxSize,
+  inputRef,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
@@ -223,6 +225,7 @@ const InputField: React.FC<InputFieldProps> = ({
             type={inputType}
             variant={variant}
             disabled={disabled}
+            inputRef={inputRef}
             inputProps={{
               readOnly: readOnly,
               maxLength: maxLength,
