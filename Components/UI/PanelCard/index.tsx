@@ -58,6 +58,16 @@ export interface PanelCardProps {
    */
   headerAction?: ReactNode;
   /**
+   * Layout for the header action.
+   * - absolute (default): floats on top-right in a pill wrapper
+   * - inline: sits in the normal header row without wrapper styling
+   */
+  headerActionLayout?: "absolute" | "inline";
+  /**
+   * Custom styles for the header action wrapper (only applies to absolute layout)
+   */
+  headerActionWrapperSx?: SxProps;
+  /**
    * Main content of the card
    */
   children: ReactNode;
@@ -112,6 +122,8 @@ const PanelCard: React.FC<PanelCardProps> = ({
   subTitle,
   headerIcon,
   headerAction,
+  headerActionLayout = "absolute",
+  headerActionWrapperSx,
   children,
   bodyPadding,
   headerPadding,
@@ -132,7 +144,7 @@ const PanelCard: React.FC<PanelCardProps> = ({
           }}
         >
           <HeaderContent>
-            {headerIcon && <HeaderIcon>{headerIcon}</HeaderIcon>}
+            {headerIcon && <>{headerIcon}</>}
             <Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
               {title && (
                 <HeaderTitle>{title}</HeaderTitle>
@@ -140,22 +152,28 @@ const PanelCard: React.FC<PanelCardProps> = ({
               {subTitle && <HeaderSubTitle>{subTitle}</HeaderSubTitle>}
             </Box>
           </HeaderContent>
-          {headerAction && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                display: "flex",
-                alignItems: "center",
-                backgroundColor: "secondary.main",
-                borderRadius: "50px",
-                border: "1px solid #E9ECF2",
-              }}
-            >
-              {headerAction}
-            </Box>
-          )}
+          {headerAction &&
+            (headerActionLayout === "inline" ? (
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                {headerAction}
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 12,
+                  right: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  backgroundColor: "secondary.main",
+                  borderRadius: "50px",
+                  border: "1px solid #E9ECF2",
+                  ...headerActionWrapperSx,
+                }}
+              >
+                {headerAction}
+              </Box>
+            ))}
         </CardHeader>
       )}
 

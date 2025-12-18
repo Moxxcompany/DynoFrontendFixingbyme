@@ -1,4 +1,5 @@
 import { AlertColor } from "@mui/material";
+import type { ReactNode } from "react";
 
 export interface ReducerAction {
   payload: any;
@@ -142,6 +143,7 @@ export interface LayoutProps {
   pageName: string;
   pageDescription?: string;
   component?: any;
+  pageAction?: ReactNode;
 }
 
 export interface TokenData {
@@ -160,10 +162,11 @@ export interface IconProps {
 }
 
 export interface pageProps {
-  setPageName: Function;
-  setPageDescription?: Function;
-  setComponent: Function;
-  discription: Function;
+  setPageName: (name: string) => void;
+  setPageDescription?: (description: string) => void;
+  setPageAction?: (action: ReactNode | null) => void;
+  setComponent?: Function;
+  discription?: Function;
 }
 
 export interface IToastProps {

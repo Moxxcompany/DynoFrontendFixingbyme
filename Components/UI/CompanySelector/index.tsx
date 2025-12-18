@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Popover, useTheme, Box } from "@mui/material";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
@@ -18,21 +18,25 @@ import { VerticalLine } from "../LanguageSwitcher/styled";
 import { useTranslation } from "react-i18next";
 import { Add } from "@mui/icons-material";
 import CustomButton from "../Buttons";
-
-const companies = [
-  { id: 1, name: "TechCorp Solutions", email: "contact@techcorp.com" },
-  { id: 2, name: "TechCorp Solutions", email: "contact@techcorp.com" },
-  { id: 3, name: "TechCorp Solutions", email: "contact@techcorp.com" },
-  { id: 4, name: "TechCorp Solutions", email: "contact@techcorp.com" },
-];
+import { useSelector } from "react-redux";
+import { rootReducer } from "@/utils/types";
+import { useCompanyDialog } from "@/Components/UI/CompanyDialog/context";
 
 export default function CompanySelector() {
   const { t } = useTranslation("dashboardLayout");
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [active, setActive] = useState(1);
+  const { openAddCompany, openEditCompany } = useCompanyDialog();
+  const companyState = useSelector((state: rootReducer) => state.companyReducer);
 
-  const selected = companies.find((c) => c.id === active);
+  const companies = useMemo(() => companyState.companyList ?? [], [companyState.companyList]);
+  const [active, setActive] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (active == null && companies.length > 0) setActive(companies[0].company_id);
+  }, [active, companies]);
+
+  const selected = companies.find((c) => c.company_id === active);
 
   const handleOpen = (e: any) => setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -46,7 +50,7 @@ export default function CompanySelector() {
             sx={{ color: theme.palette.primary.main, fontSize: 20 }}
           />
 
-          <TriggerText>{selected?.name}</TriggerText>
+          <TriggerText>{selected?.company_name ?? "-"}</TriggerText>
         </Box>
 
         <VerticalLine />
@@ -94,9 +98,9 @@ export default function CompanySelector() {
         <CompanyListWrapper>
           {companies.map((c) => (
             <CompanyItem
-              key={c.id}
-              active={active === c.id}
-              onClick={() => setActive(c.id)}
+              key={c.company_id}
+              active={active === c.company_id}
+              onClick={() => setActive(c.company_id)}
             >
               <ItemLeft>
                 <Box className="info">
@@ -104,19 +108,28 @@ export default function CompanySelector() {
                     <BusinessCenterIcon
                       sx={{
                         color:
-                          active === c.id
+                          active === c.company_id
                             ? theme.palette.primary.main
                             : theme.palette.text.secondary,
                       }}
                     />
 
-                    <Box className="name">{c.name}</Box>
+                    <Box className="name">{c.company_name}</Box>
                   </Box>
                   <Box className="email">{c.email}</Box>
                 </Box>
               </ItemLeft>
 
-              <ItemRight active={active === c.id}>
+              <ItemRight
+                active={active === c.company_id}
+                onClick={(e: any) => {
+                  e.stopPropagation();
+                  handleClose();
+                  openEditCompany(c);
+                }}
+                role="button"
+                tabIndex={0}
+              >
                 <Image src={EditIcon} width={18} height={18} alt="edit" />
               </ItemRight>
             </CompanyItem>
@@ -130,6 +143,10 @@ export default function CompanySelector() {
           endIcon={<Add />}
           fullWidth
           sx={{ mt: 1 }}
+          onClick={() => {
+            handleClose();
+            openAddCompany();
+          }}
         />
       </Popover>
     </>

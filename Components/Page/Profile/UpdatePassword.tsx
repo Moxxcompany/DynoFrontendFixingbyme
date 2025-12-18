@@ -228,7 +228,7 @@ const UpdatePassword = () => {
                     }
                     sideButton={true}
                     sideButtonType="primary"
-                    iconBoxSize="38px"
+                    iconBoxSize={isMobile ? "32px" : "38px"}
                     sideButtonIcon={
                       showPassword ? (
                         <VisibilityOffIcon
@@ -292,7 +292,7 @@ const UpdatePassword = () => {
                     }
                     sideButton={true}
                     sideButtonType="primary"
-                    iconBoxSize="38px"
+                    iconBoxSize={isMobile ? "32px" : "38px"}
                     sideButtonIcon={
                       showNewPassword ? (
                         <VisibilityOffIcon
@@ -360,7 +360,7 @@ const UpdatePassword = () => {
                     }
                     sideButton={true}
                     sideButtonType="primary"
-                    iconBoxSize="38px"
+                    iconBoxSize={isMobile ? "32px" : "38px"}
                     sideButtonIcon={
                       showConfirmPassword ? (
                         <VisibilityOffIcon

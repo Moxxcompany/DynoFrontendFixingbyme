@@ -31,11 +31,30 @@ const companyReducer = (state = companyInitialState, action: ReducerAction) => {
       };
 
     case COMPANY_UPDATE:
-      const index = state.companyList.findIndex(
-        (x) => x.company_id === payload.id
+      // Defensive: avoid crashes if list contains undefined entries
+      // or if API returns an unexpected payload.
+      if (!payload?.id || !payload?.data) {
+        return {
+          ...state,
+          loading: false,
+        };
+      }
+
+      const index = (state.companyList ?? []).findIndex(
+        (x: any) => x?.company_id === payload.id
       );
+
+      if (index < 0) {
+        // If we can't find the company, keep the list unchanged.
+        return {
+          ...state,
+          loading: false,
+        };
+      }
+
       const tempArray = [...state.companyList];
       tempArray[index] = payload.data;
+
       return {
         ...state,
         loading: false,

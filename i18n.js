@@ -18,6 +18,8 @@ i18n.use(initReactI18next).init({
       dashboardLayout: require("./langs/locales/en/dashboardLayout.json"),
       profile: require("./langs/locales/en/profile.json"),
       notifications: require("./langs/locales/en/notifications.json"),
+      apiScreen: require("./langs/locales/en/apiScreen.json"),
+      companyDialog: require("./langs/locales/en/companyDialog.json"),
     },
     pt: {
       common: require("./langs/locales/pt/common.json"),
@@ -25,6 +27,8 @@ i18n.use(initReactI18next).init({
       dashboardLayout: require("./langs/locales/pt/dashboardLayout.json"),
       profile: require("./langs/locales/pt/profile.json"),
       notifications: require("./langs/locales/pt/notifications.json"),
+      apiScreen: require("./langs/locales/pt/apiScreen.json"),
+      companyDialog: require("./langs/locales/pt/companyDialog.json"),
     },
     fr: {
       common: require("./langs/locales/fr/common.json"),

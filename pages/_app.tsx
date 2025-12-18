@@ -15,11 +15,14 @@ import { useState } from "react";
 import { Provider } from "react-redux";
 import "../i18n";
 import LanguageBootstrap from "@/helpers/LanguageBootstrap";
+import type { ReactNode } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter();
   const [pageName, setPageName] = useState("");
   const [pageDescription, setPageDescription] = useState("");
+  const [pageAction, setPageAction] = useState<ReactNode | null>(null);
+
   return (
     <>
       <Provider store={store}>
@@ -29,25 +32,49 @@ export default function App({ Component, pageProps }: AppProps) {
             {!pathname.includes("auth") &&
               !pathname.includes("payment") &&
               !pathname.includes("admin") && (
-                <ClientLayout pageName={pageName} pageDescription={pageDescription}>
-                  <Component {...pageProps} setPageName={setPageName} setPageDescription={setPageDescription} />
+                <ClientLayout
+                  pageName={pageName}
+                  pageDescription={pageDescription}
+                  pageAction={pageAction}
+                >
+                  <Component
+                    {...pageProps}
+                    setPageName={setPageName}
+                    setPageDescription={setPageDescription}
+                    setPageAction={setPageAction}
+                  />
                 </ClientLayout>
               )}
             {(pathname.includes("auth") ||
               pathname.includes("admin/login")) && (
               <LoginLayout pageName={pageName} pageDescription={pageDescription}>
-                <Component {...pageProps} setPageName={setPageName} setPageDescription={setPageDescription} />
+                <Component
+                  {...pageProps}
+                  setPageName={setPageName}
+                  setPageDescription={setPageDescription}
+                  setPageAction={setPageAction}
+                />
               </LoginLayout>
             )}
             {pathname.includes("payment") && (
               <PaymentLayout pageName={pageName} pageDescription={pageDescription}>
-                <Component {...pageProps} setPageName={setPageName} setPageDescription={setPageDescription} />
+                <Component
+                  {...pageProps}
+                  setPageName={setPageName}
+                  setPageDescription={setPageDescription}
+                  setPageAction={setPageAction}
+                />
               </PaymentLayout>
             )}
             {pathname.includes("admin") &&
               !pathname.includes("admin/login") && (
                 <AdminLayout pageName={pageName} pageDescription={pageDescription}>
-                  <Component {...pageProps} setPageName={setPageName} setPageDescription={setPageDescription} />
+                  <Component
+                    {...pageProps}
+                    setPageName={setPageName}
+                    setPageDescription={setPageDescription}
+                    setPageAction={setPageAction}
+                  />
                 </AdminLayout>
               )}
           </ThemeProvider>

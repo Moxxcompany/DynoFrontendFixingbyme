@@ -10,7 +10,6 @@ const Notifications = ({ setPageName, setPageDescription }: pageProps) => {
   const namespaces = ["notifications", "common"];
   const { t } = useTranslation(namespaces);
   const tNotifications = useCallback((key: string) => t(key, { ns: "notifications" }), [t]);
-  const tCommon = useCallback((key: string) => t(key, { ns: "common" }), [t]);
   useEffect(() => {
     if (setPageName && setPageDescription) {
       setPageName(tNotifications("notifications"));

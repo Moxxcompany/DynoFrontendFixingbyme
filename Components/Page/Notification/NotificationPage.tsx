@@ -9,6 +9,9 @@ import React, { useState } from "react";
 import BellIcon from "@/assets/Icons/bell-icon.svg";
 import MobileIcon from "@/assets/Icons/mobile-icon.svg";
 import EnvelopeIcon from "@/assets/Icons/envelope-icon.svg";
+import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
+import { useTranslation } from "react-i18next";
+import { useCallback } from "react";
 
 interface NotificationItemProps {
   title: string;
@@ -32,7 +35,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          py: 2.5,
         }}
       >
         <Box sx={{ flex: 1, pr: 2 }}>
@@ -58,8 +60,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             {description}
           </Typography>
         </Box>
-        <CustomSwitch 
-          checked={checked} 
+        <CustomSwitch
+          checked={checked}
           onChange={(e, checked) => onChange(checked)}
           sx={{
             "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
@@ -81,6 +83,10 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 };
 
 const NotificationPage = () => {
+  const namespaces = ["notifications"];
+  const { t } = useTranslation(namespaces);
+  const tNotifications = useCallback((key: string) => t(key, { ns: "notifications" }), [t]);
+
   // Transaction Alerts state
   const [transactionUpdates, setTransactionUpdates] = useState(true);
   const [paymentReceived, setPaymentReceived] = useState(false);
@@ -100,17 +106,17 @@ const NotificationPage = () => {
 
   return (
     <Box>
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={2.5} sx={{ mb: 4 }}>
         {/* Left Column - Two Cards Stacked */}
         <Grid item xs={12} md={6}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
             {/* Transaction Alerts Card */}
             <PanelCard
-              title="Transaction Alerts"
-              subTitle="Be notified about changes in transaction statuses"
+              title={tNotifications("transactionAlertsTitle")}
+              subTitle={tNotifications("transactionAlertsSubtitle")}
               showHeaderBorder={false}
-              bodyPadding={0}
-              headerPadding={theme.spacing(2.5, 2.5, 2, 2.5)}
+              headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
+              bodyPadding={theme.spacing(0, 2.5, 2.5, 2.5)}
               headerAction={
                 <IconButton
                   sx={{
@@ -128,16 +134,23 @@ const NotificationPage = () => {
               }
               sx={{ height: "100%" }}
             >
-              <Box sx={{ px: 2.5, pb: 2.5 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  pt: 5.5,
+                }}
+              >
                 <NotificationItem
-                  title="Transaction Updates"
-                  description="Receive notifications when transactions are confirmed or completed"
+                  title={tNotifications("transactionUpdatesTitle")}
+                  description={tNotifications("transactionUpdatesDescription")}
                   checked={transactionUpdates}
                   onChange={setTransactionUpdates}
                 />
                 <NotificationItem
-                  title="Payment Received"
-                  description="Be notified immediately when you receive a payment"
+                  title={tNotifications("paymentReceivedTitle")}
+                  description={tNotifications("paymentReceivedDescription")}
                   checked={paymentReceived}
                   onChange={setPaymentReceived}
                   showDivider={false}
@@ -147,11 +160,11 @@ const NotificationPage = () => {
 
             {/* Weekly Reports Card */}
             <PanelCard
-              title="Weekly Reports"
-              subTitle="Receive a weekly summary of your activities"
+              title={tNotifications("weeklyReportsTitle")}
+              subTitle={tNotifications("weeklyReportsSubtitle")}
               showHeaderBorder={false}
-              bodyPadding={0}
-              headerPadding={theme.spacing(2.5, 2.5, 2, 2.5)}
+              headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
+              bodyPadding={theme.spacing(0, 2.5, 2.5, 2.5)}
               headerAction={
                 <IconButton
                   sx={{
@@ -169,16 +182,16 @@ const NotificationPage = () => {
               }
               sx={{ height: "100%" }}
             >
-              <Box sx={{ px: 2.5, pb: 2.5 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 5.5 }}>
                 <NotificationItem
-                  title="Weekly Summary"
-                  description="Receive a weekly summary of your activities every Monday"
+                  title={tNotifications("weeklySummaryTitle")}
+                  description={tNotifications("weeklySummaryDescription")}
                   checked={weeklySummary}
                   onChange={setWeeklySummary}
                 />
                 <NotificationItem
-                  title="Security Alerts"
-                  description="Alerts for suspicious activity or security changes"
+                  title={tNotifications("securityAlertsTitle")}
+                  description={tNotifications("securityAlertsDescription")}
                   checked={securityAlerts}
                   onChange={setSecurityAlerts}
                   showDivider={false}
@@ -190,116 +203,110 @@ const NotificationPage = () => {
 
         {/* Right Column - Single Taller Card */}
         <Grid item xs={12} md={6}>
-          <PanelCard
-            title="Email Notifications"
-            subTitle="Receive email notifications for important events"
-            showHeaderBorder={false}
-            bodyPadding={0}
-            headerPadding={theme.spacing(2.5, 2.5, 2, 2.5)}
-            headerAction={
-              <IconButton
-                sx={{
-                  padding: "8px",
-                  "&:hover": { backgroundColor: "transparent" },
-                }}
-              >
-                <Image
-                  src={EnvelopeIcon.src}
-                  alt="envelope-icon"
-                  width={20}
-                  height={20}
-                />
-              </IconButton>
-            }
-            sx={{ height: "100%" }}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+              justifyContent: "space-between",
+              height: "100%",
+            }}
           >
-            <Box sx={{ px: 2.5, pb: 2.5 }}>
-              <NotificationItem
-                title="Email Notifications"
-                description="Receive important updates via email"
-                checked={emailNotifications}
-                onChange={setEmailNotifications}
-              />
-              <NotificationItem
-                title="SMS notifications"
-                description="Receive critical alerts via SMS"
-                checked={smsNotifications}
-                onChange={setSmsNotifications}
-              />
-              {/* Browser Notifications - Special Button */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  py: 2.5,
-                }}
-              >
-                <Box sx={{ flex: 1, pr: 2 }}>
-                  <Typography
-                    sx={{
-                      fontSize: "15px",
-                      fontWeight: 500,
-                      fontFamily: "UrbanistMedium",
-                      color: "#242428",
-                      mb: 0.5,
-                    }}
-                  >
-                    Browser Notifications
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: "13px",
-                      fontFamily: "UrbanistRegular",
-                      color: theme.palette.text.secondary,
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    Receive notifications on your desktop
-                  </Typography>
-                </Box>
-                <CustomButton
-                  label="Activate"
-                  variant="primary"
-                  size="small"
-                  endIcon={
-                    <Box
-                      component="span"
+            <PanelCard
+              title={tNotifications("emailNotificationsCardTitle")}
+              subTitle={tNotifications("emailNotificationsCardSubtitle")}
+              showHeaderBorder={false}
+              bodyPadding={theme.spacing(0, 2.5, 2.5, 2.5)}
+              headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
+              headerAction={
+                <IconButton
+                  sx={{
+                    padding: "8px",
+                    "&:hover": { backgroundColor: "transparent" },
+                  }}
+                >
+                  <Image
+                    src={EnvelopeIcon.src}
+                    alt="envelope-icon"
+                    width={20}
+                    height={20}
+                  />
+                </IconButton>
+              }
+              sx={{ height: "fit-content" }}
+            >
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 5.5 }}>
+                <NotificationItem
+                  title={tNotifications("emailNotificationsTitle")}
+                  description={tNotifications("emailNotificationsDescription")}
+                  checked={emailNotifications}
+                  onChange={setEmailNotifications}
+                />
+                <NotificationItem
+                  title={tNotifications("smsNotificationsTitle")}
+                  description={tNotifications("smsNotificationsDescription")}
+                  checked={smsNotifications}
+                  onChange={setSmsNotifications}
+                />
+                {/* Browser Notifications - Special Button */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box sx={{ flex: 1, pr: 2 }}>
+                    <Typography
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        fontSize: "12px",
-                        ml: 0.5,
+                        fontSize: "15px",
+                        fontWeight: 500,
+                        fontFamily: "UrbanistMedium",
+                        color: "#242428",
+                        mb: 0.5,
                       }}
                     >
-                      →
-                    </Box>
-                  }
-                  onClick={() => {
-                    // TODO: Implement browser notification activation
-                    console.log("Activating browser notifications...");
-                  }}
-                />
+                      {tNotifications("browserNotificationsTitle")}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: "13px",
+                        fontFamily: "UrbanistRegular",
+                        color: theme.palette.text.secondary,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {tNotifications("browserNotificationsDescription")}
+                    </Typography>
+                  </Box>
+                  <CustomButton
+                    label={tNotifications("activate")}
+                    variant="secondary"
+                    size="medium"
+                    endIcon={
+                      <Box>
+                        <ArrowOutwardIcon />
+                      </Box>
+                    }
+                    onClick={() => {
+                      // TODO: Implement browser notification activation
+                      console.log("Activating browser notifications...");
+                    }}
+                  />
+                </Box>
               </Box>
-            </Box>
-          </PanelCard>
+            </PanelCard>
+
+            <CustomButton
+              label={tNotifications("saveChanges")}
+              variant="primary"
+              size="large"
+              fullWidth
+              onClick={handleSaveChanges}
+            />
+          </Box>
         </Grid>
       </Grid>
-
-      {/* Save Changes Button */}
-      <Box
-        sx={{
-          mt: 4,
-        }}
-      >
-        <CustomButton
-          label="Save Changes"
-          variant="primary"
-          size="large"
-          fullWidth
-          onClick={handleSaveChanges}
-        />
-      </Box>
     </Box>
   );
 };
