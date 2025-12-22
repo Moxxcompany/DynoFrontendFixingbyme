@@ -45,7 +45,18 @@
   },
   "generate": {
     "modalTitle": "Gerar chave de API",
-    "submit": "Gerar"
+    "modalSubtitle": "Gere uma nova chave de API para integrar o DynoPay ao seu aplicativo",
+    "submit": "Gerar",
+    "keyName": "Nome da chave",
+    "keyNamePlaceholder": "Digite o nome da chave",
+    "keyNameDescription": "Permissões da chave",
+    "keyNameDescription1": "Criar e gerenciar solicitações de pagamento",
+    "keyNameDescription2": "Visualizar histórico de transações",
+    "keyNameDescription3": "Receber notificações de webhook",
+    "keyNameDescription4": "Acessar informações da carteira",
+    "successTitle": "Chave de API Gerada",
+    "successSubtitle": "Salve esta chave agora - você não poderá vê-la novamente",
+    "yourKey": "Sua Chave de API"
   },
   "withdrawalWhitelist": {
     "title": "Lista de permissões de saque",
@@ -53,5 +64,10 @@
     "addressManagement": "Gerenciar endereços",
     "off": "DESLIGADO",
     "enable": "Ativar"
+    },
+  "actions": {
+    "cancel": "Cancelar",
+    "generate": "Gerar chave",
+    "done": "Feito"
   }
 }

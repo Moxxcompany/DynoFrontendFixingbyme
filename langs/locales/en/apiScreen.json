@@ -45,7 +45,18 @@
   },
   "generate": {
     "modalTitle": "Generate API key",
-    "submit": "Generate"
+    "modalSubtitle": "Generate a new API key to integrate DynoPay into your app",
+    "submit": "Generate",
+    "keyName": "Key Name",
+    "keyNamePlaceholder": "Enter key name",
+    "keyNameDescription": "Key Permissions",
+    "keyNameDescription1": "Create and manage payment requests",
+    "keyNameDescription2": "View transaction history",
+    "keyNameDescription3": "Receive webhook notifications",
+    "keyNameDescription4": "Access wallet information",
+    "successTitle": "API Key Generated",
+    "successSubtitle": "Save this key now - you won't be able to see it again",
+    "yourKey": "Your API Key"
   },
   "withdrawalWhitelist": {
     "title": "Withdrawal Whitelist",
@@ -53,5 +64,10 @@
     "addressManagement": "Address Management",
     "off": "OFF",
     "enable": "Enable"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "generate": "Generate Key",
+    "done": "Done"
   }
 }

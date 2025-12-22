@@ -60,7 +60,11 @@ const PopupModal = ({
       customProps={{ transparent }}
       TransitionComponent={Transition}
       keepMounted
-      onClose={() => handleClose()}
+      onClose={(event, reason) => {
+        if (reason === "backdropClick" || reason === "escapeKeyDown") {
+          handleClose();
+        }
+      }}
       aria-describedby="alert-dialog-slide-description"
     >
       {showHeader && (

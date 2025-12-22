@@ -1,31 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import {
   Box,
-  Chip,
   Grid,
-  IconButton,
-  InputAdornment,
   Typography,
 } from "@mui/material";
-import {
-  ContentCopyRounded,
-  DeleteOutlineRounded,
-  VisibilityOffOutlined,
-  VisibilityOutlined,
-  CloseRounded,
-  ErrorOutlineRounded,
-} from "@mui/icons-material";
+
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 
 import PanelCard from "@/Components/UI/PanelCard";
-import TextBox from "@/Components/UI/TextBox";
 import CustomButton from "@/Components/UI/Buttons";
-import PopupModal from "@/Components/UI/PopupModal";
-import Dropdown from "@/Components/UI/Dropdown";
-import FormManager from "@/Components/Page/Common/FormManager";
 import CustomAlert from "@/Components/UI/CustomAlert";
 
 import { ApiAction, CompanyAction } from "@/Redux/Actions";
@@ -33,7 +18,6 @@ import { API_DELETE, API_FETCH, API_INSERT } from "@/Redux/Actions/ApiAction";
 import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { menuItem, rootReducer } from "@/utils/types";
-import { stringShorten } from "@/helpers";
 import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import TrashIcon from "@/assets/Icons/trash-icon.svg";
@@ -58,17 +42,13 @@ import {
 } from "./styled";
 import { theme } from "@/styles/theme";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
+import CreateApiModel from "@/Components/UI/ApiKeysModel/CreateApiModel";
 
 const companyInitial = {
   company_id: 0,
   base_currency: "USD",
   withdrawal_whitelist: false,
 };
-
-const base_currency = [
-  { label: "USD", value: "USD" },
-  { label: "NGN", value: "NGN" },
-];
 
 function isProdKey(key: string) {
   const k = key.toLowerCase();
@@ -80,18 +60,7 @@ function isDevKey(key: string) {
   return k.includes("test") || k.startsWith("dpk_test") || k.startsWith("test");
 }
 
-function formatCreatedAt(raw: any) {
-  if (!raw) return "";
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return String(raw);
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  const hh = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  const ss = String(d.getSeconds()).padStart(2, "0");
-  return `${dd}.${mm}.${yyyy} at ${hh}:${min}:${ss}`;
-}
+
 
 type ApiRow = any;
 
@@ -251,7 +220,6 @@ const ApiKeysPage = ({
   setOpenCreate?: (open: boolean) => void;
 }) => {
   const dispatch = useDispatch();
-  const router = useRouter();
   const { t } = useTranslation("apiScreen");
 
   const companyList = useSelector(
@@ -292,7 +260,10 @@ const ApiKeysPage = ({
         label: c.company_name,
         value: c.company_id,
       }));
-      setMenuItems([{ label: t("company.selectCompany"), value: 0 }, ...tempList]);
+      setMenuItems([
+        { label: t("company.selectCompany"), value: 0 },
+        ...tempList,
+      ]);
     }
   }, [companyList, t]);
 
@@ -388,7 +359,7 @@ const ApiKeysPage = ({
           py: 1.25,
           borderRadius: "6px",
           display: "flex",
-          flexDirection: { xs: "column", sm: "row" }, 
+          flexDirection: { xs: "column", sm: "row" },
           alignItems: "flex-start",
           justifyContent: "start",
           gap: 1,
@@ -417,8 +388,8 @@ const ApiKeysPage = ({
               flex: "0 0 auto",
             }}
           />
-          <InfoText 
-            sx={{ 
+          <InfoText
+            sx={{
               color: theme.palette.error.main,
               whiteSpace: "nowrap",
             }}
@@ -438,182 +409,7 @@ const ApiKeysPage = ({
         </InfoText>
       </Box>
 
-      <PopupModal
-        open={openCreate}
-        showClose
-        headerText={t("generate.modalTitle")}
-        handleClose={handleCreateClose}
-      >
-        <Box sx={{ minWidth: "400px" }}>
-          <FormManager
-            initialValues={initialValue}
-            yupSchema={apiSchema}
-            onSubmit={handleCreateSubmit}
-          >
-            {({
-              errors,
-              handleBlur,
-              handleChange,
-              submitDisable,
-              touched,
-              values,
-            }) => (
-              <>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    flexDirection: "column",
-                    width: "100%",
-                  }}
-                >
-                  <Dropdown
-                    fullWidth={true}
-                    label={t("company.label")}
-                    menuItems={menuItems}
-                    value={values.company_id}
-                    error={touched.company_id && errors.company_id}
-                    helperText={
-                      touched.company_id &&
-                      errors.company_id &&
-                      errors.company_id
-                    }
-                    getValue={(value: any) => {
-                      const e: any = { target: { name: "company_id", value } };
-                      handleChange(e);
-                    }}
-                    onBlur={handleBlur}
-                  />
-                  <Box sx={{ width: "100%", mt: 3 }}>
-                    <Dropdown
-                      fullWidth={true}
-                      label={t("currency.baseCurrency")}
-                      menuItems={base_currency}
-                      value={values.base_currency}
-                      error={touched.base_currency && errors.base_currency}
-                      helperText={
-                        touched.base_currency &&
-                        errors.base_currency &&
-                        errors.base_currency
-                      }
-                      getValue={(value: any) => {
-                        const e: any = {
-                          target: { name: "base_currency", value },
-                        };
-                        handleChange(e);
-                      }}
-                      onBlur={handleBlur}
-                    />
-                  </Box>
-
-                  <Box
-                    sx={{
-                      width: "100%",
-                      mt: 3,
-                      p: 2.5,
-                      border: "1px solid",
-                      borderColor: "divider",
-                      borderRadius: 2,
-                      bgcolor: "background.paper",
-                    }}
-                  >
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                      {t("withdrawalWhitelist.title")}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {t("withdrawalWhitelist.description")}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        mt: 1.5,
-                        fontWeight: 600,
-                        color: "warning.main",
-                        cursor: "pointer",
-                        width: "fit-content",
-                      }}
-                      onClick={() => router.push("/walletAddress")}
-                    >
-                      {t("withdrawalWhitelist.addressManagement")}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        mt: 3,
-                      }}
-                    >
-                      <CustomButton
-                        label={t("withdrawalWhitelist.off")}
-                        variant={
-                          values.withdrawal_whitelist ? "outlined" : "primary"
-                        }
-                        size="medium"
-                        endIcon={<CloseRounded />}
-                        onClick={() => {
-                          const eOff: any = {
-                            target: {
-                              name: "withdrawal_whitelist",
-                              value: false,
-                            },
-                          };
-                          handleChange(eOff);
-                        }}
-                        sx={{
-                          backgroundColor: values.withdrawal_whitelist
-                            ? "#fff"
-                            : "#E03B2C",
-                          border: values.withdrawal_whitelist
-                            ? "1px solid #E9ECF2"
-                            : "none",
-                          color: values.withdrawal_whitelist
-                            ? "#242428"
-                            : "#fff",
-                        }}
-                      />
-                      <CustomButton
-                        label={t("withdrawalWhitelist.enable")}
-                        variant={
-                          values.withdrawal_whitelist ? "primary" : "secondary"
-                        }
-                        size="medium"
-                        onClick={() => {
-                          const eOn: any = {
-                            target: {
-                              name: "withdrawal_whitelist",
-                              value: true,
-                            },
-                          };
-                          handleChange(eOn);
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                </Box>
-
-                <Box
-                  sx={{
-                    mt: 3,
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-end",
-                  }}
-                >
-                  <CustomButton
-                    label={t("generate.submit")}
-                    type="submit"
-                    disabled={submitDisable}
-                    variant="primary"
-                    size="medium"
-                  />
-                </Box>
-              </>
-            )}
-          </FormManager>
-        </Box>
-      </PopupModal>
+      <CreateApiModel open={openCreate} onClose={handleCreateClose} />
     </>
   );
 };
