@@ -192,6 +192,7 @@ export default function CompanyDialog({
                 alt="business-icon"
                 width={16}
                 height={18}
+                draggable={false}
               />
             ) : (
               <Image
@@ -199,6 +200,7 @@ export default function CompanyDialog({
                 alt="edit-pencil-icon"
                 width={16}
                 height={18}
+                draggable={false}
               />
             )}
           </IconButton>
@@ -428,6 +430,7 @@ export default function CompanyDialog({
                             alt="download-icon"
                             width={12}
                             height={12}
+                            draggable={false}
                           />
                         </Box>
                         <Typography
@@ -475,6 +478,7 @@ export default function CompanyDialog({
                             borderRadius: 12,
                             objectFit: "cover",
                           }}
+                          draggable={false}
                         />
                       </Box>
                     )}

@@ -154,7 +154,7 @@ const MobileNavigationBar = () => {
           return null;
       }
     }
-    return <Image src={icon} width={20} height={20} alt="" />;
+    return <Image src={icon} width={20} height={20} alt="" draggable={false} />;
   };
 
   return (

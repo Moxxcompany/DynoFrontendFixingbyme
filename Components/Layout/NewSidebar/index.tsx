@@ -74,6 +74,7 @@ const NewSidebar = () => {
                   width={20}
                   height={20}
                   alt={item.label}
+                  draggable={false}
                 />
               </IconBox>
 
@@ -154,14 +155,14 @@ const NewSidebar = () => {
                   navigator.clipboard.writeText("DYNO2024XYZ");
                 }}
               >
-                <Image src={CopyIcon} alt="Copy Icon" width={20} height={20} />
+                <Image src={CopyIcon} alt="Copy Icon" width={20} height={20} draggable={false} />
               </CopyButton>
             </ReferralCardContentValueContainer>
           </ReferralCardContent>
         </ReferralCard>
 
         <KnowledgeBaseBtn>
-          <Image src={FileIcon} alt="File Icon" width={18} height={18} />
+          <Image src={FileIcon} alt="File Icon" width={18} height={18} draggable={false} />
           <KnowledgeBaseTitle>{t("knowledgeBase")}</KnowledgeBaseTitle>
         </KnowledgeBaseBtn>
       </SidebarFooter>

@@ -47,6 +47,7 @@ export default function UserMenu() {
             width={isMobile ? 24 : 32}
             height={isMobile ? 24 : 32}
             style={{ borderRadius: 999 }}
+            draggable={false}
           />
 
         
@@ -111,7 +112,7 @@ export default function UserMenu() {
               onClick={handleLogout}
               variant="secondary"
               endIcon={
-                <Image src={LogoutIcon} alt="logout" width={18} height={18} />
+                <Image src={LogoutIcon} alt="logout" width={18} height={18} draggable={false} />
               }
               fullWidth
               size="medium"

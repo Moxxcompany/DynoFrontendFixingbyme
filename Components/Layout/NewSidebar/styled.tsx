@@ -9,7 +9,7 @@ export const SidebarWrapper = styled("aside")(({ theme }) => ({
   flexDirection: "column",
   justifyContent: "space-between",
   borderRadius: "14px",
-  outline: `1px solid ${theme.palette.border.main}`,
+  border: `1px solid ${theme.palette.border.main}`,
   padding: "16px",
   overflow: "auto",
 }));

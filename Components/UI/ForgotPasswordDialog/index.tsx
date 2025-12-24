@@ -161,6 +161,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
                 alt="close icon"
                 width={16}
                 height={16}
+                draggable={false}
               />
             </DialogCloseButton>
           }

@@ -112,13 +112,13 @@ const InputField: React.FC<InputFieldProps> = ({
   const inputType =
     showPasswordToggle && type === "password" && showPassword ? "text" : type;
 
-  const borderColor = success ? "#4CAF50" : error ? "#F44336" : "#E9ECF2";
+  const borderColor = success ? theme.palette.success.main : error ? theme.palette.error.main : theme.palette.border.main;
   const borderWidth = "1px";
   const focusBorderColor = success
-    ? "#4CAF50"
+    ? theme.palette.success.main
     : error
-    ? "#F44336"
-    : theme.palette.primary.light;
+    ? theme.palette.error.main
+    : theme.palette.border.focus;
 
   // Helper function to render the side button icon
   const renderSideButtonIcon = () => {
@@ -150,6 +150,7 @@ const InputField: React.FC<InputFieldProps> = ({
             width: iconSize,
             height: iconSize,
           }}
+          draggable={false}
         />
       );
     }
@@ -196,6 +197,7 @@ const InputField: React.FC<InputFieldProps> = ({
             color: disabled ? "#B0BEC5" : "#242428",
             lineHeight: "1.2",
           }}
+          className="label"
         >
           {label}
         </Typography>

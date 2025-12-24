@@ -7,6 +7,28 @@ export const ApiKeyCard = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
+export const ApiKeyCardSubTitle = styled(Typography)(({ theme }) => ({
+  fontSize: 14,
+  color: theme.palette.text.primary,
+  fontWeight: 500,
+  lineHeight: "17px",
+  fontFamily: "UrbanistMedium",
+
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
+
+  "& .flag": {
+    display: "inline-flex",
+    alignItems: "center",
+  },
+
+  "& img": {
+    display: "block",
+    position: "relative",
+  },
+}));
+
 export const ApiKeyCardBody = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
@@ -15,7 +37,7 @@ export const ApiKeyCardBody = styled(Box)(({ theme }) => ({
 
 export const ApiKeyCardTopRow = styled(Box)(({ theme }) => ({
   display: "flex",
-  alignItems: "center",
+  alignItems: "end",
   justifyContent: "space-between",
   //   flexWrap: "wrap",
 }));
@@ -55,14 +77,14 @@ export const Tags = styled(Typography)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: 4,
-  backgroundColor: "#EAFFF0",
-  color: "#47B464",
+  backgroundColor: theme.palette.success.main,
+  color: theme.palette.success.dark,
   padding: "4px 8px",
   borderRadius: 50,
   fontSize: 13,
   lineHeight: 1.54,
   fontWeight: 500,
-  border: "1px solid #DCF6E4",
+  border: `1px solid ${theme.palette.success.light}`,
   textTransform: "capitalize",
   fontFamily: "UrbanistMedium",
   position: "absolute",
@@ -77,7 +99,6 @@ export const ApiDocsCardRoot = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   gap: theme.spacing(2),
 }));
-
 
 export const InfoText = styled(Typography)(({ theme }) => ({
   fontSize: 15,

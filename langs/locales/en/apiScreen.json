@@ -9,6 +9,7 @@
     "viewDocumentation": "View Documentation",
     "infoIconAlt": "information"
   },
+  "api":"API",
   "icons": {
     "copyAlt": "copy",
     "eyeAlt": "view",
@@ -32,7 +33,8 @@
     "copied": "Copied!"
   },
   "delete": {
-    "confirmMessage": "Are you sure you want to delete this API key?",
+    "title": "Delete API key",
+    "confirmMessage": "Are you sure you want to delete this API key? Applications using this key will no longer be able to access the API. This action cannot be undone.",
     "confirmButton": "Delete"
   },
   "keys": {
@@ -49,6 +51,8 @@
     "submit": "Generate",
     "keyName": "Key Name",
     "keyNamePlaceholder": "Enter key name",
+    "baseCurrency": "Base Currency",
+    "baseCurrencyPlaceholder": "Enter base currency",
     "keyNameDescription": "Key Permissions",
     "keyNameDescription1": "Create and manage payment requests",
     "keyNameDescription2": "View transaction history",
@@ -56,7 +60,10 @@
     "keyNameDescription4": "Access wallet information",
     "successTitle": "API Key Generated",
     "successSubtitle": "Save this key now - you won't be able to see it again",
-    "yourKey": "Your API Key"
+    "yourKey": "API Key",
+    "adminToken": "Admin Token",
+    "securityTitle": "Important Security Notice",
+    "securityMessage": "Make sure to copy your API key now. For security reasons, we won't show it again. Store it securely and never share it publicly."
   },
   "withdrawalWhitelist": {
     "title": "Withdrawal Whitelist",

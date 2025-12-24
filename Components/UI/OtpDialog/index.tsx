@@ -450,7 +450,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
         title={dialogTitle}
         headerIcon={
           contactType === "email" ? (
-            <Image src={EnvelopeIcon} alt="email icon" width={24} height={24} />
+            <Image src={EnvelopeIcon} alt="email icon" width={24} height={24} draggable={false} />
           ) : undefined
         }
         headerAction={
@@ -460,6 +460,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
               alt="close icon"
               width={16}
               height={16}
+              draggable={false}
             />
           </DialogCloseButton>
         }

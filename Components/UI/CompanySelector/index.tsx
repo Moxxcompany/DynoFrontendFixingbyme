@@ -130,7 +130,7 @@ export default function CompanySelector() {
                 role="button"
                 tabIndex={0}
               >
-                <Image src={EditIcon} width={18} height={18} alt="edit" />
+                <Image src={EditIcon} width={18} height={18} alt="edit" draggable={false} />
               </ItemRight>
             </CompanyItem>
           ))}

@@ -261,6 +261,7 @@ const UpdatePassword = () => {
                         alt="info-icon"
                         width={16}
                         height={16}
+                        draggable={false}
                       />
                     </InfoIconBox>
                     <InfoText>{t("infoText")}</InfoText>

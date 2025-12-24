@@ -14,12 +14,14 @@ declare module "@mui/material/Button" {
 declare module "@mui/material/styles" {
   interface Palette {
     border: {
+      focus: any;
       main: string;
     };
   }
   interface PaletteOptions {
     border?: {
       main?: string;
+      focus?: string;
     };
   }
 }
@@ -43,11 +45,17 @@ export const theme = createTheme({
       black: "#12131C",
       white: "#fff",
     },
+    success: {
+      main: "#EAFFF0",
+      dark: "#47B464",
+      light: "#DCF6E4",
+    },
     error: {
       main: "#E8484A",
     },
     border: {
-      main: "#E9ECF2", //border color
+      main: "#E9ECF2",
+      focus: "#A3A6AC",
     },
     primary: {
       main: "#0004FF", //Dark Blue

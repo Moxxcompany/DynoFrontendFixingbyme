@@ -19,6 +19,7 @@ i18n.use(initReactI18next).init({
       profile: require("./langs/locales/en/profile.json"),
       notifications: require("./langs/locales/en/notifications.json"),
       apiScreen: require("./langs/locales/en/apiScreen.json"),
+      walletScreen: require("./langs/locales/en/walletScreen.json"),
       companyDialog: require("./langs/locales/en/companyDialog.json"),
     },
     pt: {
@@ -28,6 +29,7 @@ i18n.use(initReactI18next).init({
       profile: require("./langs/locales/pt/profile.json"),
       notifications: require("./langs/locales/pt/notifications.json"),
       apiScreen: require("./langs/locales/pt/apiScreen.json"),
+      walletScreen: require("./langs/locales/pt/walletScreen.json"),
       companyDialog: require("./langs/locales/pt/companyDialog.json"),
     },
     fr: {

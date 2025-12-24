@@ -142,6 +142,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
             alt="Profile photo"
             fill
             style={{ objectFit: "cover", borderRadius: "50%" }}
+            draggable={false}
           />
         </Box>
 
@@ -167,6 +168,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                     alt="camera-icon"
                     width={14}
                     height={12}
+                    draggable={false}
                   />
                 }
                 iconSize={18}
@@ -197,6 +199,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                     alt="trash-icon"
                     width={12}
                     height={12}
+                    draggable={false}
                   />
                 }
                 iconSize={18}

@@ -1,17 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import {
-  Box,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 
 import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
-import CustomAlert from "@/Components/UI/CustomAlert";
 
 import { ApiAction, CompanyAction } from "@/Redux/Actions";
 import { API_DELETE, API_FETCH, API_INSERT } from "@/Redux/Actions/ApiAction";
@@ -37,12 +32,14 @@ import {
   ApiKeyDeleteButton,
   ApiKeyViewButton,
   Tags,
-  ApiDocsCardRoot,
   InfoText,
+  ApiKeyCardSubTitle,
 } from "./styled";
 import { theme } from "@/styles/theme";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CreateApiModel from "@/Components/UI/ApiKeysModel/CreateApiModel";
+import DeleteModel from "@/Components/UI/DeleteModel";
+import UnitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
 
 const companyInitial = {
   company_id: 0,
@@ -60,8 +57,6 @@ function isDevKey(key: string) {
   return k.includes("test") || k.startsWith("dpk_test") || k.startsWith("test");
 }
 
-
-
 type ApiRow = any;
 
 const ApiDocumentationCard = ({ docsUrl }: { docsUrl: string }) => {
@@ -76,6 +71,7 @@ const ApiDocumentationCard = ({ docsUrl }: { docsUrl: string }) => {
           alt={t("documentation.infoIconAlt")}
           width={18}
           height={18}
+          draggable={false}
         />
       }
       showHeaderBorder={false}
@@ -84,7 +80,6 @@ const ApiDocumentationCard = ({ docsUrl }: { docsUrl: string }) => {
       sx={{
         position: "relative",
         overflow: "hidden",
-        height: "100%",
         borderRadius: "14px",
         "&::after": {
           content: '""',
@@ -164,9 +159,35 @@ const ApiKeyCard = ({
       }
       sx={{ height: "100%", borderRadius: "14px" }}
     >
+      <ApiKeyCardSubTitle>
+        Base currency
+        <span className="flag">
+          <Image
+            src={UnitedStatesFlag.src}
+            alt="United States Flag"
+            width={16}
+            height={16}
+            draggable={false}
+          />
+        </span>
+        USD
+      </ApiKeyCardSubTitle>
+
       <ApiKeyCardBody sx={{ pt: "18px" }}>
         <ApiKeyCardTopRow sx={{ gap: 1.25 }}>
-          <InputField />
+          <InputField
+            label={t("api")}
+            sx={{
+              width: "100%",
+              "& .label": {
+                fontSize: "13px",
+                lineHeight: "16px",
+                fontFamily: "UrbanistMedium",
+                fontWeight: 500,
+                color: theme.palette.text.secondary,
+              },
+            }}
+          />
 
           <ApiKeyCopyButton>
             <Image
@@ -174,6 +195,7 @@ const ApiKeyCard = ({
               alt={t("icons.copyAlt")}
               width={14}
               height={14}
+              draggable={false}
             />
           </ApiKeyCopyButton>
           <ApiKeyViewButton size="small" onClick={() => setShow(!show)}>
@@ -182,19 +204,52 @@ const ApiKeyCard = ({
               alt={t("icons.eyeAlt")}
               width={20}
               height={14}
+              draggable={false}
+            />
+          </ApiKeyViewButton>
+        </ApiKeyCardTopRow>
+        <ApiKeyCardTopRow sx={{ gap: 1.25 }}>
+          <InputField
+            label={t("generate.adminToken")}
+            sx={{
+              width: "100%",
+              "& .label": {
+                fontSize: "13px",
+                lineHeight: "16px",
+                fontFamily: "UrbanistMedium",
+                fontWeight: 500,
+                color: theme.palette.text.secondary,
+              },
+            }}
+          />
+
+          <ApiKeyCopyButton>
+            <Image
+              src={CopyIcon.src}
+              alt={t("icons.copyAlt")}
+              width={14}
+              height={14}
+              draggable={false}
+            />
+          </ApiKeyCopyButton>
+          <ApiKeyViewButton size="small" onClick={() => setShow(!show)}>
+            <Image
+              src={EyeIcon.src}
+              alt={t("icons.eyeAlt")}
+              width={20}
+              height={14}
+              draggable={false}
             />
           </ApiKeyViewButton>
         </ApiKeyCardTopRow>
         <ApiKeyCardTopRow>
-          <ApiKeyDeleteButton
-            size="small"
-            onClick={() => onDelete(Number(apiRow?.api_id))}
-          >
+          <ApiKeyDeleteButton size="small" onClick={() => onDelete(Number(1))}>
             <Image
               src={TrashIcon.src}
               alt={t("icons.trashAlt")}
               width={16}
               height={16}
+              draggable={false}
             />
           </ApiKeyDeleteButton>
 
@@ -291,16 +346,6 @@ const ApiKeysPage = ({
     setOpenCreate(false);
   };
 
-  const handleCreateSubmit = (values: any) => {
-    dispatch(
-      ApiAction(API_INSERT, {
-        ...values,
-        withdrawal_whitelist: values.withdrawal_whitelist,
-      })
-    );
-    setOpenCreate(false);
-  };
-
   const requestDelete = (apiId: number) => {
     if (!apiId) return;
     setDeleteId(apiId);
@@ -319,7 +364,17 @@ const ApiKeysPage = ({
 
   return (
     <>
-      <CustomAlert
+      <DeleteModel
+        open={confirmDeleteOpen}
+        onClose={() => {
+          setConfirmDeleteOpen(false);
+          setDeleteId(0);
+        }}
+        onConfirm={confirmDelete}
+        title={t("delete.title")}
+        message={t("delete.confirmMessage")}
+      />
+      {/* <CustomAlert
         open={confirmDeleteOpen}
         handleClose={() => {
           setConfirmDeleteOpen(false);
@@ -328,9 +383,9 @@ const ApiKeysPage = ({
         message={t("delete.confirmMessage")}
         confirmText={t("delete.confirmButton")}
         onConfirm={confirmDelete}
-      />
+      /> */}
 
-      <Grid container spacing={2.5} sx={{ mb: 2.5 }}>
+      <Grid container spacing={2.5} sx={{ mb: 2.5 }} alignItems="flex-start">
         <Grid item xs={12} md={4}>
           <ApiKeyCard
             title={t("keys.production")}

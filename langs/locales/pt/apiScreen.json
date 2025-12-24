@@ -9,6 +9,7 @@
     "viewDocumentation": "Ver documentação",
     "infoIconAlt": "informação"
   },
+  "api":"API",
   "icons": {
     "copyAlt": "copiar",
     "eyeAlt": "visualizar",
@@ -32,7 +33,8 @@
     "copied": "Copiado!"
   },
   "delete": {
-    "confirmMessage": "Tem certeza de que deseja excluir esta chave de API?",
+    "title": "Excluir chave de API",
+    "confirmMessage": "Tem certeza de que deseja excluir esta chave de API? Os aplicativos que usam esta chave não poderão mais acessar a API. Esta ação não pode ser desfeita.",
     "confirmButton": "Excluir"
   },
   "keys": {
@@ -48,6 +50,8 @@
     "modalSubtitle": "Gere uma nova chave de API para integrar o DynoPay ao seu aplicativo",
     "submit": "Gerar",
     "keyName": "Nome da chave",
+    "baseCurrency": "Moeda base",
+    "baseCurrencyPlaceholder": "Digite a moeda base",
     "keyNamePlaceholder": "Digite o nome da chave",
     "keyNameDescription": "Permissões da chave",
     "keyNameDescription1": "Criar e gerenciar solicitações de pagamento",
@@ -56,7 +60,10 @@
     "keyNameDescription4": "Acessar informações da carteira",
     "successTitle": "Chave de API Gerada",
     "successSubtitle": "Salve esta chave agora - você não poderá vê-la novamente",
-    "yourKey": "Sua Chave de API"
+    "yourKey": "Chave de API",
+    "adminToken": "Token de administração",
+    "securityTitle": "Aviso de Segurança Importante",
+    "securityMessage": "Certifique-se de copiar sua chave de API agora. Por motivos de segurança, não a mostraremos novamente. Armazene-a com segurança e nunca a compartilhe publicamente."
   },
   "withdrawalWhitelist": {
     "title": "Lista de permissões de saque",

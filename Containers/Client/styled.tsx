@@ -23,8 +23,8 @@ export const PageHeaderTitle = styled(Typography)(({ theme }) => ({
   fontFamily: "UrbanistMedium",
   lineHeight: 1.2,
   mb: 1,
-  [theme.breakpoints.up("md")]: {
-    fontSize: "32px",
+  [theme.breakpoints.down("md")]: {
+    fontSize: "22px",
   },
 }));
 

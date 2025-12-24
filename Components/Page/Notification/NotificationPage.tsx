@@ -129,6 +129,7 @@ const NotificationPage = () => {
                     alt="bell-icon"
                     width={20}
                     height={20}
+                    draggable={false}
                   />
                 </IconButton>
               }
@@ -177,6 +178,7 @@ const NotificationPage = () => {
                     alt="mobile-icon"
                     width={20}
                     height={20}
+                    draggable={false}
                   />
                 </IconButton>
               }
@@ -230,6 +232,7 @@ const NotificationPage = () => {
                     alt="envelope-icon"
                     width={20}
                     height={20}
+                    draggable={false}
                   />
                 </IconButton>
               }
