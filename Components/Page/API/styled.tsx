@@ -48,6 +48,18 @@ export const ApiKeyViewButton = styled(IconButton)(({ theme }) => ({
   width: 40,
   height: 40,
   backgroundColor: "#fff",
+  [theme.breakpoints.down("md")]: {
+    width: 32,
+    height: 32,
+  },
+  "& img": {
+    width: 20,
+    height: 14,
+    [theme.breakpoints.down("md")]: {
+      width: 14,
+      height: 10,
+    },
+  },
 }));
 
 export const ApiKeyCopyButton = styled(IconButton)(({ theme }) => ({
@@ -56,21 +68,53 @@ export const ApiKeyCopyButton = styled(IconButton)(({ theme }) => ({
   width: 40,
   height: 40,
   backgroundColor: "#fff",
+  [theme.breakpoints.down("md")]: {
+    width: 32,
+    height: 32,
+  },
+  "& img": {
+    width: 14,
+    height: 14,
+    [theme.breakpoints.down("md")]: {
+      width: 12,
+      height: 12,
+    },
+  },
 }));
+
 export const ApiKeyDeleteButton = styled(IconButton)(({ theme }) => ({
   border: `1px solid ${theme.palette.border.main}`,
   borderRadius: 6,
   width: 40,
   height: 40,
   backgroundColor: "#fff",
+  [theme.breakpoints.down("md")]: {
+    width: 32,
+    height: 32,
+  },
+  "& img": {
+    width: 14,
+    height: 14,
+    [theme.breakpoints.down("md")]: {
+      width: 12,
+      height: 12,
+    },
+  },
 }));
 
 export const ApiKeyCreatedText = styled(Typography)(({ theme }) => ({
-  fontSize: 13,
   color: theme.palette.text.secondary,
   display: "flex",
-  alignItems: "baseline",
+  alignItems: "center",
   gap: 4,
+  "& .created-on-text": {
+    fontSize: 13,
+  },
+  [theme.breakpoints.down("md")]: {
+    "& .created-on-text": {
+      fontSize: 10,
+    },
+  },
 }));
 
 export const Tags = styled(Typography)(({ theme }) => ({

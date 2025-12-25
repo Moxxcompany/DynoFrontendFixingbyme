@@ -91,6 +91,14 @@ const ApiDocumentationCard = ({ docsUrl }: { docsUrl: string }) => {
           backgroundRepeat: "no-repeat",
           zIndex: 0,
           pointerEvents: "none",
+          width: "70%",
+          height: "100%",
+          marginLeft: "auto",
+          marginRight: "0.5rem",
+          [theme.breakpoints.down("md")]: {
+            backgroundPosition: "left",
+            marginRight: "0",
+          },
         },
       }}
       headerSx={{
@@ -176,7 +184,7 @@ const ApiKeyCard = ({
       <ApiKeyCardBody sx={{ pt: "18px" }}>
         <ApiKeyCardTopRow sx={{ gap: 1.25 }}>
           <InputField
-            label={t("api")}
+            label={t("generate.yourKey")}
             sx={{
               width: "100%",
               "& .label": {
@@ -242,7 +250,7 @@ const ApiKeyCard = ({
             />
           </ApiKeyViewButton>
         </ApiKeyCardTopRow>
-        <ApiKeyCardTopRow>
+        <ApiKeyCardTopRow sx={{ alignItems: "center" }}>
           <ApiKeyDeleteButton size="small" onClick={() => onDelete(Number(1))}>
             <Image
               src={TrashIcon.src}
@@ -257,7 +265,7 @@ const ApiKeyCard = ({
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <AccessTimeFilledIcon sx={{ fontSize: 13 }} />
             </Box>
-            <Typography component="span">
+            <Typography component="span" className="created-on-text">
               {t("createdOn", { date: "17/12/2025 at 10:00:00" })}
             </Typography>
           </ApiKeyCreatedText>
@@ -386,7 +394,7 @@ const ApiKeysPage = ({
       /> */}
 
       <Grid container spacing={2.5} sx={{ mb: 2.5 }} alignItems="flex-start">
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6} lg={6} xl={4}>
           <ApiKeyCard
             title={t("keys.production")}
             apiRow={prodKey}
@@ -394,7 +402,7 @@ const ApiKeysPage = ({
             onDelete={requestDelete}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6} lg={6} xl={4}>
           <ApiKeyCard
             title={t("keys.development")}
             apiRow={devKey}
@@ -402,7 +410,7 @@ const ApiKeysPage = ({
             onDelete={requestDelete}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={6} lg={6} xl={4}>
           <ApiDocumentationCard docsUrl={docsUrl} />
         </Grid>
       </Grid>

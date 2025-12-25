@@ -14,7 +14,7 @@ import { StaticImageData } from "next/image";
 import useIsMobile from "@/hooks/useIsMobile";
 
 export interface InputFieldProps {
-  label?: string;
+  label?: string | React.ReactNode | React.ReactElement;
   placeholder?: string;
   value?: string;
   name?: string;
@@ -203,7 +203,7 @@ const InputField: React.FC<InputFieldProps> = ({
           }}
           className="label"
         >
-          {label}
+          {typeof label === "string" ? <span>{label}</span> : label}
         </Typography>
       )}
 

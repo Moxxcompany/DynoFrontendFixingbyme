@@ -14,6 +14,9 @@ export const PageHeader = styled(Box)(({ theme }) => ({
   top: 0,
   zIndex: 10,
   backgroundColor: theme.palette.secondary.main,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
 }));
 
 export const PageHeaderTitle = styled(Typography)(({ theme }) => ({
@@ -35,8 +38,8 @@ export const PageHeaderDescription = styled(Typography)(({ theme }) => ({
   lineHeight: 1.5,
   fontFamily: "UrbanistMedium",
   paddingLeft: 0,
-  [theme.breakpoints.up("md")]: {
-    fontSize: "16px",
+  [theme.breakpoints.down("md")]: {
+    fontSize: "13px",
     paddingLeft: theme.spacing(0.5),
   },
 }));

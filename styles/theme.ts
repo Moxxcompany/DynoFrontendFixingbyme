@@ -66,7 +66,7 @@ export const theme = createTheme({
     secondary: {
       main: "#f4f6fa", //background color
       dark: "#E9ECF2",
-      light: "#585ed8",
+      light: "#F4F6FA",
     },
     text: {
       primary: "#242428",

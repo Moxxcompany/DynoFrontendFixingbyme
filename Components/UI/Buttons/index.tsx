@@ -86,6 +86,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       backgroundColor: theme.palette.common.white,
       color: theme.palette.text.primary,
       border: `1px solid ${theme.palette.border.main}`,
+      fontWeight: 400,
       fontFamily: "UrbanistRegular",
       fontSize: "15px",
       "&:hover": {

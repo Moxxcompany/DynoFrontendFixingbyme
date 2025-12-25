@@ -9,8 +9,7 @@
     "viewDocumentation": "View Documentation",
     "infoIconAlt": "information"
   },
-  "api":"API",
-  "icons": {
+    "icons": {
     "copyAlt": "copy",
     "eyeAlt": "view",
     "trashAlt": "delete"
