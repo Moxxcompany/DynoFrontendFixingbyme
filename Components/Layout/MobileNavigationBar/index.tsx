@@ -49,8 +49,8 @@ const MobileNavigationBar = () => {
   const languages = [
     { code: "pt", label: "Português", flag: portugalFlag },
     { code: "en", label: "English", flag: unitedStatesFlag },
-    { code: "fr", label: "Français", flag: franceFlag },
-    { code: "es", label: "Español", flag: spainFlag },
+    // { code: "fr", label: "Français", flag: franceFlag },
+    // { code: "es", label: "Español", flag: spainFlag },
   ];
 
   // First row items (5 items)
@@ -189,7 +189,7 @@ const MobileNavigationBar = () => {
                   const active = isActiveRoute(item.path);
                   const isCreate = item.id === "create";
                   const currentLang = i18n.language || "en";
-                  
+
                   return (
                     <NavItem
                       key={item.id}

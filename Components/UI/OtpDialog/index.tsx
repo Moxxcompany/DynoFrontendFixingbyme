@@ -32,6 +32,7 @@ export interface OtpDialogProps {
   countdown?: number; // Countdown in seconds
   loading?: boolean;
   error?: string;
+  preventClose?: boolean; // Prevent closing when countdown is active
 }
 
 const otpInitial = {
@@ -60,6 +61,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
   countdown = 0,
   loading = false,
   error,
+  preventClose = false,
 }) => {
   const { t } = useTranslation("auth");
   const theme = useTheme();
@@ -118,8 +120,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
     // Only allow numbers
     const numericValue = value.replace(/\D/g, "");
 
-    // If multiple digits are entered (e.g., from paste or rapid typing), take only the first
-    const singleDigit = numericValue.slice(0, 1);
+    const singleDigit = numericValue.length > 0 ? numericValue.slice(-1) : "";
     const fieldName = `otp${index + 1}`;
 
     const e: any = {
@@ -322,15 +323,15 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
 
     // Determine starting index - start from the field where paste occurred
     let firstEmptyIndex = startIndex;
-    
-    // If pasting into a filled field, start from that field (replace from there)
-    // If pasting into an empty field, find the first empty field from the start
     const currentFieldValue = currentValues[`otp${startIndex + 1}`];
     if (!currentFieldValue || currentFieldValue.length === 0) {
       // Find first empty field to start filling from
       for (let i = 0; i < otpLength; i++) {
         const fieldName = `otp${i + 1}`;
-        if (!currentValues[fieldName] || currentValues[fieldName].length === 0) {
+        if (
+          !currentValues[fieldName] ||
+          currentValues[fieldName].length === 0
+        ) {
           firstEmptyIndex = i;
           break;
         }
@@ -362,23 +363,26 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
       firstEmptyIndex + digitsToFill.length - 1,
       otpLength - 1
     );
-    
+
     // Use setTimeout to ensure all state updates are processed before focusing
     setTimeout(() => {
       const latestValues = formValuesRef.current || currentValues;
       let nextFocusIndex = lastFilledIndex;
-      
+
       // Check if all fields are now filled
       const allFilled = Array.from({ length: otpLength }).every((_, idx) => {
         const fieldName = `otp${idx + 1}`;
         return latestValues[fieldName] && latestValues[fieldName].length > 0;
       });
-      
+
       if (!allFilled) {
         // Find next empty field
         for (let i = lastFilledIndex + 1; i < otpLength; i++) {
           const fieldName = `otp${i + 1}`;
-          if (!latestValues[fieldName] || latestValues[fieldName].length === 0) {
+          if (
+            !latestValues[fieldName] ||
+            latestValues[fieldName].length === 0
+          ) {
             nextFocusIndex = i;
             break;
           }
@@ -387,7 +391,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
         // All filled, focus last field
         nextFocusIndex = otpLength - 1;
       }
-      
+
       const nextField = inputRefs.current[nextFocusIndex];
       if (nextField) {
         nextField.focus();
@@ -420,12 +424,28 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
     }
   }, [error]);
 
+  // Handle close - prevent if preventClose is true
+  const handleClose = () => {
+    if (!preventClose) {
+      onClose();
+    }
+  };
+
   return (
     <PopupModal
       open={open}
-      handleClose={onClose}
+      handleClose={handleClose}
       showHeader={false}
       transparent
+      disableEscapeKeyDown={preventClose}
+      onClose={(event, reason) => {
+        if (preventClose) {
+          return;
+        }
+        if (reason === "backdropClick" || reason === "escapeKeyDown") {
+          onClose();
+        }
+      }}
       sx={{
         "& .MuiDialog-paper": {
           borderRadius: "14px",
@@ -450,11 +470,23 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
         title={dialogTitle}
         headerIcon={
           contactType === "email" ? (
-            <Image src={EnvelopeIcon} alt="email icon" width={24} height={24} draggable={false} />
+            <Image
+              src={EnvelopeIcon}
+              alt="email icon"
+              width={24}
+              height={24}
+              draggable={false}
+            />
           ) : undefined
         }
         headerAction={
-          <DialogCloseButton onClick={onClose}>
+          <DialogCloseButton
+            onClick={handleClose}
+            sx={{
+              cursor: preventClose ? "not-allowed" : "pointer",
+              opacity: preventClose ? 0.5 : 1,
+            }}
+          >
             <Image
               src={CloseIcon.src}
               alt="close icon"
@@ -557,20 +589,27 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
             touched,
             values,
           }) => {
-            // Store values in ref for auto-submit check
             formValuesRef.current = values;
+
+            const checkAllFieldsFilled = (currentValues: any) => {
+              for (let idx = 0; idx < otpLength; idx++) {
+                const fieldName = `otp${idx + 1}`;
+                const fieldValue = currentValues[fieldName];
+                if (
+                  fieldValue === undefined ||
+                  fieldValue === null ||
+                  String(fieldValue).trim().length === 0
+                ) {
+                  return false;
+                }
+              }
+              return true;
+            };
+            const areAllFieldsFilled = checkAllFieldsFilled(values);
 
             // Helper function to check and auto-submit
             const checkAutoSubmit = (currentValues: any) => {
-              const allFilled = Array.from({ length: otpLength }).every(
-                (_, idx) => {
-                  const fieldName = `otp${idx + 1}`;
-                  return (
-                    currentValues[fieldName] &&
-                    currentValues[fieldName].length > 0
-                  );
-                }
-              );
+              const allFilled = checkAllFieldsFilled(currentValues);
 
               if (allFilled && !loading && !submitDisable) {
                 const otp = Object.keys(currentValues)
@@ -624,7 +663,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                         values[fieldName] && values[fieldName].length > 0;
                       const hasError = !!error;
                       const isFocused = focusedIndex === index;
-                      
+
                       return (
                         <Box
                           key={fieldName}
@@ -639,16 +678,33 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                             name={fieldName}
                             type="text"
                             onChange={(e) => {
+                              const inputValue = e.target.value;
+
+                              const currentFieldValue = values[fieldName] || "";
+
+                              let valueToProcess = inputValue;
+                              if (inputValue.length > 1) {
+                                valueToProcess = inputValue.slice(-1);
+                              } else if (inputValue.length === 0) {
+                                valueToProcess = "";
+                              }
+
                               handleOtpChange(
                                 index,
-                                e.target.value,
+                                valueToProcess,
                                 handleChange,
                                 values
                               );
 
+                              const updatedValues = {
+                                ...values,
+                                [fieldName]: valueToProcess,
+                              };
+                              formValuesRef.current = updatedValues;
+
                               setTimeout(() => {
                                 const latestValues =
-                                  formValuesRef.current || values;
+                                  formValuesRef.current || updatedValues;
                                 checkAutoSubmit(latestValues);
                               }, 100);
                             }}
@@ -668,6 +724,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                                 checkAutoSubmit(latestValues);
                               }, 100);
                             }}
+                            autoComplete="off"
                             error={hasError}
                             success={hasValue && !hasError}
                             fullWidth
@@ -680,28 +737,19 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                             sx={{
                               "& .MuiOutlinedInput-root": {
                                 borderRadius: "12px !important",
-                                backgroundColor: "#FFFFFF",
+                                backgroundColor: "#e5edff66 !important",
                                 "& fieldset": {
-                                  borderColor: hasError
-                                    ? "#F44336"
-                                    : hasValue && !hasError
-                                    ? "#99D985"
-                                    : "#E9ECF2",
+                                  borderColor:
+                                    theme.palette.border.main + " !important",
                                   borderWidth: "1px",
                                 },
                                 "&:hover fieldset": {
-                                  borderColor: hasError
-                                    ? "#F44336"
-                                    : hasValue && !hasError
-                                    ? "#99D985"
-                                    : "#E9ECF2",
+                                  borderColor:
+                                    theme.palette.primary.main + " !important",
                                 },
                                 "&.Mui-focused fieldset": {
-                                  borderColor: hasError
-                                    ? "#F44336"
-                                    : hasValue && !hasError
-                                    ? "#99D985"
-                                    : "#E9ECF2",
+                                  borderColor:
+                                    theme.palette.primary.main + " !important",
                                   borderWidth: "1px",
                                 },
                               },
@@ -781,11 +829,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                     size="medium"
                     label={dialogPrimaryButtonLabel}
                     type="submit"
-                    disabled={
-                      submitDisable ||
-                      loading ||
-                      !Object.values(values).every((val) => val)
-                    }
+                    disabled={submitDisable || loading || !areAllFieldsFilled}
                     sx={{
                       fontWeight: 700,
                       padding: "15px 24px",

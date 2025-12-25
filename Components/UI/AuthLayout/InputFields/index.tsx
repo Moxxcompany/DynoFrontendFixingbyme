@@ -7,8 +7,6 @@ import {
   Typography,
 } from "@mui/material";
 import { SxProps, Theme } from "@mui/system";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import EditIcon from "@mui/icons-material/Edit";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
@@ -57,6 +55,7 @@ export interface InputFieldProps {
     | "decimal"
     | "search";
   inputRef?: React.Ref<HTMLInputElement>;
+  autoComplete?: string;
 }
 
 /**
@@ -100,6 +99,7 @@ const InputField: React.FC<InputFieldProps> = ({
   inputHeight,
   iconBoxSize,
   inputRef,
+  autoComplete,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
@@ -112,7 +112,11 @@ const InputField: React.FC<InputFieldProps> = ({
   const inputType =
     showPasswordToggle && type === "password" && showPassword ? "text" : type;
 
-  const borderColor = success ? theme.palette.success.main : error ? theme.palette.error.main : theme.palette.border.main;
+  const borderColor = success
+    ? theme.palette.success.main
+    : error
+    ? theme.palette.error.main
+    : theme.palette.border.main;
   const borderWidth = "1px";
   const focusBorderColor = success
     ? theme.palette.success.main
@@ -194,7 +198,7 @@ const InputField: React.FC<InputFieldProps> = ({
             fontWeight: 500,
             fontSize: isMobile ? "13px" : "15px",
             textAlign: "start",
-            color: disabled ? "#B0BEC5" : "#242428",
+            color: "#242428",
             lineHeight: "1.2",
           }}
           className="label"
@@ -226,6 +230,7 @@ const InputField: React.FC<InputFieldProps> = ({
             onBlur={onBlur}
             onFocus={onFocus}
             onKeyDown={onKeyDown}
+            onPaste={onPaste}
             type={inputType}
             variant={variant}
             disabled={disabled}
@@ -234,6 +239,7 @@ const InputField: React.FC<InputFieldProps> = ({
               readOnly: readOnly,
               maxLength: maxLength,
               inputMode: inputMode,
+              autoComplete: autoComplete,
               style: {
                 cursor: readOnly ? "not-allowed" : "auto",
               },
@@ -280,7 +286,7 @@ const InputField: React.FC<InputFieldProps> = ({
                 backgroundColor: disabled
                   ? "#F5F5F5"
                   : success
-                  ? "#F1F8F6"
+                  ? "#E5EDFF"
                   : error
                   ? "#FFFBFB"
                   : "#FFFFFF",
@@ -299,7 +305,7 @@ const InputField: React.FC<InputFieldProps> = ({
                 },
                 "&.Mui-disabled": {
                   backgroundColor: "#F5F5F5",
-                  opacity: 0.6,
+                  opacity: 1,
                 },
                 "& input": {
                   "&:-webkit-autofill": {
@@ -309,7 +315,7 @@ const InputField: React.FC<InputFieldProps> = ({
                 },
               },
               "& .MuiOutlinedInput-input.Mui-disabled": {
-                WebkitTextFillColor: "#B0BEC5",
+                WebkitTextFillColor: "#6b728080",
               },
             }}
           />
