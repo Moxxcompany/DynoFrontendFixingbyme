@@ -106,7 +106,7 @@ const NotificationPage = () => {
 
   return (
     <Box>
-      <Grid container spacing={2.5} sx={{ mb: 4 }}>
+      <Grid container spacing={2.5}>
         {/* Left Column - Two Cards Stacked */}
         <Grid item xs={12} md={6}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>

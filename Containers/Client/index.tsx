@@ -50,7 +50,7 @@ const ClientLayout = ({
             flex: 1,
             overflow: "hidden", // important
             px: { xs: 2, lg: 3 },
-            pb: { xs: 10, lg: 2 }, // Add bottom padding on mobile for bottom nav
+            // pb: { xs: 10, lg: 2 }, // Add bottom padding on mobile for bottom nav
             mt: 3,
           }}
         >
@@ -80,6 +80,7 @@ const ClientLayout = ({
                 height: "100%",
                 overflowY: "auto",
                 overflowX: "hidden",
+                pb: { xs: 10, lg: 0 },
               }}
             >
               {(pageName || pageDescription) && (

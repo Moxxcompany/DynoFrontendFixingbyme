@@ -322,7 +322,7 @@ export default function CompanyDialog({
                           lineHeight: "1.5",
                           color: "#333",
                           "&::placeholder": {
-                            color: "#BDBDBD",
+                            color: theme.palette.secondary.contrastText,
                             fontFamily: "UrbanistMedium",
                           },
                           fontFamily: "UrbanistMedium",

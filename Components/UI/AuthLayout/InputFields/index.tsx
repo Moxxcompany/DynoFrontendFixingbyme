@@ -18,11 +18,11 @@ export interface InputFieldProps {
   placeholder?: string;
   value?: string;
   name?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onPaste?: (e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   type?: "text" | "email" | "password" | "number" | "tel" | "url";
   variant?: "outlined" | "filled" | "standard";
   size?: "small" | "medium";
@@ -56,8 +56,10 @@ export interface InputFieldProps {
     | "numeric"
     | "decimal"
     | "search";
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement | HTMLTextAreaElement>;
   autoComplete?: string;
+  minRows?: number;
+  maxRows?: number;
 }
 
 /**
@@ -102,6 +104,8 @@ const InputField: React.FC<InputFieldProps> = ({
   inputMode,
   inputHeight,
   iconBoxSize,
+  minRows = 1,
+  maxRows,
   inputRef,
   autoComplete,
 }) => {
@@ -227,7 +231,7 @@ const InputField: React.FC<InputFieldProps> = ({
         <Box
           sx={{
             display: "flex",
-            alignItems: "center",
+            alignItems: multiline ? "flex-start" : "center",
             gap: "8px",
             width: fullWidth ? "100%" : "auto",
           }}
@@ -239,8 +243,12 @@ const InputField: React.FC<InputFieldProps> = ({
             onChange={onChange}
             onBlur={onBlur}
             onFocus={onFocus}
-            onKeyDown={onKeyDown}
-            onPaste={onPaste}
+            onKeyDown={onKeyDown as any}
+            onPaste={onPaste
+              ? (e: React.ClipboardEvent<HTMLDivElement>) => {
+                  onPaste(e as any);
+                }
+              : undefined}
             type={inputType}
             variant={variant}
             disabled={disabled}
@@ -256,7 +264,9 @@ const InputField: React.FC<InputFieldProps> = ({
             }}
             fullWidth={sideButton ? false : fullWidth}
             multiline={multiline}
-            rows={multiline ? rows : undefined}
+            rows={multiline && !minRows && !maxRows ? rows : undefined}
+            minRows={multiline ? minRows : undefined}
+            maxRows={multiline ? maxRows : undefined}
             error={error}
             helperText={undefined}
             InputProps={{
@@ -275,20 +285,32 @@ const InputField: React.FC<InputFieldProps> = ({
               boxShadow: "none",
               fontFamily: "UrbanistMedium",
               "& .MuiInputBase-root": {
-                height: inputHeight ?? (isMobile ? "32px" : "40px"),
+                ...(multiline
+                  ? {
+                      minHeight: inputHeight ?? (isMobile ? "32px" : "40px"),
+                      alignItems: "flex-start",
+                      padding: "0px !important",
+                    }
+                  : {
+                      height: inputHeight ?? (isMobile ? "32px" : "40px"),
+                    }),
                 borderRadius: "6px",
                 boxSizing: "border-box",
-                "& input, & textarea & input[type='password']": {
-                  padding: "12px 14px",
+                "& input, & textarea": {
+                  padding: "11px 14px",
                   boxSizing: "border-box",
                   fontSize: isMobile ? "13px" : "15px",
                   lineHeight: "1.5",
                   color: disabled ? "#B0BEC5" : "#333",
                   "&::placeholder": {
-                    color: "#BDBDBD",
+                    color: theme.palette.secondary.contrastText,
                     fontFamily: "UrbanistMedium",
                   },
                   fontFamily: "UrbanistMedium",
+                },
+                "& textarea": {
+                  resize: "none",
+                  overflow: "auto",
                 },
               },
               "& .MuiOutlinedInput-root": {
@@ -376,12 +398,13 @@ const InputField: React.FC<InputFieldProps> = ({
             sx={{
               margin: "4px 0 0 0",
               fontSize: isMobile ? "10px" : "13px",
-              // fontFamily: "UrbanistRegular",
+              fontFamily: "UrbanistMedium",
               fontWeight: 500,
-              color: error ? "#F44336" : "#676768",
-              lineHeight: "1.5",
+              color: error ? theme.palette.error.main : theme.palette.secondary.contrastText,
+              lineHeight: "1.2",
               textAlign: "start",
             }}
+            className="helper-text"
           >
             {helperText}
           </Typography>
