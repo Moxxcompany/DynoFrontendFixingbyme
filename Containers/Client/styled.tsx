@@ -17,6 +17,7 @@ export const PageHeader = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
+  gap: theme.spacing(2),
 }));
 
 export const PageHeaderTitle = styled(Typography)(({ theme }) => ({

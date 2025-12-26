@@ -193,14 +193,17 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
               flex: 1,
             }}
           >
-            {/* <CryptocurrencyIcon
-              src={selectedCrypto.icon}
-              alt={selectedCrypto.name}
-              width={24}
-              height={24}
-            /> */}
+            <IconChip sx={{ minWidth: "fit-content",height: "28px" }}>
+              <CryptocurrencyIcon
+                src={selectedCrypto.icon}
+                alt={selectedCrypto.name}
+                width={20}
+                height={20}
+              />
+              <span>{selectedCrypto.code}</span>
+            </IconChip>
             <CryptocurrencyText isMobile={isMobile}>
-              {selectedCrypto.name} ({selectedCrypto.code})
+              {selectedCrypto.name}
             </CryptocurrencyText>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -269,7 +272,7 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                 }}
               >
                 <IconChip sx={{ minWidth: "fit-content" }}>
-                  <CryptocurrencyIcon src={crypto.icon} alt={crypto.name} />
+                  <CryptocurrencyIcon src={crypto.icon} alt={crypto.name} width={20} height={20} />
                   <span>{crypto.code}</span>
                 </IconChip>
                 <ListItemText

@@ -30,6 +30,7 @@ import {
 } from "./styled";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
+import AddWalletModal from "@/Components/UI/AddWalletModal";
 
 interface WalletData {
   icon: any;
@@ -41,6 +42,9 @@ interface WalletData {
 
 const Wallet = () => {
   const dispatch = useDispatch();
+
+  const [openEditModal, setOpenEditModal] = useState(false);
+
   const [walletData] = useState<WalletData[]>([
     {
       icon: BitcoinIcon,
@@ -117,6 +121,7 @@ const Wallet = () => {
 
   const handleEdit = (wallet: WalletData) => {
     console.log("Edit wallet:", wallet.walletTitle);
+    setOpenEditModal(true);
   };
 
   return (
@@ -127,7 +132,7 @@ const Wallet = () => {
     >
       <Grid container spacing={2.5}>
         {walletData.map((wallet, index) => (
-          <Grid item xs={12} md={6} lg={4} key={index}>
+          <Grid item xs={12} md={6} xl={4} key={index}>
             <PanelCard
               title={wallet.walletTitle}
               headerIcon={
@@ -246,6 +251,11 @@ const Wallet = () => {
           </Grid>
         ))}
       </Grid>
+
+      <AddWalletModal
+        open={openEditModal}
+        onClose={() => setOpenEditModal(false)}
+      />
     </Box>
   );
 };

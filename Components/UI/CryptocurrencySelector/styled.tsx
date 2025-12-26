@@ -38,8 +38,8 @@ export const CryptocurrencyTrigger = muiStyled(Box)<{
 }));
 
 export const CryptocurrencyIcon = styled(Image)({
-  width: "20px",
-  height: "20px",
+  // width: "20px",
+  // height: "20px",
   objectFit: "contain",
   flexShrink: 0,
 });

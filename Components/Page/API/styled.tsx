@@ -150,4 +150,22 @@ export const InfoText = styled(Typography)(({ theme }) => ({
   fontWeight: 500,
   lineHeight: "18px",
   fontFamily: "UrbanistMedium",
+  [theme.breakpoints.down("md")]: {
+    fontSize: 13,
+    lineHeight: "17px",
+  },
 }));
+
+export const ApiDocumentationCardDescription = styled(Typography)(
+  ({ theme }) => ({
+    fontSize: 13,
+    color: theme.palette.text.secondary,
+    fontWeight: 500,
+    lineHeight: "17px",
+    fontFamily: "UrbanistMedium",
+    [theme.breakpoints.down("md")]: {
+      fontSize: 10,
+      lineHeight: "14px",
+    },
+  })
+);

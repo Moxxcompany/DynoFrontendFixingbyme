@@ -7,7 +7,6 @@ import CustomButton from "@/Components/UI/Buttons";
 import Image from "next/image";
 import WalletIcon from "@/assets/Icons/wallet-icon.svg";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
-import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import { theme } from "@/styles/theme";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -17,24 +16,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { rootReducer } from "@/utils/types";
 import {
-  ModalHeader,
-  ModalHeaderContent,
-  ModalSubtitle,
   WarningContainer,
   WarningIconContainer,
   WarningContent,
-  ModalActions,
 } from "./styled";
 import PanelCard from "../PanelCard";
 
 export interface AddWalletModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit?: (data: {
-    walletName: string;
-    cryptocurrency: string;
-    walletAddress: string;
-  }) => void;
   fiatData?: any[];
   cryptoData?: any[];
   onWalletAdded?: () => void;
@@ -48,7 +38,6 @@ type Address = {
 const AddWalletModal: React.FC<AddWalletModalProps> = ({
   open,
   onClose,
-  onSubmit,
   fiatData = [],
   cryptoData = [],
   onWalletAdded,
@@ -67,12 +56,9 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   const [popupLoading, setPopupLoading] = useState(false);
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
-  const [showOtpLoader, setShowOtpLoader] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState(
-    "Validating wallet address..."
-  );
   const [address, setAddress] = useState<Address | null>(null);
   const [otpError, setOtpError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validate = () => {
     const newErrors: typeof errors = {};
@@ -93,10 +79,9 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  // Reset loader state when OTP modal closes
+  // Reset error state when OTP modal closes
   useEffect(() => {
     if (!otpModalOpen) {
-      setShowOtpLoader(false);
       setOtpError("");
     }
   }, [otpModalOpen]);
@@ -107,6 +92,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
     }
 
     try {
+      setIsSubmitting(true);
       setPopupLoading(true);
 
       const values = {
@@ -128,36 +114,22 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
           },
         });
         setPopupLoading(false);
+        setIsSubmitting(false);
         return;
       }
 
       setAddress(values);
       setPopupLoading(false);
-      setShowOtpLoader(true);
+      setIsSubmitting(false);
 
-      // Simulate loading time with changing messages
-      const messages = [
-        "Validating wallet address...",
-        "Checking address format...",
-        "Generating OTP...",
-        "Almost done...",
-      ];
-
-      let messageIndex = 0;
-      const messageInterval = setInterval(() => {
-        if (messageIndex < messages.length) {
-          setLoadingMessage(messages[messageIndex]);
-          messageIndex++;
-        }
-      }, 1000);
-
-      // Show OTP modal after 2 seconds
-      setTimeout(() => {
-        clearInterval(messageInterval);
-        setShowOtpLoader(false);
-        setOtpModalOpen(true);
-        setLoadingMessage("Validating wallet address...");
-      }, 2000);
+      // Close the AddWalletModal and open OTP dialog
+      // Reset form but keep address for OTP verification
+      setWalletName("");
+      setCryptocurrency("BTC");
+      setWalletAddress("");
+      setErrors({});
+      onClose(); // Close the modal
+      setOtpModalOpen(true); // Open OTP dialog
     } catch (error: any) {
       console.error("Error adding wallet address:", error);
       dispatch({
@@ -171,6 +143,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         },
       });
       setPopupLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -274,14 +247,17 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   };
 
   const handleClose = () => {
+    if (isSubmitting) {
+      return; // Prevent closing while submitting
+    }
     setWalletName("");
     setCryptocurrency("BTC");
     setWalletAddress("");
     setErrors({});
     setPopupLoading(false);
     setOtpModalOpen(false);
-    setShowOtpLoader(false);
     setAddress(null);
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -292,11 +268,19 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       showHeader={false}
       hasFooter={false}
       transparent={true}
+      disableEscapeKeyDown={isSubmitting}
+      onClose={(event, reason) => {
+        if (isSubmitting) {
+          return; // Prevent closing while submitting
+        }
+        if (reason === "backdropClick" || reason === "escapeKeyDown") {
+          handleClose();
+        }
+      }}
       sx={{
         "& .MuiDialog-paper": {
           width: "100%",
           maxWidth: "481px",
-          minWidth: "481px",
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
@@ -316,8 +300,16 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             draggable={false}
           />
         }
-        bodyPadding={theme.spacing(1.5, 3.75, 3.75, 3.75)}
-        headerPadding={theme.spacing(3.75, 3.75, 0, 3.75)}
+        bodyPadding={
+          isMobile
+            ? theme.spacing(1.5, 2, 2, 2)
+            : theme.spacing(1.5, 3.75, 3.75, 3.75)
+        }
+        headerPadding={
+          isMobile
+            ? theme.spacing(2, 2, 0, 2)
+            : theme.spacing(3.75, 3.75, 0, 3.75)
+        }
         headerActionLayout="inline"
       >
         <Typography
@@ -388,47 +380,32 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             label="Cancel"
             variant="outlined"
             onClick={handleClose}
-            sx={{ flex: 1 }}
+            disabled={isSubmitting}
+            sx={{
+              flex: 1,
+              [theme.breakpoints.down("sm")]: {
+                height: "32px",
+                fontSize: "13px",
+              },
+            }}
           />
           <CustomButton
-            label={popupLoading ? "Processing..." : "Continue"}
+            label="Continue"
             variant="primary"
             onClick={handleSubmit}
-            disabled={popupLoading}
-            sx={{ flex: 1 }}
+            disabled={popupLoading || isSubmitting}
+            sx={{
+              flex: 1,
+              [theme.breakpoints.down("sm")]: {
+                height: "32px",
+                fontSize: "13px",
+              },
+            }}
           />
         </Box>
       </PanelCard>
 
-      {/* <PopupModal
-        open={showOtpLoader}
-        showClose={false}
-        handleClose={() => {}}
-        headerText={"Processing..."}
-      >
-        <Box sx={{ minWidth: "350px", maxWidth: "400px" }}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "200px",
-              textAlign: "center",
-            }}
-          >
-            <LoadingIcon size={60} />
-            <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
-              {loadingMessage}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Please wait while we process your request...
-            </Typography>
-          </Box>
-        </Box>
-      </PopupModal> */}
-
-      {/* <OtpDialog
+      <OtpDialog
         open={otpModalOpen}
         onClose={() => {
           setOtpModalOpen(false);
@@ -445,7 +422,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         error={otpError}
         onClearError={() => setOtpError("")}
         countdown={0}
-      /> */}
+      />
     </PopupModal>
   );
 };

@@ -13,6 +13,7 @@ import { pageProps } from "@/utils/types";
 import { theme } from "@/styles/theme";
 import Wallet from "@/Components/Page/Wallet";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
+import { useRouter } from "next/router";
 
 const WalletPage = ({
   setPageName,
@@ -20,6 +21,7 @@ const WalletPage = ({
   setPageAction,
   setPageHeaderSx,
 }: pageProps) => {
+  const router = useRouter();
   const namespaces = ["walletScreen", "common"];
   const isMobile = useIsMobile("md");
   const { t } = useTranslation(namespaces);
@@ -78,7 +80,7 @@ const WalletPage = ({
           size="medium"
           endIcon={<ArrowOutwardIcon sx={{ fontSize: isMobile ? 14 : 16 }} />}
           onClick={() => {
-            // Handle create payment link
+            router.push("/create-pay-link");
           }}
           sx={{
             border: `1px solid ${theme.palette.primary.main}`,
@@ -119,15 +121,6 @@ const WalletPage = ({
     return () => setPageAction(null);
   }, [setPageAction, tDashboard, isMobile]);
 
-  const handleAddWallet = (data: {
-    walletName: string;
-    cryptocurrency: string;
-    walletAddress: string;
-  }) => {
-    console.log("Add wallet:", data);
-    // TODO: Implement wallet creation logic
-  };
-
   return (
     <>
       <Head>
@@ -141,7 +134,6 @@ const WalletPage = ({
         <AddWalletModal
           open={openCreate}
           onClose={() => setOpenCreate(false)}
-          onSubmit={handleAddWallet}
         />
       </Box>
     </>

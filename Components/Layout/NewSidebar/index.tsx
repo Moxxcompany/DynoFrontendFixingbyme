@@ -140,7 +140,7 @@ const NewSidebar = () => {
             <Image
               src={BGOverlay}
               alt="BG Overlay"
-              width={150}
+              width={82}
               height={100}
               draggable={false}
             />

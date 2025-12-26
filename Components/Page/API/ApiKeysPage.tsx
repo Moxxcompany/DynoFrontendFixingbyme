@@ -34,6 +34,7 @@ import {
   Tags,
   InfoText,
   ApiKeyCardSubTitle,
+  ApiDocumentationCardDescription,
 } from "./styled";
 import { theme } from "@/styles/theme";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
@@ -113,9 +114,9 @@ const ApiDocumentationCard = ({ docsUrl }: { docsUrl: string }) => {
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Typography variant="body2" color="text.secondary">
+        <ApiDocumentationCardDescription>
           {t("documentation.description")}
-        </Typography>
+        </ApiDocumentationCardDescription>
         <CustomButton
           label={t("documentation.viewDocumentation")}
           variant="secondary"

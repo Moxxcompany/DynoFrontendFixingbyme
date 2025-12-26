@@ -35,13 +35,13 @@ export interface OtpDialogProps {
   preventClose?: boolean; // Prevent closing when countdown is active
 }
 
-const otpInitial = {
-  otp1: "",
-  otp2: "",
-  otp3: "",
-  otp4: "",
-  otp5: "",
-  otp6: "",
+// Generate initial OTP values dynamically
+const generateOtpInitial = (length: number) => {
+  const initial: any = {};
+  for (let i = 1; i <= length; i++) {
+    initial[`otp${i}`] = "";
+  }
+  return initial;
 };
 
 const OtpDialog: React.FC<OtpDialogProps> = ({
@@ -66,6 +66,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
   const { t } = useTranslation("auth");
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
+  const otpInitial = React.useMemo(() => generateOtpInitial(otpLength), [otpLength]);
   const [otpValues, setOtpValues] = useState(otpInitial);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
@@ -82,11 +83,14 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
   // Calculate input size based on screen size
   const inputSize = isMobile ? "32px" : "40px";
 
-  // Create schema based on otpLength
+  // Create schema based on otpLength with proper numeric validation
   const otpSchema = React.useMemo(() => {
     const shape: any = {};
     for (let i = 1; i <= otpLength; i++) {
-      shape[`otp${i}`] = yup.string().required(t("required"));
+      shape[`otp${i}`] = yup
+        .string()
+        .required(t("required"))
+        .matches(/^[0-9]$/, t("mustBeNumeric") || "Must be a single digit");
     }
     return yup.object().shape(shape);
   }, [otpLength, t]);
@@ -109,7 +113,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
         }
       }, 100);
     }
-  }, [open]);
+  }, [open, otpInitial]);
 
   const handleOtpChange = (
     index: number,
@@ -120,7 +124,29 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
     // Only allow numbers
     const numericValue = value.replace(/\D/g, "");
 
-    const singleDigit = numericValue.length > 0 ? numericValue.slice(-1) : "";
+    // If empty string, allow clearing
+    if (numericValue.length === 0 && value === "") {
+      const fieldName = `otp${index + 1}`;
+      const e: any = {
+        target: {
+          name: fieldName,
+          value: "",
+        },
+      };
+      handleChange(e);
+      // Clear error when user starts typing
+      if (error && onClearError) {
+        onClearError();
+      }
+      return;
+    }
+
+    // If no numeric value, ignore
+    if (numericValue.length === 0) {
+      return;
+    }
+
+    const singleDigit = numericValue.slice(-1); // Get last digit
     const fieldName = `otp${index + 1}`;
 
     const e: any = {
@@ -138,7 +164,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
 
     // If multiple digits were entered, distribute them to subsequent fields
     if (numericValue.length > 1) {
-      const remainingDigits = numericValue.slice(1, otpLength - index);
+      const remainingDigits = numericValue.slice(1);
       remainingDigits.split("").forEach((digit, idx) => {
         const nextIndex = index + idx + 1;
         if (nextIndex < otpLength) {
@@ -155,7 +181,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
 
       // Focus on the last filled field or next empty field
       const lastFilledIndex = Math.min(
-        index + numericValue.length,
+        index + numericValue.length - 1,
         otpLength - 1
       );
       const nextField = inputRefs.current[lastFilledIndex];
@@ -169,8 +195,10 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
       // Auto-focus to next field if current field has a value
       const nextField = inputRefs.current[index + 1];
       if (nextField) {
-        nextField.focus();
-        setFocusedIndex(index + 1);
+        setTimeout(() => {
+          nextField.focus();
+          setFocusedIndex(index + 1);
+        }, 0);
       }
     }
   };
@@ -259,22 +287,14 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
       return;
     }
 
-    // Handle Enter key - trigger submit if all fields are filled
+    // Handle Enter key - trigger submit if all fields are valid
     if (e.key === "Enter") {
       e.preventDefault();
-      const allFilled = Array.from({ length: otpLength }).every((_, idx) => {
-        const fieldName = `otp${idx + 1}`;
-        return values[fieldName] && values[fieldName].length > 0;
-      });
-
-      if (allFilled && onVerify) {
-        const otp = Object.keys(values)
-          .sort()
-          .map((key) => values[key])
-          .join("");
-        if (otp.length === otpLength) {
-          onVerify(otp);
-        }
+      const { isValid, otp } = validateOtp(values);
+      
+      if (isValid && otp !== previousOtpRef.current && onVerify) {
+        previousOtpRef.current = otp;
+        onVerify(otp);
       }
       return;
     }
@@ -297,7 +317,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
   };
 
   const handlePaste = (
-    e: React.ClipboardEvent<HTMLInputElement>,
+    e: React.ClipboardEvent<HTMLInputElement | HTMLDivElement>,
     handleChange: any,
     values: any,
     startIndex: number = 0
@@ -311,7 +331,10 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
     // Extract only numbers from pasted data
     const numericValue = pastedData.replace(/\D/g, "");
 
-    if (numericValue.length === 0) return;
+    // If no numeric data, ignore paste
+    if (numericValue.length === 0) {
+      return;
+    }
 
     // Clear error when user pastes
     if (error && onClearError) {
@@ -322,15 +345,18 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
     const currentValues = formValuesRef.current || values;
 
     // Determine starting index - start from the field where paste occurred
+    // If current field has a value, replace it; otherwise start from first empty field
     let firstEmptyIndex = startIndex;
     const currentFieldValue = currentValues[`otp${startIndex + 1}`];
-    if (!currentFieldValue || currentFieldValue.length === 0) {
-      // Find first empty field to start filling from
+    
+    // If current field is empty, find first empty field to start filling from
+    if (!currentFieldValue || String(currentFieldValue).trim().length === 0) {
       for (let i = 0; i < otpLength; i++) {
         const fieldName = `otp${i + 1}`;
+        const fieldValue = currentValues[fieldName];
         if (
-          !currentValues[fieldName] ||
-          currentValues[fieldName].length === 0
+          !fieldValue ||
+          String(fieldValue).trim().length === 0
         ) {
           firstEmptyIndex = i;
           break;
@@ -342,9 +368,30 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
     const availableSlots = otpLength - firstEmptyIndex;
     const digitsToFill = numericValue.slice(0, availableSlots);
 
-    // Fill OTP fields with pasted values starting from first empty field
-    // Update all fields in sequence
-    digitsToFill.split("").forEach((digit, idx) => {
+    // Validate each digit is numeric before filling
+    const validDigits = digitsToFill.split("").filter(digit => /^\d$/.test(digit));
+    
+    if (validDigits.length === 0) {
+      return;
+    }
+
+    // Create updated values object with all pasted digits
+    const updatedValues = { ...currentValues };
+    
+    // Fill OTP fields with pasted values starting from firstEmptyIndex
+    validDigits.forEach((digit, idx) => {
+      const fieldIndex = firstEmptyIndex + idx;
+      if (fieldIndex < otpLength) {
+        const fieldName = `otp${fieldIndex + 1}`;
+        updatedValues[fieldName] = digit;
+      }
+    });
+
+    // Update form values ref immediately
+    formValuesRef.current = updatedValues;
+
+    // Update all fields in sequence using handleChange
+    validDigits.forEach((digit, idx) => {
       const fieldIndex = firstEmptyIndex + idx;
       if (fieldIndex < otpLength) {
         const fieldName = `otp${fieldIndex + 1}`;
@@ -358,30 +405,32 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
       }
     });
 
-    // Focus on the appropriate field after paste
+    // Calculate the last filled index
     const lastFilledIndex = Math.min(
-      firstEmptyIndex + digitsToFill.length - 1,
+      firstEmptyIndex + validDigits.length - 1,
       otpLength - 1
     );
 
     // Use setTimeout to ensure all state updates are processed before focusing
     setTimeout(() => {
-      const latestValues = formValuesRef.current || currentValues;
+      const latestValues = formValuesRef.current || updatedValues;
       let nextFocusIndex = lastFilledIndex;
 
       // Check if all fields are now filled
       const allFilled = Array.from({ length: otpLength }).every((_, idx) => {
         const fieldName = `otp${idx + 1}`;
-        return latestValues[fieldName] && latestValues[fieldName].length > 0;
+        const fieldValue = latestValues[fieldName];
+        return fieldValue && String(fieldValue).trim().length > 0 && /^\d$/.test(String(fieldValue).trim());
       });
 
       if (!allFilled) {
         // Find next empty field
         for (let i = lastFilledIndex + 1; i < otpLength; i++) {
           const fieldName = `otp${i + 1}`;
+          const fieldValue = latestValues[fieldName];
           if (
-            !latestValues[fieldName] ||
-            latestValues[fieldName].length === 0
+            !fieldValue ||
+            String(fieldValue).trim().length === 0
           ) {
             nextFocusIndex = i;
             break;
@@ -399,16 +448,50 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
         // Select all text in the field for better UX
         nextField.select();
       }
-    }, 50); // Small delay to ensure state updates are processed
+    }, 100); // Slightly longer delay to ensure all state updates are processed
   };
 
-  const handleSubmit = (values: any) => {
+  // Validate OTP before submission
+  const validateOtp = React.useCallback((values: any): { isValid: boolean; otp: string } => {
     // Combine OTP values into a single string
     const otp = Object.keys(values)
       .sort()
       .map((key) => values[key])
       .join("");
-    if (onVerify && otp.length === otpLength) {
+
+    // Check if OTP has correct length
+    if (otp.length !== otpLength) {
+      return { isValid: false, otp };
+    }
+
+    // Check if all characters are numeric
+    if (!/^\d+$/.test(otp)) {
+      return { isValid: false, otp };
+    }
+
+    // Check if all fields are filled and valid
+    for (let i = 1; i <= otpLength; i++) {
+      const fieldName = `otp${i}`;
+      const fieldValue = values[fieldName];
+      const stringValue = String(fieldValue || "").trim();
+      if (
+        !fieldValue ||
+        stringValue === "" ||
+        !/^\d$/.test(stringValue)
+      ) {
+        return { isValid: false, otp };
+      }
+    }
+
+    return { isValid: true, otp };
+  }, [otpLength]);
+
+  const handleSubmit = (values: any) => {
+    const { isValid, otp } = validateOtp(values);
+    
+    // Only submit if OTP is valid and not a duplicate
+    if (isValid && otp !== previousOtpRef.current && onVerify) {
+      previousOtpRef.current = otp;
       onVerify(otp);
     }
   };
@@ -591,37 +674,33 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
           }) => {
             formValuesRef.current = values;
 
-            const checkAllFieldsFilled = (currentValues: any) => {
+            // Validate all fields are filled and numeric
+            const checkAllFieldsFilled = (currentValues: any): boolean => {
               for (let idx = 0; idx < otpLength; idx++) {
                 const fieldName = `otp${idx + 1}`;
                 const fieldValue = currentValues[fieldName];
                 if (
                   fieldValue === undefined ||
                   fieldValue === null ||
-                  String(fieldValue).trim().length === 0
+                  String(fieldValue).trim().length === 0 ||
+                  !/^\d$/.test(String(fieldValue).trim())
                 ) {
                   return false;
                 }
               }
               return true;
             };
+
             const areAllFieldsFilled = checkAllFieldsFilled(values);
 
-            // Helper function to check and auto-submit
+            // Helper function to check and auto-submit with proper validation
             const checkAutoSubmit = (currentValues: any) => {
-              const allFilled = checkAllFieldsFilled(currentValues);
+              // Validate OTP before auto-submitting
+              const { isValid, otp } = validateOtp(currentValues);
 
-              if (allFilled && !loading && !submitDisable) {
-                const otp = Object.keys(currentValues)
-                  .sort()
-                  .map((key) => currentValues[key])
-                  .join("");
-
+              if (isValid && !loading && !submitDisable) {
                 // Prevent duplicate submissions
-                if (
-                  otp !== previousOtpRef.current &&
-                  otp.length === otpLength
-                ) {
+                if (otp !== previousOtpRef.current) {
                   previousOtpRef.current = otp;
                   // Small delay to ensure UI updates are complete
                   setTimeout(() => {
@@ -630,8 +709,8 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                     }
                   }, 150);
                 }
-              } else if (!allFilled) {
-                // Reset previous OTP when fields are cleared
+              } else if (!isValid) {
+                // Reset previous OTP when fields are invalid or cleared
                 previousOtpRef.current = "";
               }
             };
@@ -656,6 +735,29 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                       gap: "8px",
                       justifyContent: "flex-start",
                     }}
+                    onPaste={(e) => {
+                      // Handle paste at container level (when no field is focused)
+                      // Find first empty field or use first field
+                      let pasteStartIndex = 0;
+                      for (let i = 0; i < otpLength; i++) {
+                        const fieldName = `otp${i + 1}`;
+                        const fieldValue = values[fieldName];
+                        if (
+                          !fieldValue ||
+                          String(fieldValue).trim().length === 0
+                        ) {
+                          pasteStartIndex = i;
+                          break;
+                        }
+                      }
+                      handlePaste(e, handleChange, values, pasteStartIndex);
+                      // Delay auto-submit check to ensure all paste operations complete
+                      setTimeout(() => {
+                        const latestValues =
+                          formValuesRef.current || values;
+                        checkAutoSubmit(latestValues);
+                      }, 200);
+                    }}
                   >
                     {Array.from({ length: otpLength }).map((_, index) => {
                       const fieldName = `otp${index + 1}`;
@@ -679,32 +781,19 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                             type="text"
                             onChange={(e) => {
                               const inputValue = e.target.value;
-
-                              const currentFieldValue = values[fieldName] || "";
-
-                              let valueToProcess = inputValue;
-                              if (inputValue.length > 1) {
-                                valueToProcess = inputValue.slice(-1);
-                              } else if (inputValue.length === 0) {
-                                valueToProcess = "";
-                              }
-
+                              
+                              // Process the input value
                               handleOtpChange(
                                 index,
-                                valueToProcess,
+                                inputValue,
                                 handleChange,
                                 values
                               );
 
-                              const updatedValues = {
-                                ...values,
-                                [fieldName]: valueToProcess,
-                              };
-                              formValuesRef.current = updatedValues;
-
+                              // Update form values ref after a brief delay to ensure state is updated
                               setTimeout(() => {
-                                const latestValues =
-                                  formValuesRef.current || updatedValues;
+                                // Get latest values from form state
+                                const latestValues = formValuesRef.current || values;
                                 checkAutoSubmit(latestValues);
                               }, 100);
                             }}
@@ -718,11 +807,13 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                             }
                             onPaste={(e) => {
                               handlePaste(e, handleChange, values, index);
+                              // Delay auto-submit check to ensure all paste operations complete
+                              // This ensures form state is fully updated before validation
                               setTimeout(() => {
                                 const latestValues =
                                   formValuesRef.current || values;
                                 checkAutoSubmit(latestValues);
-                              }, 100);
+                              }, 200);
                             }}
                             autoComplete="off"
                             error={hasError}
@@ -736,8 +827,8 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                             }}
                             sx={{
                               "& .MuiOutlinedInput-root": {
-                                borderRadius: "12px !important",
-                                backgroundColor: "#e5edff66 !important",
+                                borderRadius: "6px !important",
+                                backgroundColor: "#fff !important",
                                 "& fieldset": {
                                   borderColor:
                                     theme.palette.border.main + " !important",
@@ -829,7 +920,12 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                     size="medium"
                     label={dialogPrimaryButtonLabel}
                     type="submit"
-                    disabled={submitDisable || loading || !areAllFieldsFilled}
+                    disabled={
+                      submitDisable ||
+                      loading ||
+                      !areAllFieldsFilled ||
+                      !validateOtp(values).isValid
+                    }
                     sx={{
                       fontWeight: 700,
                       padding: "15px 24px",
