@@ -847,7 +847,7 @@ import PasswordValidation from "@/Components/UI/AuthLayout/PasswordValidation";
 export default function Login() {
   const { t } = useTranslation("auth");
   const theme = useTheme();
-  const isMobile = useIsMobile("md");
+  const isMobile = useIsMobile("sm");
   const dispatch = useDispatch();
   const router = useRouter();
   const userState = useSelector((state: rootReducer) => state.userReducer);
@@ -1874,6 +1874,8 @@ export default function Login() {
                   sideButton={true}
                   sideButtonType="primary"
                   sideButtonIcon={EditIcon}
+                  sideButtonIconWidth={isMobile ? "12px" : "14px"}
+                  sideButtonIconHeight={isMobile ? "12px" : "14px"}
                   onSideButtonClick={handleChangeEmail}
                 />
               </Box>
@@ -2063,6 +2065,8 @@ export default function Login() {
                             sideButton={true}
                             sideButtonType="secondary"
                             sideButtonIcon={ArrowUpwardIcon}
+                            sideButtonIconWidth={isMobile ? "10px" : "14px"}
+                            sideButtonIconHeight={isMobile ? "10px" : "14px"}
                             onSideButtonClick={handleSendSmsOtp}
                           />
                         </Box>
@@ -2322,6 +2326,8 @@ export default function Login() {
                               />
                             )
                           }
+                          sideButtonIconWidth={isMobile ? "14px" : "18px"}
+                          sideButtonIconHeight={isMobile ? "14px" : "18px"}
                           onSideButtonClick={() => {
                             setShowPassword(!showPassword);
                           }}
@@ -2586,6 +2592,7 @@ export default function Login() {
               label={t("newPassword")}
               type={newPasswordShowPassword ? "text" : "password"}
               value={newPassword}
+              autoComplete="off"
               onChange={handleNewPasswordChange}
               onFocus={handleNewPasswordFocus}
               onBlur={handleNewPasswordBlur}
@@ -2622,6 +2629,8 @@ export default function Login() {
                   />
                 )
               }
+              sideButtonIconWidth={isMobile ? "14px" : "18px"}
+              sideButtonIconHeight={isMobile ? "14px" : "18px"}
               onSideButtonClick={() => {
                 setNewPasswordShowPassword(!newPasswordShowPassword);
               }}
@@ -2656,6 +2665,7 @@ export default function Login() {
               label={t("newPasswordConfirm")}
               type={newPasswordConfirmShowPassword ? "text" : "password"}
               value={newPasswordConfirm}
+              autoComplete="off"
               onChange={handleNewPasswordConfirmChange}
               onKeyDown={(e) => {
                 if (
@@ -2698,6 +2708,8 @@ export default function Login() {
                   />
                 )
               }
+              sideButtonIconWidth={isMobile ? "14px" : "18px"}
+              sideButtonIconHeight={isMobile ? "14px" : "18px"}
               onSideButtonClick={() => {
                 setNewPasswordConfirmShowPassword(
                   !newPasswordConfirmShowPassword

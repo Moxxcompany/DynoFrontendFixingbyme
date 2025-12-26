@@ -86,10 +86,10 @@ const ClientLayout = ({
                 <PageHeader
                   sx={
                     pageHeaderSx
-                      ? [
+                      ? ([
                           { pt: 0, pb: { lg: 2.5, md: 1.5, xs: 1 }, mb: 0 },
                           pageHeaderSx,
-                        ] as SxProps<Theme>
+                        ] as SxProps<Theme>)
                       : { pt: 0, pb: { lg: 2.5, md: 1.5, xs: 1 }, mb: 0 }
                   }
                 >

@@ -148,14 +148,22 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
 
         {/* Actions */}
         <Box mt={"4px"}>
-          <Grid container columnSpacing={2} rowSpacing={2}>
-            <Grid
-              item
-              xs={6}
-              sm={6}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: { xs: "12px", sm: "12px", md: "21px", lg: "21px" },
+              // flexWrap: "wrap",
+            }}
+          >
+            <Box
               sx={{
+                order: { xs: 2, lg: 1 },
+                flex: { xs: "1 1 calc(50% - 4px)", sm: "0 0 auto" },
                 display: "flex",
-                justifyContent: { xs: "center", sm: "flex-end" },
+                justifyContent: "center",
+                minWidth: { xs: "calc(50% - 4px)", sm: "auto" },
               }}
             >
               <CustomButton
@@ -179,14 +187,14 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                   fontSize: { xs: "13px", sm: "15px" },
                 }}
               />
-            </Grid>
-            <Grid
-              item
-              xs={6}
-              sm={6}
+            </Box>
+            <Box
               sx={{
+                order: { xs: 1, lg: 2 },
+                flex: { xs: "1 1 calc(50% - 4px)", sm: "0 0 auto" },
                 display: "flex",
-                justifyContent: { xs: "center", sm: "flex-start" },
+                justifyContent: "center",
+                minWidth: { xs: "calc(50% - 4px)", sm: "auto" },
               }}
             >
               <CustomButton
@@ -205,13 +213,14 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 iconSize={18}
                 onClick={handleRemovePhoto}
                 sx={{
-                  width: { xs: "100%", sm: "auto" },
-                  padding: "0px 16px",
-                  fontSize: { xs: "13px", sm: "15px" },
+                  color: "#676768",
+                  width: { xs: "100%", sm: "auto", md: "auto" },
+                  padding: { xs: "0px 16px", sm: "0px 49px", md: "0px 49px" },
+                  fontSize: { xs: "13px", sm: "15px", md: "15px" },
                 }}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </Box>
 
         {/* Hidden file input */}
@@ -424,7 +433,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
               >
                 <CustomButton
                   variant="primary"
-                  size="medium"
+                  size={isMobile ? "small" : "medium"}
                   type="submit"
                   disabled={submitDisable || !hasChanges(values)}
                   label="Update"

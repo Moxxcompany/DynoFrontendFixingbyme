@@ -1034,6 +1034,7 @@ const Register = () => {
             <InputField
               type={showPassword ? "text" : "password"}
               value={password}
+              autoComplete="off"
               label={t("password")}
               onChange={(e) => {
                 handlePasswordChange(e.target.value);
@@ -1082,6 +1083,8 @@ const Register = () => {
                   />
                 )
               }
+              sideButtonIconWidth={isMobile ? "14px" : "18px"}
+              sideButtonIconHeight={isMobile ? "14px" : "18px"}
               onSideButtonClick={() => {
                 setShowPassword(!showPassword);
               }}
@@ -1116,6 +1119,7 @@ const Register = () => {
           <InputField
             type={showConfirmPassword ? "text" : "password"}
             value={confirmPassword}
+            autoComplete="off"
             label={t("confirmPassword")}
             onChange={(e) => {
               // Remove spaces from confirm password
@@ -1168,6 +1172,8 @@ const Register = () => {
                 />
               )
             }
+            sideButtonIconWidth={isMobile ? "14px" : "18px"}
+            sideButtonIconHeight={isMobile ? "14px" : "18px"}
             onSideButtonClick={() => {
               setShowConfirmPassword(!showConfirmPassword);
             }}

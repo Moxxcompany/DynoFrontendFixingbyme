@@ -4,6 +4,7 @@ import { borderRadius, fontFamily, SxProps, Theme } from "@mui/system";
 import Image from "next/image";
 import { StaticImageData } from "next/image";
 import { theme } from "@/styles/theme";
+import useIsMobile from "@/hooks/useIsMobile";
 
 export interface CustomButtonProps {
   label: string;
@@ -45,6 +46,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   showSuccessAnimation = false,
   showErrorAnimation = false,
 }) => {
+  const isMobile = useIsMobile("sm");
   // Size configuration
   const sizeConfig = {
     small: {
@@ -81,6 +83,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       backgroundColor: theme.palette.common.white,
       color: theme.palette.primary.main,
       border: `1px solid ${theme.palette.primary.main}`,
+      fontWeight: 500,
     },
     outlined: {
       backgroundColor: theme.palette.common.white,
@@ -230,7 +233,9 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         </Box>
       )}
 
-      {!shouldHideLabel && <span>{label}</span>}
+      {!shouldHideLabel && (
+        <span style={{ fontSize: isMobile ? "13px" : "15px" }}>{label}</span>
+      )}
 
       {endIcon && (
         <Box

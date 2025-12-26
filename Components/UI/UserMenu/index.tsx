@@ -50,11 +50,9 @@ export default function UserMenu() {
             draggable={false}
           />
 
-        
-            <UserName sx={{ fontSize: isMobile ? 13 : 15 }}>
-              {isMobile ? firstName : tokenData?.name}
-            </UserName>
-    
+          <UserName sx={{ fontSize: isMobile ? 13 : 15 }}>
+            {isMobile ? firstName : tokenData?.name}
+          </UserName>
         </Box>
 
         {!isMobile && <VerticalLine />}
@@ -101,9 +99,20 @@ export default function UserMenu() {
               router.push("/profile");
               closeMenu();
             }}
+            sx={{
+              gap: isMobile ? "6px" : "8px",
+              paddingY: 0,
+              justifyContent: "center",
+              alignItems: "center",
+              "&:hover": {
+                background: "transparent",
+              },
+            }}
           >
             <SettingsIcon sx={{ fontSize: 20 }} />
-            <span>{t("settings")}</span>
+            <span style={{ fontSize: isMobile ? "13px" : "15px" }}>
+              {t("settings")}
+            </span>
           </MenuItemRow>
 
           <Box mt={2}>
@@ -112,10 +121,17 @@ export default function UserMenu() {
               onClick={handleLogout}
               variant="secondary"
               endIcon={
-                <Image src={LogoutIcon} alt="logout" width={18} height={18} draggable={false} />
+                <Image
+                  src={LogoutIcon}
+                  alt="logout"
+                  width={10}
+                  height={10}
+                  draggable={false}
+                />
               }
+              sx={{ padding: "8px 34px" }}
               fullWidth
-              size="medium"
+              // size="medium"
             />
           </Box>
         </PopWrapper>

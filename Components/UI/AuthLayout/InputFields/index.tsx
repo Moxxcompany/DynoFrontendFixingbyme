@@ -39,6 +39,8 @@ export interface InputFieldProps {
   onSideButtonClick?: () => void;
   sideButtonIcon?: React.ReactNode | StaticImageData;
   sideButtonType?: "primary" | "secondary";
+  sideButtonIconWidth?: string;
+  sideButtonIconHeight?: string;
   sx?: SxProps<Theme>;
   multiline?: boolean;
   rows?: number;
@@ -91,6 +93,8 @@ const InputField: React.FC<InputFieldProps> = ({
   onSideButtonClick,
   sideButtonIcon,
   sideButtonType = "primary",
+  sideButtonIconWidth,
+  sideButtonIconHeight,
   sx,
   multiline = false,
   rows = 1,
@@ -126,15 +130,17 @@ const InputField: React.FC<InputFieldProps> = ({
 
   // Helper function to render the side button icon
   const renderSideButtonIcon = () => {
-    const iconSize = isMobile ? "16px" : "18px";
+    // Use custom width/height if provided, otherwise fallback to default responsive sizes
+    const iconWidth = sideButtonIconWidth ?? (isMobile ? "16px" : "18px");
+    const iconHeight = sideButtonIconHeight ?? (isMobile ? "16px" : "18px");
 
     if (!sideButtonIcon) {
       return (
         <EditIcon
           sx={{
-            fontSize: iconSize,
-            width: iconSize,
-            height: iconSize,
+            fontSize: iconWidth,
+            width: iconWidth,
+            height: iconHeight,
           }}
         />
       );
@@ -142,17 +148,21 @@ const InputField: React.FC<InputFieldProps> = ({
 
     // Check if it's a StaticImageData (SVG import from Next.js)
     if (typeof sideButtonIcon === "object" && "src" in sideButtonIcon) {
+      // Convert px string to number for Next.js Image component
+      const widthNum = parseInt(iconWidth.replace("px", "")) || 12;
+      const heightNum = parseInt(iconHeight.replace("px", "")) || 12;
+
       return (
         <Image
           src={sideButtonIcon}
           alt="icon"
-          width={12}
-          height={12}
+          width={widthNum}
+          height={heightNum}
           style={{
             display: "flex",
             objectFit: "contain",
-            width: iconSize,
-            height: iconSize,
+            width: iconWidth,
+            height: iconHeight,
           }}
           draggable={false}
         />
@@ -167,12 +177,12 @@ const InputField: React.FC<InputFieldProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          width: iconSize,
-          height: iconSize,
+          width: iconWidth,
+          height: iconHeight,
           "& svg": {
-            fontSize: iconSize,
-            width: iconSize,
-            height: iconSize,
+            fontSize: iconWidth,
+            width: iconWidth,
+            height: iconHeight,
           },
         }}
       >

@@ -16,12 +16,16 @@ declare module "@mui/material/styles" {
     border: {
       focus: any;
       main: string;
+      success: string;
+      error: string;
     };
   }
   interface PaletteOptions {
     border?: {
       main?: string;
       focus?: string;
+      success?: string;
+      error?: string;
     };
   }
 }
@@ -56,6 +60,8 @@ export const theme = createTheme({
     border: {
       main: "#E9ECF2",
       focus: "#A3A6AC",
+      success: "#1C993D",
+      error: "#E8484A",
     },
     primary: {
       main: "#0004FF", //Dark Blue
