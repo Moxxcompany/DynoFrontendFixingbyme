@@ -77,21 +77,21 @@ const generateStatusUrl = (data: any) => {
 const getCurrencySymbol = (currency: any, amount: any) => {
   switch (currency) {
     case "NGN":
-      return "₦ " + amount;
+      return "₦" + amount;
     case "KES":
       return amount;
     case "UGX":
       return amount;
     case "GHS":
-      return "₵ " + amount;
+      return "₵" + amount;
     case "RWF":
-      return "₣ " + amount;
+      return "₣" + amount;
     case "EUR":
-      return "€ " + amount;
+      return "€" + amount;
     case "GBP":
-      return "£ " + amount;
+      return "£" + amount;
     case "USD":
-      return "$ " + amount;
+      return "$" + amount;
     default:
       return amount;
   }
@@ -106,6 +106,22 @@ const stringShorten = (string: string, startChars = 10, endChars = 5) => {
   const lastString = string.substring(string.length - endChars);
   console.log(firstString + "........" + lastString);
   return firstString + "........" + lastString;
+};
+
+const formatNumberWithComma = (number: number): string => {
+  const numStr = number.toString();
+  const decimalIndex = numStr.indexOf(".");
+  const decimalPlaces =
+    decimalIndex === -1
+      ? 0
+      : Math.min(numStr.length - decimalIndex - 1, 2);
+  return number
+    .toLocaleString("en-US", {
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: 2,
+    })
+    .replace(/,/g, " ")
+    .replace(/\./g, ",");
 };
 
 export {
@@ -125,4 +141,5 @@ export {
   generateStatusUrl,
   getCurrencySymbol,
   stringShorten,
+  formatNumberWithComma,
 };

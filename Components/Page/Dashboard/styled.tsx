@@ -1,0 +1,21 @@
+import { styled } from "@mui/material/styles";
+import { Box } from "@mui/material";
+
+export const PercentageChip = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
+  backgroundColor: theme.palette.success.main,
+  color: theme.palette.border.success,
+  padding: "6px 8px",
+  borderRadius: 50,
+  fontSize: 13,
+  lineHeight: 1.54,
+  fontWeight: 500,
+  border: `1px solid ${theme.palette.success.light}`,
+  fontFamily: "UrbanistMedium",
+  width: "fit-content",
+  [theme.breakpoints.down("md")]: {
+    gap: 2,
+  },
+}));

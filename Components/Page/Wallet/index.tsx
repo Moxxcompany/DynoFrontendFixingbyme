@@ -15,7 +15,7 @@ import { Box, Typography, Grid, IconButton } from "@mui/material";
 import Image from "next/image";
 import { ArrowOutward } from "@mui/icons-material";
 import { theme } from "@/styles/theme";
-import { getCurrencySymbol } from "@/helpers";
+import { getCurrencySymbol, formatNumberWithComma } from "@/helpers";
 import { useDispatch } from "react-redux";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -199,12 +199,7 @@ const Wallet = () => {
                     >
                       {getCurrencySymbol(
                         "USD",
-                        wallet.totalProcessed
-                          .toLocaleString("en-US", {
-                            minimumFractionDigits: 1,
-                            maximumFractionDigits: 1,
-                          })
-                          .replace(/,/g, " ")
+                        formatNumberWithComma(wallet.totalProcessed)
                       )}
                     </Typography>
                   </Box>

@@ -27,6 +27,10 @@ export const ApiKeyCardSubTitle = styled(Typography)(({ theme }) => ({
     display: "block",
     position: "relative",
   },
+  [theme.breakpoints.down("md")]: {
+    fontSize: 11,
+    lineHeight: "13px",
+  },
 }));
 
 export const ApiKeyCardBody = styled(Box)(({ theme }) => ({

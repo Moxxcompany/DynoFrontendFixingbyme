@@ -16,5 +16,11 @@
   "notifications": "Notificações",
   "yourReferralCode": "Seu Código de Indicação",
   "knowledgeBase": "Base de Conhecimento",
-  "dashboardDescription": "Visão geral da sua atividade de pagamentos em criptomoedas"
+  "createNewKey": "Criar",
+  "createPaymentLink": "Criar link de pagamento",
+  "dashboardDescription": "Visão geral da sua atividade de pagamentos em criptomoedas",
+  "totalTransactions": "Total de transações",
+  "totalVolume": "Volume total",
+  "activeWallets": "Carteiras Ativas",
+  "comparedToLastMonth": "Em comparação com o mês passado"
 }

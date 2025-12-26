@@ -24,6 +24,9 @@ export const CardHeader = styled(Box)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.border.main}`,
   gap: theme.spacing(2),
   position: "relative",
+  [theme.breakpoints.down("md")]: {
+    padding: theme.spacing(2, 2, 0, 2),
+  },
 }));
 
 export const HeaderContent = styled(Box)({
@@ -40,6 +43,9 @@ export const HeaderTitle = styled(Typography)({
   letterSpacing: "-0.02em",
   fontFamily: "UrbanistMedium",
   color: "#242428",
+  [theme.breakpoints.down("md")]: {
+    fontSize: "15px",
+  },
 });
 
 export const HeaderIcon = styled(Box)(({ theme }) => ({
@@ -58,6 +64,9 @@ export const HeaderIcon = styled(Box)(({ theme }) => ({
 export const CardBody = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2.5, 2.5, 2.5, 2.5),
   flex: 1,
+  [theme.breakpoints.down("md")]: {
+    padding: theme.spacing(2, 2, 2, 2),
+  },
 }));
 
 export const CardFooter = styled(Box)(({ theme }) => ({

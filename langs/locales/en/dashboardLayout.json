@@ -16,5 +16,11 @@
   "notifications": "Notifications",
   "yourReferralCode": "Your Referral Code",
   "knowledgeBase": "Knowledge Base",
-  "dashboardDescription": "Overview of your crypto payment activity."
+  "createNewKey": "Create new key",
+  "createPaymentLink": "Create payment link",
+  "dashboardDescription": "Overview of your crypto payment activity.",
+  "totalTransactions": "Total Transactions",
+  "totalVolume": "Total Volume",
+  "activeWallets": "Active Wallets",
+  "comparedToLastMonth": "Compared to last month"
 }
