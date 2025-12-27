@@ -2,8 +2,13 @@ import React from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
-import { ArrowOutward, CheckCircle, WorkspacePremium } from "@mui/icons-material";
+import {
+  ArrowOutward,
+  CheckCircle,
+  WorkspacePremium,
+} from "@mui/icons-material";
 import { theme } from "@/styles/theme";
+import FeeTierProgress from "./FeeTierProgress";
 
 const DashboardRightSection = () => {
   const themeHook = useTheme();
@@ -42,69 +47,12 @@ const DashboardRightSection = () => {
             $6 479,25 / $50,000
           </Typography>
 
-          {/* Progress Bar */}
-          <Box sx={{ mb: 2 }}>
-            <Box
-              sx={{
-                display: "flex",
-                gap: 0.5,
-                mb: 1.5,
-              }}
-            >
-              {/* Completed bars */}
-              {Array.from({ length: 13 }).map((_, i) => (
-                <Box
-                  key={`completed-${i}`}
-                  sx={{
-                    flex: 1,
-                    height: "24px",
-                    background: themeHook.palette.primary.main,
-                    borderRadius: "4px",
-                  }}
-                />
-              ))}
-              {/* Remaining bars */}
-              {Array.from({ length: 87 }).map((_, i) => (
-                <Box
-                  key={`remaining-${i}`}
-                  sx={{
-                    flex: 1,
-                    height: "24px",
-                    background: themeHook.palette.grey[200],
-                    borderRadius: "4px",
-                  }}
-                />
-              ))}
-            </Box>
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                mb: 1.5,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: "15px",
-                  fontWeight: 500,
-                  color: themeHook.palette.text.primary,
-                  fontFamily: "UrbanistMedium",
-                }}
-              >
-                13.0% complete
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: "15px",
-                  color: themeHook.palette.text.secondary,
-                  fontFamily: "UrbanistRegular",
-                }}
-              >
-                $43 520.75 to next tier
-              </Typography>
-            </Box>
-          </Box>
+          {/* Fee Tier Progress */}
+          <FeeTierProgress
+            monthlyLimit={50000}
+            usedAmount={10000}
+            currentTier="Standard"
+          />
 
           {/* Current Tier Badge */}
           <Box
@@ -174,4 +122,3 @@ const DashboardRightSection = () => {
 };
 
 export default DashboardRightSection;
-

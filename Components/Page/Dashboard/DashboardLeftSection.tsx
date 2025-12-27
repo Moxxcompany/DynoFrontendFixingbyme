@@ -26,6 +26,7 @@ import DogecoinIcon from "@/assets/cryptocurrency/Dogecoin-icon.svg";
 import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
 import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
 import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
+import FeeTierProgress from "./FeeTierProgress";
 
 // Active wallets data array
 interface ActiveWallet {
@@ -336,8 +337,8 @@ const DashboardLeftSection = () => {
   const scrollLeftRef = useRef(0);
   const statCardsStartXRef = useRef(0);
   const statCardsScrollLeftRef = useRef(0);
-  const [isDragging, setIsDragging] = useState(false); 
-  const [isStatCardsDragging, setIsStatCardsDragging] = useState(false); 
+  const [isDragging, setIsDragging] = useState(false);
+  const [isStatCardsDragging, setIsStatCardsDragging] = useState(false);
 
   const { t } = useTranslation(namespaces);
   const tDashboard = useCallback(
@@ -363,7 +364,7 @@ const DashboardLeftSection = () => {
       startXRef.current = e.pageX - scrollContainerRef.current.offsetLeft;
       scrollLeftRef.current = scrollContainerRef.current.scrollLeft;
     },
-    [showAllWallets]
+    [showAllWallets, isStatCardsDragging]
   );
 
   const handleMouseMove = useCallback(
@@ -868,6 +869,7 @@ const DashboardLeftSection = () => {
           </Box>
         }
         headerActionLayout="inline"
+        sx={{ mb: 2.5 }}
       >
         <TransactionVolumeChart />
       </PanelCard>
