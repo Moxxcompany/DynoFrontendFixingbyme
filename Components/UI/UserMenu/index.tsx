@@ -34,24 +34,30 @@ export default function UserMenu() {
       customWindow.location.replace("/auth/login");
     }
   };
-  const firstName = tokenData?.name.split(" ")[0];
+  
+  // Safely get firstName, handle cases where name might be undefined
+  const firstName = tokenData?.name?.split(" ")[0] || "";
+  const userName = tokenData?.name || "";
+  const userPhoto = tokenData?.photo || "";
 
   return (
     <>
       {/* Trigger */}
       <UserTrigger onClick={(e) => setAnchorEl(e.currentTarget)}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <Image
-            src={tokenData?.photo as string}
-            alt="user"
-            width={isMobile ? 24 : 32}
-            height={isMobile ? 24 : 32}
-            style={{ borderRadius: 999 }}
-            draggable={false}
-          />
+          {userPhoto && (
+            <Image
+              src={userPhoto as string}
+              alt="user"
+              width={isMobile ? 24 : 32}
+              height={isMobile ? 24 : 32}
+              style={{ borderRadius: 999 }}
+              draggable={false}
+            />
+          )}
 
           <UserName sx={{ fontSize: isMobile ? 13 : 15 }}>
-            {isMobile ? firstName : tokenData?.name}
+            {isMobile ? firstName || "User" : userName || "User"}
           </UserName>
         </Box>
 
