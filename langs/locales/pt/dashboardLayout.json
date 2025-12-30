@@ -22,5 +22,21 @@
   "totalTransactions": "Total de transações",
   "totalVolume": "Volume total",
   "activeWallets": "Carteiras Ativas",
-  "comparedToLastMonth": "Em comparação com o mês passado"
+  "comparedToLastMonth": "Compared to last month",
+  "feeTierProgress": "Progresso dos Níveis de Taxas",
+  "yourProgressTowardsTheNextFeeTier": "Seu progresso em direção ao próximo nível de taxas",
+  "monthlyVolume": "Volume mensal",
+  "upgradeToPremiumTier": "Faça upgrade para o nível Premium",
+  "lowerFeesAndPrioritySupport": "Taxas reduzidas (0,5%) e apoio prioritário.",
+  "learnMore": "Saber mais",
+  "currentTier": "Nível atual",
+  "toNextTier": "para o próximo nível",
+  "complete": "concluído",
+  "transactionVolume": "Volume de transações",
+  "dailyTransactionActivity": "Atividade diária de transações",
+  "viewTransactions": "Ver transações",
+  "last7Days": "Últimos 7 dias",
+  "last30Days": "Últimos 30 dias",
+  "last90Days": "Últimos 90 dias",
+  "customPeriod": "Período personalizado"
 }

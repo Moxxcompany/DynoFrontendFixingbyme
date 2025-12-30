@@ -30,6 +30,7 @@ import BGOverlay from "@/assets/Images/bg-overlay.png";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import FileIcon from "@/assets/Icons/file-icon.svg";
 import { useTranslation } from "react-i18next";
+import ReferralAndKnowledge from "../ReferralAndKnowledge";
 
 const NewSidebar = () => {
   const isMobile = useIsMobile("md");
@@ -47,7 +48,11 @@ const NewSidebar = () => {
     },
     { label: t("wallets"), icon: WalletsIcon, path: "/wallet" },
     { label: t("api"), icon: APIIcon, path: "/apis" },
-    { label: t("notifications"), icon: NotificationsIcon, path: "/notifications" },
+    {
+      label: t("notifications"),
+      icon: NotificationsIcon,
+      path: "/notifications",
+    },
   ];
 
   const isActiveRoute = (path: string) => {
@@ -85,6 +90,7 @@ const NewSidebar = () => {
                   fontWeight: 500,
                   textAlign: "center",
                   lineHeight: 1.2,
+                  fontFamily: "UrbanistMedium",
                   [theme.breakpoints.down("md")]: {
                     fontSize: "11px",
                     whiteSpace: "nowrap",
@@ -109,6 +115,7 @@ const NewSidebar = () => {
                     alignItems: "center",
                     justifyContent: "center",
                     marginLeft: "auto",
+                    fontFamily: "UrbanistMedium",
                   }}
                 >
                   <AddIcon
@@ -124,48 +131,8 @@ const NewSidebar = () => {
           );
         })}
       </Menu>
-
-      <SidebarFooter>
-        <ReferralCard>
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              userSelect: "none",
-            }}
-          >
-            <Image
-              src={BGOverlay}
-              alt="BG Overlay"
-              width={82}
-              height={100}
-              draggable={false}
-            />
-          </Box>
-          <ReferralCardContent>
-            <ReferralCardTitle>{t("yourReferralCode")}</ReferralCardTitle>
-
-            <ReferralCardContentValueContainer>
-              <ReferralCardContentValue>DYNO2024XYZ</ReferralCardContentValue>
-              <CopyButton
-                onClick={() => {
-                  navigator.clipboard.writeText("DYNO2024XYZ");
-                }}
-              >
-                <Image src={CopyIcon} alt="Copy Icon" width={20} height={20} draggable={false} />
-              </CopyButton>
-            </ReferralCardContentValueContainer>
-          </ReferralCardContent>
-        </ReferralCard>
-
-        <KnowledgeBaseBtn>
-          <Image src={FileIcon} alt="File Icon" width={18} height={18} draggable={false} />
-          <KnowledgeBaseTitle>{t("knowledgeBase")}</KnowledgeBaseTitle>
-        </KnowledgeBaseBtn>
-      </SidebarFooter>
+      {/* Referral and Knowledge Base Section */}
+      <ReferralAndKnowledge isMobile={isMobile} />
     </SidebarWrapper>
   );
 };

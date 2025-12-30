@@ -165,7 +165,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         padding: config.padding,
         fontSize: config.fontSize,
         height: config.height,
-        borderRadius: "8px",
+        borderRadius: "6px",
         lineHeight: "1",
         textTransform: "none",
         cursor: disabled ? "not-allowed" : "pointer",

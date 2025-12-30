@@ -4,7 +4,6 @@ import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
 import { ArrowOutward, TrendingUp, Add, Remove } from "@mui/icons-material";
 import Image from "next/image";
-import DashboardIcon from "@/assets/Icons/dashboard-icon.svg";
 import TransactionIcon from "@/assets/Icons/transaction.svg";
 import WalletIcon from "@/assets/Icons/wallet-grey.svg";
 import { theme } from "@/styles/theme";
@@ -27,6 +26,10 @@ import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
 import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
 import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
 import FeeTierProgress from "./FeeTierProgress";
+import ReusableAreaChart from "@/Components/UI/AreaChart";
+import TimePeriodSelector, {
+  TimePeriod,
+} from "@/Components/UI/TimePeriodSelector";
 
 // Active wallets data array
 interface ActiveWallet {
@@ -45,152 +48,75 @@ const activeWalletsData: ActiveWallet[] = [
   { code: "USDT", icon: USDTIcon },
 ];
 
-// Simple line chart component using SVG
+// Transaction Volume Chart Component
 const TransactionVolumeChart = () => {
-  const chartData = [
-    { day: "Nov 1", value: 2000 },
-    { day: "Nov 2", value: 4500 },
-    { day: "Nov 3", value: 3200 },
-    { day: "Nov 4", value: 15600 },
-    { day: "Nov 5", value: 8200 },
-    { day: "Nov 6", value: 11000 },
-    { day: "Nov 7", value: 9500 },
-  ];
+  const isMobile = useIsMobile("md");
+  const transactionData = useMemo(
+    () => [
+      { date: "Nov 1", value: 6000 },
+      { date: "Nov 2", value: 12000 },
+      { date: "Nov 3", value: 8000 },
 
-  const maxValue = 16000;
-  const chartHeight = 200;
-  const padding = 40;
-  const labelHeight = 30;
+      { date: "Nov 6", value: 13500 },
+      { date: "Nov 7", value: 14500 },
+      { date: "Nov 8", value: 12000 },
+      { date: "Nov 9", value: 8000 },
+      { date: "Nov 10", value: 15600 },
+      { date: "Nov 11", value: 11000 },
+      // {date: "Nov 12", value: 13500},
+      // {date: "Nov 13", value: 14500},
+
+      // {date: "Nov 19", value: 14500},
+      // {date: "Nov 20", value: 12000},
+      // {date: "Nov 21", value: 8000},
+      // {date: "Nov 22", value: 15600},
+      // {date: "Nov 23", value: 11000},
+      // {date: "Nov 24", value: 13500},
+      // {date: "Nov 25", value: 14500},
+
+      // {date: "Nov 28", value: 15600},
+      // {date: "Nov 29", value: 11000},
+      // {date: "Nov 30", value: 13500},
+    ],
+    []
+  );
 
   return (
-    <Box sx={{ width: "100%", mt: 2, position: "relative" }}>
-      <Box
-        sx={{
-          width: "100%",
-          height: `${chartHeight + labelHeight}px`,
-          position: "relative",
-          pl: 5,
-          pr: 2,
-        }}
-      >
-        <svg
-          width="100%"
-          height={chartHeight}
-          viewBox={`0 0 400 ${chartHeight}`}
-          preserveAspectRatio="none"
-          style={{ overflow: "visible" }}
-        >
-          {/* Grid lines */}
-          {[0, 0.25, 0.5, 0.75, 1].map((ratio, idx) => {
-            const y = padding + ratio * (chartHeight - 2 * padding);
-            return (
-              <line
-                key={idx}
-                x1={padding}
-                y1={y}
-                x2={400 - padding}
-                y2={y}
-                stroke="#E9ECF2"
-                strokeWidth="1"
-              />
-            );
-          })}
-
-          {/* Chart line */}
-          <path
-            d={chartData
-              .map((d, i) => {
-                const x =
-                  padding + (i * (400 - 2 * padding)) / (chartData.length - 1);
-                const y =
-                  chartHeight -
-                  padding -
-                  (d.value / maxValue) * (chartHeight - 2 * padding);
-                return `${i === 0 ? "M" : "L"} ${x} ${y}`;
-              })
-              .join(" ")}
-            fill="none"
-            stroke={theme.palette.primary.main}
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-
-          {/* Data points */}
-          {chartData.map((d, i) => {
-            const x =
-              padding + (i * (400 - 2 * padding)) / (chartData.length - 1);
-            const y =
-              chartHeight -
-              padding -
-              (d.value / maxValue) * (chartHeight - 2 * padding);
-            return (
-              <g key={i}>
-                <circle cx={x} cy={y} r="5" fill={theme.palette.primary.main} />
-                <title>{`${
-                  d.day
-                }: Volume: $${d.value.toLocaleString()}`}</title>
-              </g>
-            );
-          })}
-        </svg>
-
-        {/* Y-axis labels */}
-        <Box
-          sx={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            height: `${chartHeight}px`,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            width: "40px",
-          }}
-        >
-          {[0, 4, 8, 12, 16].map((val) => (
-            <Typography
-              key={val}
-              variant="caption"
-              sx={{
-                fontSize: "12px",
-                color: theme.palette.text.secondary,
-                fontFamily: "UrbanistRegular",
-              }}
-            >
-              ${val}k
-            </Typography>
-          ))}
-        </Box>
-
-        {/* X-axis labels */}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            left: padding + 20,
-            right: 20,
-            display: "flex",
-            justifyContent: "space-between",
-            height: `${labelHeight}px`,
-            alignItems: "flex-start",
-          }}
-        >
-          {chartData.map((d) => (
-            <Typography
-              key={d.day}
-              variant="caption"
-              sx={{
-                fontSize: "12px",
-                color: theme.palette.text.secondary,
-                fontFamily: "UrbanistRegular",
-              }}
-            >
-              {d.day}
-            </Typography>
-          ))}
-        </Box>
-      </Box>
+    <Box sx={{ width: "100%", mt: isMobile ? "14px" : "12px" }}>
+      <ReusableAreaChart
+        data={transactionData}
+        dataKey="date"
+        valueKey="value"
+        width={isMobile ? "100%" : "800px"}
+        height={320}
+        strokeWidth={3}
+        dotRadius={5}
+        showDots={true}
+        showGrid={true}
+        gridColor="#D9D9D9"
+        gridStrokeDasharray="3 3"
+        curveType="natural"
+        margin={{ top: 10, right: 0, bottom: 0, left: 0 }}
+        yAxisTickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+        yAxisDomain={[0, 16000]}
+        tooltipLabelFormatter={(data) => data.date}
+        tooltipValueFormatter={(value) => [
+          getCurrencySymbol("USD", formatNumberWithComma(value)),
+          "Volume",
+        ]}
+        gradientStartColor="#D1E0FF"
+        gradientEndColor="#E5EDFF"
+        gradientStartOpacity={0.6}
+        gradientEndOpacity={0}
+        tooltipLabel="Volume"
+        isAnimationActive={true}
+        animationDuration={500}
+        enableHorizontalScroll={true}
+        gridCellWidthMobile={82}
+        gridCellHeightMobile={57.25}
+        gridCellWidthDesktop={150.5}
+        gridCellHeightDesktop={72.25}
+      />
     </Box>
   );
 };
@@ -339,6 +265,7 @@ const DashboardLeftSection = () => {
   const statCardsScrollLeftRef = useRef(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isStatCardsDragging, setIsStatCardsDragging] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("7days");
 
   const { t } = useTranslation(namespaces);
   const tDashboard = useCallback(
@@ -508,7 +435,7 @@ const DashboardLeftSection = () => {
       >
         {/* Total Transactions */}
         <PanelCard
-          title={t("totalTransactions")}
+          title={tDashboard("totalTransactions")}
           showHeaderBorder={false}
           headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
           bodyPadding={theme.spacing(2, 2.5, 2.5, 2.5)}
@@ -677,7 +604,7 @@ const DashboardLeftSection = () => {
 
         {/* Active Wallets */}
         <PanelCard
-          title={t("activeWallets")}
+          title={tDashboard("activeWallets")}
           showHeaderBorder={false}
           headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
           bodyPadding={theme.spacing(2, 2.5, 2.5, 2.5)}
@@ -690,16 +617,16 @@ const DashboardLeftSection = () => {
             <IconButton
               sx={{
                 padding: "8px",
-                width: "40px",
-                height: "40px",
+                width: isMobile ? "32px" : "40px",
+                height: isMobile ? "32px" : "40px",
                 "&:hover": { backgroundColor: "transparent" },
               }}
             >
               <Image
                 src={WalletIcon}
                 alt="Wallet Icon"
-                width={14}
-                height={14}
+                width={isMobile ? 12 : 17}
+                height={isMobile ? 12 : 14}
                 draggable={false}
               />
             </IconButton>
@@ -835,42 +762,69 @@ const DashboardLeftSection = () => {
 
       {/* Transaction Volume Graph */}
       <PanelCard
-        title="Transaction Volume"
-        subTitle="Daily transaction activity"
-        showHeaderBorder={true}
+        showHeaderBorder={false}
         headerPadding={theme.spacing(2.5)}
         bodyPadding={theme.spacing(2.5, 2.5, 3, 2.5)}
-        headerAction={
-          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
-            <Box
+        headerActionLayout="inline"
+        sx={{ mb: 2.5, boxShadow: "none !important" }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: { xs: "flex-start", sm: "space-between" },
+            alignItems: { xs: "flex-start", md: "center" },
+            gap: { xs: 2, md: 0 },
+          }}
+        >
+          <Box sx={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <Typography
               sx={{
-                px: 1.5,
-                py: 0.5,
-                borderRadius: "6px",
-                border: `1px solid ${theme.palette.border.main}`,
-                fontSize: "13px",
+                fontSize: isMobile ? "15px" : "20px",
                 color: theme.palette.text.primary,
                 fontFamily: "UrbanistMedium",
+                lineHeight: 1.2,
               }}
             >
-              Last 7 Days
-            </Box>
-            <CustomButton
-              label="View Transactions"
-              variant="primary"
-              size="small"
-              endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
+              {tDashboard("transactionVolume")}
+            </Typography>
+            <Typography
               sx={{
-                height: "32px",
                 fontSize: "13px",
-                px: 1.5,
+                color: theme.palette.text.secondary,
+                fontFamily: "UrbanistMedium",
+                lineHeight: 1.2,
               }}
-            />
+            >
+              {tDashboard("dailyTransactionActivity")}
+            </Typography>
           </Box>
-        }
-        headerActionLayout="inline"
-        sx={{ mb: 2.5 }}
-      >
+          <Box
+            sx={{
+              display: "flex",
+              gap: "12px",
+              alignItems: "center",
+              justifyContent: { xs: "space-between", md: "flex-start" },
+              width: { xs: "100%", sm: "auto" },
+            }}
+          >
+            <TimePeriodSelector
+              value={selectedPeriod}
+              onChange={(period) => setSelectedPeriod(period)}
+              sx={{ flexShrink: 0 }}
+            />
+            <Box>
+              <CustomButton
+                label={t("viewTransactions")}
+                variant="secondary"
+                size={isMobile ? "small" : "medium"}
+                endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
+                sx={{ flexShrink: 0 }}
+              />
+            </Box>
+          </Box>
+        </Box>
         <TransactionVolumeChart />
       </PanelCard>
     </Box>

@@ -22,5 +22,21 @@
   "totalTransactions": "Total Transactions",
   "totalVolume": "Total Volume",
   "activeWallets": "Active Wallets",
-  "comparedToLastMonth": "Compared to last month"
+  "comparedToLastMonth": "Compared to last month",
+  "feeTierProgress": "Fee Tier Progress",
+  "yourProgressTowardsTheNextFeeTier": "Your progress toward the next fee tier",
+  "monthlyVolume": "Monthly Volume",
+  "upgradeToPremiumTier": "Upgrade to Premium Tier",
+  "lowerFeesAndPrioritySupport": "Lower fees (0.5%) and priority support",
+  "learnMore": "Learn more",
+  "currentTier": "Current Tier",
+  "toNextTier": "to next tier",
+  "complete": "complete",
+  "transactionVolume": "Transaction Volume",
+  "dailyTransactionActivity": "Daily transaction activity",
+  "viewTransactions": "View Transactions",
+  "last7Days": "Last 7 Days",
+  "last30Days": "Last 30 Days",
+  "last90Days": "Last 90 Days",
+  "customPeriod": "Custom Period"
 }

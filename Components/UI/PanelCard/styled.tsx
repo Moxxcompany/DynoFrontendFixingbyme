@@ -79,7 +79,7 @@ export const CardFooter = styled(Box)(({ theme }) => ({
 }));
 
 export const HeaderSubTitle = styled(Typography)(({ theme }) => ({
-  fontSize: "15px",
+  fontSize: "13px",
   fontWeight: 400,
   lineHeight: 1.2,
   letterSpacing: "-0.02em",

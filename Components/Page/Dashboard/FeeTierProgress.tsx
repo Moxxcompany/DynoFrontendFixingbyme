@@ -1,9 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import PanelCard from "@/Components/UI/PanelCard";
 import { CheckCircle } from "@mui/icons-material";
 import { theme } from "@/styles/theme";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
+import useIsMobile from "@/hooks/useIsMobile";
+import { useTranslation } from "react-i18next";
 
 interface FeeTierProgressProps {
   monthlyLimit?: number; // Monthly volume limit (default: 50000)
@@ -16,8 +18,60 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
   usedAmount = 6479.25,
   currentTier = "Standard",
 }) => {
-  const themeHook = useTheme();
+  const theme = useTheme();
+  const isMobile = useIsMobile("md");
+  const namespaces = ["dashboardLayout", "common"];
+  const { t } = useTranslation(namespaces);
+  const tDashboard = useCallback(
+    (key: string) => t(key, { ns: "dashboardLayout" }),
+    [t]
+  );
 
+  // Drag scroll refs and state
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Drag scroll handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!scrollContainerRef.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+    isDraggingRef.current = true;
+    setIsDragging(true);
+    startXRef.current = e.pageX - scrollContainerRef.current.offsetLeft;
+    scrollLeftRef.current = scrollContainerRef.current.scrollLeft;
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || !scrollContainerRef.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startXRef.current) * 2; // Scroll speed multiplier
+    scrollContainerRef.current.scrollLeft = scrollLeftRef.current - walk;
+  }, []);
+
+  const handleMouseUp = useCallback((e?: React.MouseEvent<HTMLDivElement>) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    isDraggingRef.current = false;
+    setIsDragging(false);
+  }, []);
+
+  const handleMouseLeave = useCallback(
+    (e?: React.MouseEvent<HTMLDivElement>) => {
+      if (e) {
+        e.stopPropagation();
+      }
+      isDraggingRef.current = false;
+      setIsDragging(false);
+    },
+    []
+  );
   // Get number of days in current month
   const daysInMonth = useMemo(() => {
     const now = new Date();
@@ -27,7 +81,7 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
   // Calculate percentage
   const percentage = useMemo(() => {
     if (monthlyLimit <= 0) return 0;
-    return (usedAmount / monthlyLimit) * 100;
+    return Number(((usedAmount / monthlyLimit) * 100).toFixed(1));
   }, [usedAmount, monthlyLimit]);
 
   // Calculate how many bars should be filled
@@ -50,36 +104,44 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
       {/* Progress Bar */}
       <Box sx={{ mb: 2 }}>
         <Box
+          ref={scrollContainerRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
           sx={{
             display: "flex",
-            gap: 0.5,
-            mb: 1.5,
+            gap: isMobile ? "3.78px" : "6.19px",
+            mb: isMobile ? "8px" : "14px",
+            width: "max-content",
+            maxWidth: "100%",
             overflowX: "auto",
             overflowY: "hidden",
+            cursor: isDragging ? "grabbing" : "grab",
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            MozUserSelect: "none",
+            msUserSelect: "none",
+            willChange: isDragging ? "scroll-position" : "auto",
+            "& *": {
+              userSelect: "none",
+              WebkitUserDrag: "none",
+            },
             "&::-webkit-scrollbar": {
-              height: "6px",
+              height: 0,
             },
             "&::-webkit-scrollbar-track": {
-              background: themeHook.palette.grey[100],
+              display: "none",
               borderRadius: "3px",
             },
             "&::-webkit-scrollbar-thumb": {
-              background: themeHook.palette.grey[400],
-              borderRadius: "3px",
+              display: "none",
               "&:hover": {
-                background: themeHook.palette.grey[500],
+                display: "none",
               },
             },
             // For Firefox
-            scrollbarWidth: "thin",
-            scrollbarColor: `${themeHook.palette.grey[400]} ${themeHook.palette.grey[100]}`,
-            [themeHook.breakpoints.up("md")]: {
-              overflowX: "visible",
-              "&::-webkit-scrollbar": {
-                display: "none",
-              },
-              scrollbarWidth: "none",
-            },
+            scrollbarWidth: "none",
           }}
         >
           {/* Filled bars */}
@@ -87,11 +149,15 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
             <Box
               key={`filled-${i}`}
               sx={{
-                minWidth: "8px",
+                width: { xs: "8px", md: "10px" },
+                maxWidth: { xs: "8px", md: "10px" },
+                minWidth: { xs: "8px", md: "10px" },
                 flex: { xs: "0 0 8px", md: 1 },
-                height: "24px",
-                background: themeHook.palette.primary.main,
-                borderRadius: "4px",
+                height: "205px",
+                maxHeight: { xs: "85px", md: "205px" },
+                minHeight: { xs: "85px", md: "205px" },
+                background: theme.palette.primary.main,
+                borderRadius: "20px",
                 flexShrink: 0,
               }}
             />
@@ -101,11 +167,15 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
             <Box
               key={`remaining-${i}`}
               sx={{
-                minWidth: "8px",
+                width: { xs: "8px", md: "10px" },
+                maxWidth: { xs: "8px", md: "10px" },
+                minWidth: { xs: "8px", md: "10px" },
                 flex: { xs: "0 0 8px", md: 1 },
-                height: "24px",
-                background: themeHook.palette.grey[200],
-                borderRadius: "4px",
+                height: "205px",
+                maxHeight: { xs: "85px", md: "205px" },
+                minHeight: { xs: "85px", md: "205px" },
+                background: theme.palette.primary.light,
+                borderRadius: "20px",
                 flexShrink: 0,
               }}
             />
@@ -116,27 +186,29 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            mb: 1.5,
+            alignItems: "center",
           }}
         >
           <Typography
             sx={{
-              fontSize: "15px",
+              fontSize: isMobile ? "10px" : "13px",
               fontWeight: 500,
-              color: themeHook.palette.primary.main,
+              color: theme.palette.primary.main,
               fontFamily: "UrbanistMedium",
             }}
           >
-            {percentage.toFixed(1)}% complete
+            {percentage.toFixed(1)}% {tDashboard("complete")}
           </Typography>
           <Typography
             sx={{
-              fontSize: "15px",
-              color: themeHook.palette.text.secondary,
+              fontSize: isMobile ? "10px" : "13px",
+              fontWeight: 500,
+              color: theme.palette.text.secondary,
               fontFamily: "UrbanistRegular",
             }}
           >
-            {getCurrencySymbol("USD", formattedRemaining)} remaining
+            {getCurrencySymbol("USD", formattedRemaining)}{" "}
+            {tDashboard("toNextTier")}
           </Typography>
         </Box>
       </Box>

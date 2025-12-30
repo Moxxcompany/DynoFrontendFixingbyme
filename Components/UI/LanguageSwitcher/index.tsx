@@ -153,6 +153,7 @@ export default function LanguageSwitcher({ sx }: { sx?: SxProps<Theme> }) {
                 primaryTypographyProps={{
                   sx: {
                     fontSize: isMobile ? "13px !important" : "15px",
+                    lineHeight: 1.2,
                   },
                 }}
                 primary={`${lng.code.toUpperCase()} – ${lng.label}`}

@@ -18,11 +18,11 @@ export interface InputFieldProps {
   placeholder?: string;
   value?: string;
   name?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onPaste?: (e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
   type?: "text" | "email" | "password" | "number" | "tel" | "url";
   variant?: "outlined" | "filled" | "standard";
   size?: "small" | "medium";
@@ -56,7 +56,7 @@ export interface InputFieldProps {
     | "numeric"
     | "decimal"
     | "search";
-  inputRef?: React.Ref<HTMLInputElement | HTMLTextAreaElement>;
+  inputRef?: React.Ref<HTMLInputElement>;
   autoComplete?: string;
   minRows?: number;
   maxRows?: number;

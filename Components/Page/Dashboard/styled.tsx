@@ -19,3 +19,14 @@ export const PercentageChip = styled(Box)(({ theme }) => ({
     gap: 2,
   },
 }));
+
+export const PremiumTierCard = styled(Box)(({ theme }) => ({
+  position: "relative",
+  border: `1px solid ${theme.palette.border.main}`,
+  borderRadius: "6px",
+  background: theme.palette.secondary.light,
+  padding: theme.spacing(3),
+  [theme.breakpoints.down("md")]: {
+    padding: theme.spacing("14px"),
+  },
+}));
