@@ -120,6 +120,41 @@ const InputField: React.FC<InputFieldProps> = ({
   const inputType =
     showPasswordToggle && type === "password" && showPassword ? "text" : type;
 
+  // Handle keydown for number inputs to prevent 'e', 'E', '+', and '-'
+  const handleNumberKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    // If it's a number input, prevent 'e', 'E', '+', and '-' keys
+    if (type === "number") {
+      if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-") {
+        e.preventDefault();
+        return;
+      }
+    }
+
+    // Call the original onKeyDown handler if provided
+    if (onKeyDown) {
+      onKeyDown(e as React.KeyboardEvent<HTMLInputElement>);
+    }
+  };
+  // Handle paste for number inputs to prevent 'e' and 'E'
+  const handleNumberPaste = (
+    e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    // If it's a number input, prevent paste if it contains 'e' or 'E'
+    if (type === "number") {
+      const pastedText = e.clipboardData.getData("text");
+      if (pastedText.includes("e") || pastedText.includes("E")) {
+        e.preventDefault();
+        return;
+      }
+    }
+
+    // Call the original onPaste handler if provided
+    if (onPaste) {
+      onPaste(e as React.ClipboardEvent<HTMLInputElement>);
+    }
+  };
   const borderColor = success
     ? theme.palette.success.main
     : error
@@ -243,12 +278,14 @@ const InputField: React.FC<InputFieldProps> = ({
             onChange={onChange}
             onBlur={onBlur}
             onFocus={onFocus}
-            onKeyDown={onKeyDown as any}
-            onPaste={onPaste
-              ? (e: React.ClipboardEvent<HTMLDivElement>) => {
-                  onPaste(e as any);
-                }
-              : undefined}
+            onKeyDown={handleNumberKeyDown as any}
+            onPaste={
+              type === "number" || onPaste
+                ? (e: React.ClipboardEvent<HTMLDivElement>) => {
+                    handleNumberPaste(e as any);
+                  }
+                : undefined
+            }
             type={inputType}
             variant={variant}
             disabled={disabled}
@@ -307,6 +344,18 @@ const InputField: React.FC<InputFieldProps> = ({
                     fontFamily: "UrbanistMedium",
                   },
                   fontFamily: "UrbanistMedium",
+                  // Hide number input spinners
+                  ...(type === "number" && {
+                    MozAppearance: "textfield",
+                    "&::-webkit-outer-spin-button": {
+                      WebkitAppearance: "none",
+                      margin: 0,
+                    },
+                    "&::-webkit-inner-spin-button": {
+                      WebkitAppearance: "none",
+                      margin: 0,
+                    },
+                  }),
                 },
                 "& textarea": {
                   resize: "none",
@@ -400,7 +449,9 @@ const InputField: React.FC<InputFieldProps> = ({
               fontSize: isMobile ? "10px" : "13px",
               fontFamily: "UrbanistMedium",
               fontWeight: 500,
-              color: error ? theme.palette.error.main : theme.palette.secondary.contrastText,
+              color: error
+                ? theme.palette.error.main
+                : theme.palette.secondary.contrastText,
               lineHeight: "1.2",
               textAlign: "start",
             }}

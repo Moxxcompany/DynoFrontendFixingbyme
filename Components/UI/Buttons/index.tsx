@@ -234,7 +234,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       )}
 
       {!shouldHideLabel && (
-        <span style={{ fontSize: isMobile ? "13px" : "15px" }}>{label}</span>
+        <span className="custom-button-label" style={{ fontSize: isMobile ? "13px" : "15px" ,fontFamily: "UrbanistMedium", fontWeight: 500 }}>{label}</span>
       )}
 
       {endIcon && (
