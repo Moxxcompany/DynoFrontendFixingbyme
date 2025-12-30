@@ -30,6 +30,7 @@ import ReusableAreaChart from "@/Components/UI/AreaChart";
 import TimePeriodSelector, {
   TimePeriod,
 } from "@/Components/UI/TimePeriodSelector";
+import { useRouter } from "next/router";
 
 // Active wallets data array
 interface ActiveWallet {
@@ -48,37 +49,167 @@ const activeWalletsData: ActiveWallet[] = [
   { code: "USDT", icon: USDTIcon },
 ];
 
+// Helper function to format date as "MMM D" (e.g., "Nov 30")
+const formatDate = (date: Date): string => {
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  return `${months[date.getMonth()]} ${date.getDate()}`;
+};
+
+// Helper function to generate date range based on period
+const generateDateRange = (period: TimePeriod): Date[] => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let days = 7; // default
+  if (period === "30days") days = 30;
+  else if (period === "90days") days = 90;
+  else if (period === "custom") days = 7; // For custom, you might want to handle differently
+
+  const dates: Date[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    dates.push(date);
+  }
+  return dates;
+};
+
+// Helper function to process and fill in missing dates
+const processTransactionData = (
+  rawData: Array<{ date: string; value: number }>,
+  period: TimePeriod
+): Array<{ date: string; value: number }> => {
+  const dateRange = generateDateRange(period);
+  const dateMap = new Map<string, number>();
+
+  // Create a map of existing data by date string
+  rawData.forEach((item) => {
+    dateMap.set(item.date, item.value);
+  });
+
+  // Fill in all dates in the range
+  const result = dateRange.map((date) => {
+    const dateStr = formatDate(date);
+    return {
+      date: dateStr,
+      value: dateMap.get(dateStr) ?? 0,
+    };
+  });
+
+  return result;
+};
+
 // Transaction Volume Chart Component
-const TransactionVolumeChart = () => {
+const TransactionVolumeChart = ({
+  selectedPeriod,
+}: {
+  selectedPeriod: TimePeriod;
+}) => {
   const isMobile = useIsMobile("md");
-  const transactionData = useMemo(
+
+  // Raw transaction data (this would come from API in real app)
+  // SAMPLE DATA FOR TESTING - Uncomment the scenarios you want to test:
+
+  // Scenario 1: No data (new account) - shows grid only, no line
+  // const rawTransactionData = useMemo(
+  //   () => [
+  //     // Empty array for no data
+  //   ],
+  //   []
+  // );
+
+  // Scenario 2: Single data point - shows one dot with line from 0
+  // const rawTransactionData = useMemo(
+  //   () => [
+  //     { date: "Dec 24", value: 8000 },
+  //   ],
+  //   []
+  // );
+
+  // Scenario 3: Multiple data points with gaps - fills missing dates
+  // const rawTransactionData = useMemo(
+  //   () => [
+  //     { date: "Dec 24", value: 6000 },
+  //     { date: "Dec 25", value: 12000 },
+  //     { date: "Dec 27", value: 8000 },
+  //     { date: "Dec 28", value: 13500 },
+  //   ],
+  //   []
+  // );
+
+  // Scenario 4: Large value fluctuation - tests Y-axis domain
+  const rawTransactionData = useMemo(
     () => [
-      { date: "Nov 1", value: 6000 },
-      { date: "Nov 2", value: 12000 },
-      { date: "Nov 3", value: 8000 },
-
-      { date: "Nov 6", value: 13500 },
-      { date: "Nov 7", value: 14500 },
-      { date: "Nov 8", value: 12000 },
-      { date: "Nov 9", value: 8000 },
-      { date: "Nov 10", value: 15600 },
-      { date: "Nov 11", value: 11000 },
-      // {date: "Nov 12", value: 13500},
-      // {date: "Nov 13", value: 14500},
-
-      // {date: "Nov 19", value: 14500},
-      // {date: "Nov 20", value: 12000},
-      // {date: "Nov 21", value: 8000},
-      // {date: "Nov 22", value: 15600},
-      // {date: "Nov 23", value: 11000},
-      // {date: "Nov 24", value: 13500},
-      // {date: "Nov 25", value: 14500},
-
-      // {date: "Nov 28", value: 15600},
-      // {date: "Nov 29", value: 11000},
-      // {date: "Nov 30", value: 13500},
+      { date: "Dec 24", value: 800 },
+      { date: "Dec 25", value: 12000 },
+      { date: "Dec 26", value: 6000 },
+      { date: "Dec 27", value: 114500 },
+      { date: "Dec 28", value: 12000 },
     ],
     []
+  );
+
+  // Scenario 5: Full 7 days of data
+  // const rawTransactionData = useMemo(
+  //   () => [
+  //     {date: "Dec 1", value: 2000},
+  //     {date: "Dec 2", value: 4000},
+  //     {date: "Dec 3", value: 0},
+  //     {date: "Dec 4", value: 8000},
+  //     {date: "Dec 5", value: 10000},
+  //     {date: "Dec 6", value: 12000},
+  //     {date: "Dec 7", value: 14000},
+  //     {date: "Dec 8", value: 0},
+  //     {date: "Dec 9", value: 18000},
+  //     {date: "Dec 10", value: 20000},
+  //     {date: "Dec 11", value: 22000},
+  //     {date: "Dec 12", value: 0},
+  //     {date: "Dec 13", value: 26000},
+  //     {date: "Dec 14", value: 28000},
+  //     {date: "Dec 15", value: 30000},
+  //     {date: "Dec 16", value: 0},
+  //     {date: "Dec 17", value: 34000},
+  //     {date: "Dec 18", value: 36000},
+  //     {date: "Dec 19", value: 0},
+  //     {date: "Dec 20", value: 40000},
+  //     {date: "Dec 21", value: 42000},
+  //     {date: "Dec 22", value: 0},
+  //     {date: "Dec 23", value: 46000},
+  //     {date: "Dec 24", value: 48000},
+  //     {date: "Dec 25", value: 50000},
+  //     {date: "Dec 26", value: 52000},
+  //     {date: "Dec 27", value: 54000},
+  //     {date: "Dec 28", value: 56000},
+  //     {date: "Dec 29", value: 58000},
+  //     {date: "Dec 30", value: 60000},
+  //     {date: "Dec 31", value: 62000},
+  //   ],
+  //   []
+  // );
+
+  // Process data to fill in missing dates based on selected period
+  const transactionData = useMemo(
+    () => processTransactionData(rawTransactionData, selectedPeriod),
+    [rawTransactionData, selectedPeriod]
+  );
+
+  // Check if we have any non-zero data
+  const hasData = useMemo(
+    () => transactionData.some((item) => item.value > 0),
+    [transactionData]
   );
 
   return (
@@ -91,11 +222,11 @@ const TransactionVolumeChart = () => {
         height={320}
         strokeWidth={3}
         dotRadius={5}
-        showDots={true}
+        showDots={hasData}
         showGrid={true}
         gridColor="#D9D9D9"
         gridStrokeDasharray="3 3"
-        curveType="natural"
+        curveType="monotone"
         margin={{ top: 10, right: 0, bottom: 0, left: 0 }}
         yAxisTickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
         yAxisDomain={[0, 16000]}
@@ -106,7 +237,7 @@ const TransactionVolumeChart = () => {
         ]}
         gradientStartColor="#D1E0FF"
         gradientEndColor="#E5EDFF"
-        gradientStartOpacity={0.6}
+        gradientStartOpacity={0.8}
         gradientEndOpacity={0}
         tooltipLabel="Volume"
         isAnimationActive={true}
@@ -116,6 +247,7 @@ const TransactionVolumeChart = () => {
         gridCellHeightMobile={57.25}
         gridCellWidthDesktop={150.5}
         gridCellHeightDesktop={72.25}
+        hasData={hasData}
       />
     </Box>
   );
@@ -254,6 +386,7 @@ const DashboardLeftSection = () => {
   const theme = useTheme();
   const namespaces = ["dashboardLayout", "common"];
   const isMobile = useIsMobile("md");
+  const router = useRouter();
   const [showAllWallets, setShowAllWallets] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const statCardsContainerRef = useRef<HTMLDivElement>(null);
@@ -821,11 +954,12 @@ const DashboardLeftSection = () => {
                 size={isMobile ? "small" : "medium"}
                 endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
                 sx={{ flexShrink: 0 }}
+                onClick={() => router.push("/transactions")}
               />
             </Box>
           </Box>
         </Box>
-        <TransactionVolumeChart />
+        <TransactionVolumeChart selectedPeriod={selectedPeriod} />
       </PanelCard>
     </Box>
   );

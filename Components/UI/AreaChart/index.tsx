@@ -103,6 +103,9 @@ export interface AreaChartProps {
   gridCellHeightMobile?: number; // Mobile grid cell height (default: 70)
   gridCellWidthDesktop?: number; // Desktop grid cell width (default: 150)
   gridCellHeightDesktop?: number; // Desktop grid cell height (default: 75)
+  
+  // Data visibility
+  hasData?: boolean; // Whether to show the area/line (default: true, calculated from data if not provided)
 }
 
 const CustomTooltip = ({
@@ -114,6 +117,7 @@ const CustomTooltip = ({
   valuePrefix = "",
   valueSuffix = "",
   isMobile,
+  coordinate,
 }: any) => {
   const theme = useTheme();
 
@@ -137,6 +141,7 @@ const CustomTooltip = ({
           position: "relative",
           boxShadow: "0 4px 6.3px 0 rgba(52, 93, 157, 0.09)",
           zIndex: 50,
+          transform: "translateX(-50%)", // Center the tooltip horizontally below the dot
 
           "&::before": {
             content: '""',
@@ -229,11 +234,11 @@ const CustomTooltip = ({
   return null;
 };
 
-const CustomDot = ({ cx = 20, cy = 20, fill, r = 5 }: any) => {
+const CustomDot = ({ cx = 20, cy = 20, fill, r = 5, ...props }: any) => {
   // Use a static filter ID since all dots can share the same filter
-
+  // Ensure dots are interactive for tooltip
   return (
-    <g>
+    <g {...props} style={{ pointerEvents: "all", cursor: "pointer" }}>
       {/* Blurred background circle */}
       <circle
         cx={cx}
@@ -305,6 +310,7 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
   gridCellHeightMobile = 70,
   gridCellWidthDesktop = 150,
   gridCellHeightDesktop = 75,
+  hasData: hasDataProp,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
@@ -324,40 +330,151 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     gradientStartColor || theme.palette.primary.main;
   const finalGradientEndColor = gradientEndColor || theme.palette.primary.main;
 
-  // Calculate Y-axis domain if not provided
-  const calculatedYAxisDomain = useMemo(() => {
-    if (yAxisDomain) {
-      // If domain is provided, ensure it accommodates all data points
-      const values = data
-        .map((item) => Number(item[valueKey]))
-        .filter((v) => !isNaN(v));
-      if (values.length === 0) return yAxisDomain;
-
-      const maxValue = Math.max(...values);
-      const [minDomain, maxDomain] = yAxisDomain;
-      // If max value exceeds domain, round up to nearest 4000 for equal intervals
-      if (maxValue > Number(maxDomain)) {
-        const roundedMax = Math.ceil((maxValue + 1000) / 4000) * 4000;
-        return [Number(minDomain), roundedMax];
-      }
-      // Round the max domain to nearest 4000 for equal intervals
-      const roundedMax = Math.ceil(Number(maxDomain) / 4000) * 4000;
-      return [Number(minDomain), roundedMax];
-    }
-
+  // Determine if we should show the area/line
+  const shouldShowArea = useMemo(() => {
+    if (hasDataProp !== undefined) return hasDataProp;
+    // Auto-detect: check if there are any non-zero values
     const values = data
       .map((item) => Number(item[valueKey]))
       .filter((v) => !isNaN(v));
-    if (values.length === 0) return [0, 100];
+    return values.some((v) => v > 0);
+  }, [hasDataProp, data, valueKey]);
 
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const padding = (max - min) * 0.1; // 10% padding
+  // Use the provided data directly (it should already be processed with all dates filled)
+  const chartData = data;
 
-    // Round up to nearest 4000 for equal intervals (0k, 4k, 8k, 12k, 16k, 20k)
-    const roundedMax = Math.ceil((max + padding) / 4000) * 4000;
+  // Calculate Y-axis domain if not provided
+  const calculatedYAxisDomain = useMemo(() => {
+    const values = chartData
+      .map((item) => Number(item[valueKey]))
+      .filter((v) => !isNaN(v));
+    
+    if (values.length === 0) {
+      // If no data, return default domain or provided domain
+      return yAxisDomain || [0, 16000];
+    }
+
+    const maxValue = Math.max(...values);
+    const minValue = Math.min(...values);
+
+    if (yAxisDomain) {
+      // If domain is provided, ensure it accommodates all data points
+      const [minDomain, maxDomain] = yAxisDomain;
+      const minNum = typeof minDomain === "string" ? parseFloat(minDomain) : Number(minDomain);
+      const maxNum = typeof maxDomain === "string" ? parseFloat(maxDomain) : Number(maxDomain);
+      
+      // Always ensure the domain can accommodate the max value with padding for curve interpolation
+      if (maxValue > maxNum) {
+        // Calculate appropriate rounding based on value magnitude
+        let roundedMax;
+        if (maxValue >= 100000) {
+          roundedMax = Math.ceil((maxValue * 1.3) / 10000) * 10000; // 30% padding for large values
+        } else if (maxValue >= 10000) {
+          roundedMax = Math.ceil((maxValue * 1.3) / 5000) * 5000;
+        } else if (maxValue >= 1000) {
+          roundedMax = Math.ceil((maxValue * 1.3) / 1000) * 1000;
+        } else {
+          roundedMax = Math.ceil((maxValue * 1.3) / 100) * 100;
+        }
+        return [minNum, roundedMax];
+      }
+      // If max value fits, use the provided domain but ensure it's properly rounded
+      let roundedMax;
+      if (maxNum >= 100000) {
+        roundedMax = Math.ceil(maxNum / 10000) * 10000;
+      } else if (maxNum >= 10000) {
+        roundedMax = Math.ceil(maxNum / 5000) * 5000;
+      } else if (maxNum >= 1000) {
+        roundedMax = Math.ceil(maxNum / 1000) * 1000;
+      } else {
+        roundedMax = Math.ceil(maxNum / 100) * 100;
+      }
+      return [minNum, roundedMax];
+    }
+
+    // Auto-calculate domain if not provided
+    // Add padding to ensure all values fit within the domain
+    // For natural curves, add extra padding as interpolation can create peaks beyond data points
+    const valueRange = maxValue - minValue;
+    const basePadding = Math.max(
+      valueRange * 0.15, // 15% padding based on range
+      maxValue * 0.1 // Or 10% of max value, whichever is larger
+    );
+    
+    // Add extra padding for natural/curved interpolation types
+    let curvePadding = 0;
+    if (curveType === "natural") {
+      // For natural curves, use aggressive padding for large value jumps
+      const hasLargeJump = valueRange > maxValue * 0.5;
+      if (hasLargeJump) {
+        curvePadding = maxValue * 0.4; // 40% for large jumps
+      } else {
+        curvePadding = maxValue * 0.25; // 25% for smaller ranges
+      }
+    } else if (curveType === "monotone") {
+      curvePadding = maxValue * 0.15; // 15% for monotone
+    }
+    
+    const padding = basePadding + curvePadding;
+    const paddedMax = maxValue + padding;
+
+    // Determine appropriate rounding based on value magnitude
+    let roundedMax;
+    if (paddedMax >= 100000) {
+      roundedMax = Math.ceil((paddedMax + 1000) / 10000) * 10000;
+    } else if (paddedMax >= 10000) {
+      roundedMax = Math.ceil((paddedMax + 500) / 5000) * 5000;
+    } else if (paddedMax >= 1000) {
+      roundedMax = Math.ceil((paddedMax + 100) / 1000) * 1000;
+    } else {
+      roundedMax = Math.ceil((paddedMax + 10) / 100) * 100;
+    }
+
+    // Final safety check: ensure roundedMax is always significantly greater than maxValue
+    if (roundedMax <= maxValue) {
+      if (maxValue >= 100000) {
+        roundedMax = Math.ceil((maxValue * 1.5) / 10000) * 10000;
+      } else if (maxValue >= 10000) {
+        roundedMax = Math.ceil((maxValue * 1.5) / 5000) * 5000;
+      } else if (maxValue >= 1000) {
+        roundedMax = Math.ceil((maxValue * 1.5) / 1000) * 1000;
+      } else {
+        roundedMax = Math.ceil((maxValue * 1.5) / 100) * 100;
+      }
+    } else {
+      // Add additional safety buffer for curve interpolation
+      const safetyBuffer = curveType === "natural" 
+        ? roundedMax * 0.15 // 15% extra buffer for natural curves
+        : roundedMax * 0.1; // 10% for others
+      roundedMax = roundedMax + safetyBuffer;
+      
+      // Re-round after adding buffer
+      if (roundedMax >= 100000) {
+        roundedMax = Math.ceil(roundedMax / 10000) * 10000;
+      } else if (roundedMax >= 10000) {
+        roundedMax = Math.ceil(roundedMax / 5000) * 5000;
+      } else if (roundedMax >= 1000) {
+        roundedMax = Math.ceil(roundedMax / 1000) * 1000;
+      } else {
+        roundedMax = Math.ceil(roundedMax / 100) * 100;
+      }
+      
+      // Final verification: ensure it's at least 20% above maxValue for natural curves
+      if (curveType === "natural" && roundedMax < maxValue * 1.2) {
+        if (maxValue >= 100000) {
+          roundedMax = Math.ceil((maxValue * 1.2) / 10000) * 10000;
+        } else if (maxValue >= 10000) {
+          roundedMax = Math.ceil((maxValue * 1.2) / 5000) * 5000;
+        } else if (maxValue >= 1000) {
+          roundedMax = Math.ceil((maxValue * 1.2) / 1000) * 1000;
+        } else {
+          roundedMax = Math.ceil((maxValue * 1.2) / 100) * 100;
+        }
+      }
+    }
+
     return [0, roundedMax];
-  }, [data, valueKey, yAxisDomain]);
+  }, [chartData, valueKey, yAxisDomain, curveType]);
 
   // Calculate chart dimensions based on grid cell size
   const calculatedChartDimensions = useMemo(() => {
@@ -431,7 +548,7 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     gridCellWidthDesktop,
     gridCellHeightDesktop,
     isMobile,
-    data.length,
+    chartData.length,
     calculatedYAxisDomain,
     margin,
   ]);
@@ -573,8 +690,38 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
           width={calculatedChartDimensions?.width ? chartWidth : "100%"}
           height={calculatedChartDimensions?.height ? chartHeight : "100%"}
         >
+          <Box
+            component="style"
+            dangerouslySetInnerHTML={{
+              __html: `
+                /* Make the area fill and stroke not trigger tooltip - only dots will trigger */
+                .recharts-area-curve {
+                  pointer-events: none !important;
+                }
+                .recharts-area-area {
+                  pointer-events: none !important;
+                }
+                .recharts-area {
+                  pointer-events: none !important;
+                }
+                /* Keep dots interactive */
+                .recharts-dot {
+                  pointer-events: all !important;
+                  cursor: pointer !important;
+                }
+                .recharts-active-dot {
+                  pointer-events: all !important;
+                  cursor: pointer !important;
+                }
+                /* Ensure tooltip wrapper is positioned correctly */
+                .recharts-tooltip-wrapper {
+                  pointer-events: none !important;
+                }
+              `,
+            }}
+          />
           <AreaChart
-            data={data}
+            data={chartData}
             margin={margin}
             style={{
               outline: "none",
@@ -653,6 +800,13 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
                     typeof min === "string" ? parseFloat(min) : Number(min);
                   const maxNum =
                     typeof max === "string" ? parseFloat(max) : Number(max);
+                  
+                  // If domain is default (0, 16000) or max is 16000, use 4000 intervals
+                  if ((!yAxisDomain && maxNum === 16000) || (yAxisDomain && maxNum === 16000)) {
+                    return [0, 4000, 8000, 12000, 16000];
+                  }
+                  
+                  // Otherwise, calculate equal intervals
                   const interval = (maxNum - minNum) / 4; // 5 ticks = 4 equal intervals
                   return [
                     minNum,
@@ -674,47 +828,63 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
 
             {showTooltip && (
               <Tooltip
-                content={
-                  <CustomTooltip
-                    labelFormatter={tooltipLabelFormatter}
-                    valueFormatter={tooltipValueFormatter}
-                    label={tooltipLabel}
-                    valuePrefix={tooltipValuePrefix}
-                    valueSuffix={tooltipValueSuffix}
-                    isMobile={isMobile}
-                  />
-                }
+                content={(props: any) => {
+                  // Only show tooltip when hovering over a dot
+                  // shared={false} ensures tooltip only shows on specific data points
+                  if (!props.active || !props.payload || props.payload.length === 0) {
+                    return null;
+                  }
+                  return (
+                    <CustomTooltip
+                      {...props}
+                      labelFormatter={tooltipLabelFormatter}
+                      valueFormatter={tooltipValueFormatter}
+                      label={tooltipLabel}
+                      valuePrefix={tooltipValuePrefix}
+                      valueSuffix={tooltipValueSuffix}
+                      isMobile={isMobile}
+                    />
+                  );
+                }}
+                cursor={false}
+                shared={false}
+                allowEscapeViewBox={{ x: false, y: true }}
+                offset={0}
+                filterNull={false}
               />
             )}
 
-            <Area
-              type={curveType}
-              dataKey={valueKey}
-              stroke={finalStrokeColor}
-              strokeWidth={strokeWidth}
-              fill={`url(#${gradientId})`}
-              fillOpacity={1}
-              connectNulls={connectNulls}
-              isAnimationActive={isAnimationActive}
-              animationDuration={animationDuration}
-              dot={
-                showDots ? (
-                  <CustomDot fill={finalDotColor} r={dotRadius} />
-                ) : (
-                  false
-                )
-              }
-              activeDot={{
-                r: dotRadius + 3,
-                fill: finalDotColor,
-                stroke: "none",
-                strokeWidth: 0,
-              }}
-              style={{
-                outline: "none",
-                border: "none",
-              }}
-            />
+            {/* Only render Area if we have actual data, otherwise just show the grid */}
+            {shouldShowArea && (
+              <Area
+                type={curveType}
+                dataKey={valueKey}
+                stroke={finalStrokeColor}
+                strokeWidth={strokeWidth}
+                fill={`url(#${gradientId})`}
+                fillOpacity={1}
+                connectNulls={connectNulls}
+                isAnimationActive={isAnimationActive}
+                animationDuration={animationDuration}
+                dot={
+                  showDots ? (
+                    <CustomDot fill={finalDotColor} r={dotRadius} />
+                  ) : (
+                    false
+                  )
+                }
+                activeDot={{
+                  r: dotRadius + 3,
+                  fill: finalDotColor,
+                  stroke: "none",
+                  strokeWidth: 0,
+                }}
+                style={{
+                  outline: "none",
+                  border: "none",
+                }}
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       </Box>
