@@ -1,8 +1,6 @@
 import { theme } from "@/styles/theme";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 export const TransactionsTableContainer = styled(Box)({
   width: "100%",
@@ -201,9 +199,6 @@ export const StatusIconWrapper = styled(Box)<{
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    ...(status === "pending" && {
-      filter: `invert(65%) sepia(28%) saturate(7461%) hue-rotate(359deg) brightness(94%) contrast(104%)`,
-    }),
 
     "& img": {
       width: "14px",
@@ -319,14 +314,71 @@ export const MobileNavigationButtons = styled(Button)(({ theme }) => ({
 export const TransactionsTopBarContainer = styled(Box)(({ theme }) => ({
   width: "100%",
   display: "flex",
-  alignItems: "center",
+  flexDirection: "column",
+  alignItems: "stretch",
   gap: "12px",
   padding: "16px 0",
-  flexWrap: "wrap",
+  [theme.breakpoints.up("md")]: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   [theme.breakpoints.down("md")]: {
     gap: "8px",
     padding: "12px 0",
   },
+}));
+
+export const SearchContainer = styled(Box)(({ theme }) => ({
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  [theme.breakpoints.up("md")]: {
+    flex: 1,
+    minWidth: "250px",
+  },
+  [theme.breakpoints.down("md")]: {
+    gap: "8px",
+  },
+}));
+
+export const FiltersContainer = styled(Box)(({ theme }) => ({
+  width: "100%",
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  gap: "10px",
+  flex: 1,
+  [theme.breakpoints.down("md")]: {
+    gap: "8px",
+  },
+}));
+
+export const DatePickerWrapper = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  position: "relative",
+  flex: 1,
+  minWidth: "fit-content",
+  [theme.breakpoints.up("md")]: {
+    // maxWidth: "200px",
+  },
+}));
+
+export const WalletSelectorWrapper = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  position: "relative",
+  flex: 1,
+  minWidth: "fit-content",
+  [theme.breakpoints.up("md")]: {
+    // maxWidth: "200px",
+  },
+}));
+
+export const ExportButtonWrapper = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexShrink: 0,
 }));
 
 export const DatePickerTriggerButton = styled(Button)(({ theme }) => ({
@@ -344,7 +396,6 @@ export const DatePickerTriggerButton = styled(Button)(({ theme }) => ({
   border: `1px solid ${theme.palette.border.main}`,
   justifyContent: "space-between",
   whiteSpace: "nowrap",
-  minWidth: "200px",
   width: "100%",
   height: "40px",
   "&:hover": {
@@ -380,6 +431,21 @@ export const DatePickerTriggerButton = styled(Button)(({ theme }) => ({
     color: theme.palette.text.secondary,
     flexShrink: 0,
   },
+  [theme.breakpoints.up("md")]: {
+    minWidth: "200px",
+  },
+  [theme.breakpoints.down("md")]: {
+    padding: "8px 10px",
+    height: "32px",
+    gap: "6px",
+    minWidth: "fit-content",
+    "& .separator": {
+      height: "16px",
+    },
+    "& .arrow-icon": {
+      fontSize: "14px",
+    },
+  },
 }));
 
 export const WalletSelectorButton = styled(Button)(({ theme }) => ({
@@ -397,7 +463,6 @@ export const WalletSelectorButton = styled(Button)(({ theme }) => ({
   border: `1px solid ${theme.palette.border.main}`,
   justifyContent: "space-between",
   whiteSpace: "nowrap",
-  minWidth: "200px",
   width: "100%",
   height: "40px",
   "&:hover": {
@@ -415,12 +480,18 @@ export const WalletSelectorButton = styled(Button)(({ theme }) => ({
   "& .wallet-text": {
     flex: 1,
     textAlign: "left",
-    fontSize: "14px",
+    fontSize: "15px",
+    fontWeight: 500,
     fontFamily: "UrbanistMedium",
     color: theme.palette.text.primary,
+    lineHeight: "18px",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
+    [theme.breakpoints.down("md")]: {
+      fontSize: "13px",
+      lineHeight: "16px",
+    },
   },
   "& .separator": {
     width: "1px",
@@ -433,6 +504,21 @@ export const WalletSelectorButton = styled(Button)(({ theme }) => ({
     color: theme.palette.text.secondary,
     flexShrink: 0,
   },
+  [theme.breakpoints.up("md")]: {
+    minWidth: "200px",
+  },
+  [theme.breakpoints.down("md")]: {
+    padding: "8px 10px",
+    height: "32px",
+    gap: "6px",
+    minWidth: "fit-content",
+    "& .separator": {
+      height: "16px",
+    },
+    "& .arrow-icon": {
+      fontSize: "14px",
+    },
+  },
 }));
 
 export const SearchIconButton = styled(IconButton)(({ theme }) => ({
@@ -444,19 +530,19 @@ export const SearchIconButton = styled(IconButton)(({ theme }) => ({
   "&:hover": {
     borderColor: theme.palette.primary.main,
   },
-  [theme.breakpoints.down("md")]: {
-    width: "32px",
-    height: "32px",
-  },
   "& img": {
     width: "17px",
     height: "17px",
     objectFit: "contain",
     objectPosition: "center",
     flexShrink: 0,
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down("sm")]: {
       width: "12px",
       height: "12px",
     },
+  },
+  [theme.breakpoints.down("md")]: {
+    width: "32px",
+    height: "32px",
   },
 }));

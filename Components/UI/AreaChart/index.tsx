@@ -13,7 +13,8 @@ import Image from "next/image";
 import { Box, Typography, useTheme } from "@mui/material";
 import useIsMobile from "@/hooks/useIsMobile";
 import CalendarTodayIcon from "@/assets/Icons/calendar-icon.svg";
-import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
+import { RoundedStackIcon } from "@/utils/customIcons";
+
 
 export interface AreaChartData {
   [key: string]: string | number;
@@ -203,7 +204,8 @@ const CustomTooltip = ({
             paddingTop: isMobile ? "8px" : "10px",
           }}
         >
-          <Image
+          <RoundedStackIcon fill={theme.palette.primary.main} size={isMobile ? 10 : 12} />
+          {/* <Image
             src={RoundedStackIcon}
             alt="Rounded Stack Icon"
             width={isMobile ? 10 : 12}
@@ -213,7 +215,7 @@ const CustomTooltip = ({
               filter:
                 "invert(9%) sepia(100%) saturate(6955%) hue-rotate(246deg) brightness(96%) contrast(142%)",
             }}
-          />
+          /> */}
           <Typography
             sx={{
               fontSize: isMobile ? "10px" : "12px",

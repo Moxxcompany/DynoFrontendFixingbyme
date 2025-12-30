@@ -1,14 +1,5 @@
 import React, { useState, useRef } from "react";
-import {
-  Box,
-  Typography,
-  useTheme,
-  Menu,
-  MenuItem,
-  IconButton,
-} from "@mui/material";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import { Box, Typography, useTheme, Menu, MenuItem } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CustomDatePicker, {
@@ -22,12 +13,19 @@ import {
   DatePickerTriggerButton,
   WalletSelectorButton,
   SearchIconButton,
+  SearchContainer,
+  FiltersContainer,
+  DatePickerWrapper,
+  WalletSelectorWrapper,
+  ExportButtonWrapper,
 } from "./styled";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import { format } from "date-fns";
 import SearchIcon from "@/assets/Icons/search-icon.svg";
+import CalendarIcon from "@/assets/Icons/calendar-icon.svg";
+import WalletIcon from "@/assets/Icons/wallet-icon.svg";
+import ExportIcon from "@/assets/Icons/export-icon.svg";
 import Image from "next/image";
-
 interface TransactionsTopBarProps {
   onSearch?: (searchTerm: string) => void;
   onDateRangeChange?: (dateRange: DateRange) => void;
@@ -93,15 +91,24 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
 
   const formatDateRange = (): string => {
     if (dateRange.startDate && dateRange.endDate) {
+      if (isMobile) {
+        return `${format(dateRange.startDate, "dd.MM.yy")}-${format(
+          dateRange.endDate,
+          "dd.MM.yy"
+        )}`;
+      }
       return `${format(dateRange.startDate, "MMM dd, yyyy")} - ${format(
         dateRange.endDate,
         "MMM dd, yyyy"
       )}`;
     }
     if (dateRange.startDate) {
+      if (isMobile) {
+        return format(dateRange.startDate, "dd.MM.yy");
+      }
       return format(dateRange.startDate, "MMM dd, yyyy");
     }
-    return "Select date range";
+    return isMobile ? "Period" : "Select date range";
   };
 
   const walletOptions = [
@@ -113,8 +120,9 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
 
   return (
     <TransactionsTopBarContainer>
-      <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: "10px" }}>
+      <SearchContainer>
         <InputField
+          inputHeight={isMobile ? "32px" : "40px"}
           placeholder="Search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -123,30 +131,35 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
         <SearchIconButton onClick={handleSearch}>
           <Image src={SearchIcon} alt="search" width={20} height={20} />
         </SearchIconButton>
-      </Box>
+      </SearchContainer>
 
-      <Box sx={{ display: "flex", alignItems: "center", gap: "10px", flex: 1 }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            flex: 1,
-            position: "relative",
-          }}
-        >
+      <FiltersContainer>
+        <DatePickerWrapper>
           <DatePickerTriggerButton
             ref={buttonRef}
             onClick={handleCalendarButtonClick}
           >
-            <CalendarTodayIcon className="calendar-icon" />
+            <Image
+              src={CalendarIcon}
+              alt="calendar"
+              width={14}
+              height={14}
+              style={{
+                filter: "brightness(0) saturate(100%) invert(0%)",
+              }}
+            />
             <Typography
-              className="date-text"
               sx={{
-                color:
-                  dateRange.startDate && dateRange.endDate
-                    ? theme.palette.text.primary
-                    : theme.palette.text.secondary,
+                color: theme.palette.text.primary,
+                fontSize: isMobile ? "13px" : "15px",
+                fontFamily: "UrbanistMedium",
+                fontWeight: 500,
+                lineHeight: 1.2,
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textAlign: "left",
+                flex: 1,
               }}
             >
               {formatDateRange()}
@@ -171,21 +184,14 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
               hideTrigger={true}
             />
           </Box>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            flex: 1,
-            position: "relative",
-          }}
-        >
+        </DatePickerWrapper>
+
+        <WalletSelectorWrapper>
           <WalletSelectorButton
             ref={walletButtonRef}
             onClick={handleWalletButtonClick}
           >
-            <AccountBalanceWalletIcon className="wallet-icon" />
+            <Image src={WalletIcon} alt="wallet" width={17} height={17} />
             <Typography className="wallet-text">
               {walletOptions.find((opt) => opt.value === selectedWallet)
                 ?.label || "All Wallets"}
@@ -209,7 +215,7 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
               sx: {
                 mt: "8px",
                 borderRadius: "8px",
-                minWidth: "200px",
+                minWidth: isMobile ? "180px" : "200px",
                 boxShadow: "rgba(16, 24, 40, 0.12) 0px 8px 24px 0px",
                 border: `1px solid ${theme.palette.border.main}`,
               },
@@ -221,9 +227,9 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
                 onClick={() => handleWalletChange(option.value)}
                 selected={selectedWallet === option.value}
                 sx={{
-                  fontSize: "14px",
+                  fontSize: isMobile ? "13px" : "14px",
                   fontFamily: "UrbanistMedium",
-                  padding: "10px 16px",
+                  padding: isMobile ? "8px 12px" : "10px 16px",
                   "&.Mui-selected": {
                     backgroundColor: theme.palette.primary.light,
                     "&:hover": {
@@ -236,18 +242,32 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
               </MenuItem>
             ))}
           </Menu>
-        </Box>
-        <CustomButton
-          label="Export"
-          startIcon={<DownloadIcon />}
-          variant="secondary"
-          onClick={onExport}
-          sx={{
-            padding: "10px 60px",
-            minWidth: "auto",
-          }}
-        />
-      </Box>
+        </WalletSelectorWrapper>
+
+        <ExportButtonWrapper>
+          <CustomButton
+            label="Export"
+            startIcon={
+              <Image
+                src={ExportIcon}
+                alt="export"
+                width={isMobile ? 13 : 17}
+                height={isMobile ? 13 : 17}
+              />
+            }
+            variant="secondary"
+            onClick={onExport}
+            sx={{
+              padding: isMobile ? "8px 16px" : "10px 60px",
+              minWidth: "auto",
+              height: isMobile ? "32px" : "40px",
+              fontSize: isMobile ? "13px" : "15px",
+              fontFamily: "UrbanistMedium",
+              fontWeight: 500,
+            }}
+          />
+        </ExportButtonWrapper>
+      </FiltersContainer>
     </TransactionsTopBarContainer>
   );
 };

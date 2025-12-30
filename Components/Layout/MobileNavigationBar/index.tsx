@@ -37,6 +37,7 @@ import {
 import { VerticalLine } from "@/Components/UI/LanguageSwitcher/styled";
 import LanguageSwitcherModal from "@/Components/UI/MobileLanguageSwitcher";
 import { useTranslation } from "react-i18next";
+import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 
 const MobileNavigationBar = () => {
   const router = useRouter();
@@ -55,15 +56,15 @@ const MobileNavigationBar = () => {
 
   // First row items (5 items)
   const firstRowItems = [
-    { label: t("dash"), icon: DashboardIcon, path: "/", id: "dash" },
+    { label: t("dash"), icon: "dashboard", path: "/", id: "dash" },
     {
       label: t("transactions"),
-      icon: TransactionsIcon,
+      icon: "transactions",
       path: "/transactions",
       id: "transactions",
     },
     { label: t("create"), icon: "add", path: "/create", id: "create" },
-    { label: t("wallets"), icon: WalletsIcon, path: "/wallet", id: "wallets" },
+    { label: t("wallets"), icon: "wallets", path: "/wallet", id: "wallets" },
     {
       label: isExpanded ? t("close") : t("more"),
       icon: isExpanded ? "close" : "more",
@@ -75,10 +76,10 @@ const MobileNavigationBar = () => {
   // Second row items (3 items) - shown when expanded
   const secondRowItems = [
     { label: t("language"), icon: "language", path: null, id: "language" },
-    { label: t("api"), icon: APIIcon, path: "/apis", id: "api" },
+    { label: t("api"), icon: "api", path: "/apis", id: "api" },
     {
       label: t("notifications"),
-      icon: NotificationsIcon,
+      icon: "notifications",
       path: "/notifications",
       id: "notifications",
     },
@@ -167,6 +168,14 @@ const MobileNavigationBar = () => {
               {firstRowItems.map((item) => {
                 const active = isActiveRoute(item.path);
                 const isCreate = item.id === "create";
+                const supportedIcons = [
+                  "dashboard",
+                  "transactions",
+                  "wallets",
+                  "api",
+                  "notifications",
+                ];
+                const useSidebarIcon = supportedIcons.includes(item.icon);
                 return (
                   <NavItem
                     key={item.id}
@@ -174,7 +183,19 @@ const MobileNavigationBar = () => {
                     onClick={() => handleNavClick(item)}
                   >
                     <IconButton active={active || isCreate}>
-                      {renderIcon(item.icon, active, isCreate)}
+                      {useSidebarIcon ? (
+                        <SidebarIcon
+                          name={item.icon}
+                          size={16}
+                          color={
+                            active
+                              ? theme.palette.primary.main
+                              : theme.palette.text.primary
+                          }
+                        />
+                      ) : (
+                        renderIcon(item.icon, active, isCreate)
+                      )}
                     </IconButton>
                     <NavLabel active={active}>{item.label}</NavLabel>
                   </NavItem>
@@ -211,7 +232,15 @@ const MobileNavigationBar = () => {
                             {currentLang.toUpperCase()}
                           </Box>
                         ) : (
-                          renderIcon(item.icon, active, isCreate)
+                          <SidebarIcon
+                            name={item.icon}
+                            size={16}
+                            color={
+                              active
+                                ? theme.palette.primary.main
+                                : theme.palette.text.primary
+                            }
+                          />
                         )}
                       </IconButton>
                       <NavLabel active={active}>{item.label}</NavLabel>

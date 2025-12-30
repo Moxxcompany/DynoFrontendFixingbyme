@@ -42,16 +42,13 @@ import {
 import CustomButton from "@/Components/UI/Buttons";
 import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import useIsMobile from "@/hooks/useIsMobile";
+import TransactionDetailsModal, {
+  ExtendedTransaction,
+} from "./TransactionDetailsModal";
+import { HourGlassIcon } from "@/utils/customIcons";
 
-// Transaction data interface
-export interface Transaction {
-  id: string;
-  crypto: string;
-  amount: string;
-  usdValue: string;
-  dateTime: string;
-  status: "done" | "pending" | "failed";
-}
+// Transaction data interface - extends ExtendedTransaction which already includes all fields
+export type Transaction = ExtendedTransaction;
 
 interface TransactionsTableProps {
   transactions: Transaction[];
@@ -65,6 +62,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const theme = useTheme();
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<ExtendedTransaction | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const isMobile = useIsMobile("md");
 
@@ -101,16 +101,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       case "done":
         return <Image src={CorrectIcon} alt="correct" draggable={false} />;
       case "pending":
-        return (
-          <Image
-            src={HourglassIcon}
-            alt="hourglass"
-            style={{
-              filter: `brightness(0) saturate(100%) invert(15%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(95%) contrast(100%)`,
-            }}
-            draggable={false}
-          />
-        );
+        return <HourGlassIcon fill={"#F57C00"} size={isMobile ? 12 : 16} />;
       case "failed":
         return <Image src={WrongIcon} alt="incorrect" draggable={false} />;
     }
@@ -119,6 +110,16 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const handleRowsPerPageChange = (value: number) => {
     setRowsPerPage(value);
     setCurrentPage(1);
+  };
+
+  const handleRowClick = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedTransaction(null);
   };
 
   const HeaderData = [
@@ -175,7 +176,13 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           </TransactionsTableHeader>
           <TransactionsTableBody>
             {currentTransactions.map((transaction) => (
-              <TransactionsTableRow key={transaction.id}>
+              <TransactionsTableRow
+                key={transaction.id}
+                onClick={() => handleRowClick(transaction)}
+                sx={{
+                  cursor: "pointer",
+                }}
+              >
                 <TransactionsTableCell>{transaction.id}</TransactionsTableCell>
                 <TransactionsTableCell>
                   <CryptoIconChip sx={{ width: "fit-content" }}>
@@ -322,6 +329,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           </Box>
         </TransactionsTableFooter>
       </TransactionsTableContainer>
+      <TransactionDetailsModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        transaction={selectedTransaction}
+      />
     </Box>
   );
 };

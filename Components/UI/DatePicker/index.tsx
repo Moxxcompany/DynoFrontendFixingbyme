@@ -390,12 +390,18 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
   const formatDateRange = (): string => {
     const { startDate, endDate } = selectedRange;
     if (startDate && endDate) {
+      if (isMobile) {
+        return `${format(startDate, "dd.MM.yy")}-${format(endDate, "dd.MM.yy")}`;
+      }
       return `${format(startDate, "MMM dd, yyyy")} - ${format(
         endDate,
         "MMM dd, yyyy"
       )}`;
     }
     if (startDate) {
+      if (isMobile) {
+        return format(startDate, "dd.MM.yy");
+      }
       return format(startDate, "MMM dd, yyyy");
     }
     if (buttonText) {
