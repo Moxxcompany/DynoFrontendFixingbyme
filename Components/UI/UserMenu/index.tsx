@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Popover, useTheme, Box } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Popover, useTheme, Box, Typography } from "@mui/material";
 import { UserTrigger, UserName, PopWrapper, MenuItemRow } from "./styled";
 
 import Image from "next/image";
@@ -14,11 +14,13 @@ import CustomButton from "../Buttons";
 import { useTranslation } from "react-i18next";
 import LogoutIcon from "@/assets/Icons/logout-icon.svg";
 import useIsMobile from "@/hooks/useIsMobile";
+import { getInitials } from "@/helpers";
 
 export default function UserMenu() {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   const triggerWidth = anchorEl?.clientWidth || 180;
   const tokenData = useTokenData();
@@ -37,24 +39,63 @@ export default function UserMenu() {
   
   // Safely get firstName, handle cases where name might be undefined
   const firstName = tokenData?.name?.split(" ")[0] || "";
+  const lastName = tokenData?.name?.split(" ")[1] || "";
   const userName = tokenData?.name || "";
   const userPhoto = tokenData?.photo || "";
+
+  // Reset error state when photo changes
+  useEffect(() => {
+    setImageError(false);
+  }, [userPhoto]);
 
   return (
     <>
       {/* Trigger */}
       <UserTrigger onClick={(e) => setAnchorEl(e.currentTarget)}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          {userPhoto && (
-            <Image
-              src={userPhoto as string}
-              alt="user"
-              width={isMobile ? 24 : 32}
-              height={isMobile ? 24 : 32}
-              style={{ borderRadius: 999 }}
-              draggable={false}
-            />
-          )}
+          <Box
+            sx={{
+              position: "relative",
+              width: isMobile ? 24 : 32,
+              height: isMobile ? 24 : 32,
+              borderRadius: "50%",
+              overflow: "hidden",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor:
+                userPhoto && !imageError
+                  ? "transparent"
+                  : theme.palette.primary.light,
+              flexShrink: 0,
+            }}
+          >
+            {userPhoto && !imageError ? (
+              <Image
+                src={userPhoto as string}
+                alt="user"
+                width={isMobile ? 24 : 32}
+                height={isMobile ? 24 : 32}
+                style={{ borderRadius: "50%", objectFit: "cover" }}
+                draggable={false}
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <Typography
+                sx={{
+                  fontSize: isMobile ? "10px" : "12px",
+                  fontWeight: 600,
+                  color: theme.palette.primary.main,
+                  backgroundColor: theme.palette.primary.light,
+                  fontFamily: "UrbanistMedium",
+                  textTransform: "uppercase",
+                  lineHeight: 1,
+                }}
+              >
+                {getInitials(firstName, lastName)}
+              </Typography>
+            )}
+          </Box>
 
           <UserName sx={{ fontSize: isMobile ? 13 : 15 }}>
             {isMobile ? firstName || "User" : userName || "User"}

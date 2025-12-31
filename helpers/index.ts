@@ -4,6 +4,7 @@ import createEncryption from "./createEncryption";
 
 import getRandomColor from "./getRandomColor";
 import getRandomNumber from "./getRandomNumber";
+import getInitials from "./getInitials";
 import inputHelper from "./inputHelper";
 import unAuthorizedHelper from "./unAutorizedHelper";
 
@@ -135,6 +136,7 @@ export {
   firstCapital,
   extractLinks,
   getRandomNumber,
+  getInitials,
   createEncryption,
   getTime,
   generateRedirectUrl,

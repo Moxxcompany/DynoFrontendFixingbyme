@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -23,7 +23,7 @@ export interface InputFieldProps {
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onPaste?: (e: React.ClipboardEvent<HTMLInputElement>) => void;
-  type?: "text" | "email" | "password" | "number" | "tel" | "url";
+  type?: "text" | "email" | "password" | "number" | "tel" | "url" | string;
   variant?: "outlined" | "filled" | "standard";
   size?: "small" | "medium";
   disabled?: boolean;
@@ -112,19 +112,96 @@ const InputField: React.FC<InputFieldProps> = ({
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordArray, setPasswordArray] = useState<string[]>([]);
+  const inputRefInternal = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (type === "password") {
+      if (value) {
+        setPasswordArray(value.split(""));
+      } else {
+        setPasswordArray([]);
+      }
+    }
+  }, [value, type]);
 
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const inputType =
-    showPasswordToggle && type === "password" && showPassword ? "text" : type;
+  const handlePasswordInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (type === "password" && !showPassword) {
+      const inputEvent = e.nativeEvent as InputEvent;
+      const input = e.target;
+      let newArray: string[];
 
-  // Handle keydown for number inputs to prevent 'e', 'E', '+', and '-'
+      if (
+        !inputEvent.data &&
+        inputEvent.inputType === "deleteContentBackward"
+      ) {
+        newArray = passwordArray.slice(0, -1);
+        setPasswordArray(newArray);
+      } else if (inputEvent.data !== null && inputEvent.data !== undefined) {
+        if (inputEvent.data.trim() === "" && inputEvent.data === " ") {
+          newArray = passwordArray;
+        } else {
+          newArray = [...passwordArray, inputEvent.data];
+        }
+        setPasswordArray(newArray);
+      } else {
+        const asteriskCount = (input.value.match(/\*/g) || []).length;
+        if (asteriskCount < passwordArray.length) {
+          newArray = passwordArray.slice(0, asteriskCount);
+        } else if (asteriskCount > passwordArray.length) {
+          newArray = passwordArray;
+        } else {
+          newArray = passwordArray;
+        }
+        setPasswordArray(newArray);
+      }
+
+      if (!newArray) {
+        newArray = passwordArray;
+      }
+
+      const displayValue = showPassword
+        ? newArray.join("")
+        : newArray.map(() => "*").join("");
+
+      const syntheticEvent = {
+        ...e,
+        target: {
+          ...e.target,
+          name: e.target.name,
+          value: newArray.join(""),
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+
+      if (onChange) {
+        onChange(syntheticEvent);
+      }
+    } else if (onChange) {
+      onChange(e);
+    }
+  };
+
+  const inputType =
+    type === "password"
+      ? "text"
+      : showPasswordToggle && type === "password" && showPassword
+      ? "text"
+      : type;
+
+  const inputValue =
+    type === "password"
+      ? showPassword
+        ? passwordArray.join("")
+        : passwordArray.map(() => "*").join("")
+      : value;
+
   const handleNumberKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    // If it's a number input, prevent 'e', 'E', '+', and '-' keys
     if (type === "number") {
       if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-") {
         e.preventDefault();
@@ -132,16 +209,18 @@ const InputField: React.FC<InputFieldProps> = ({
       }
     }
 
-    // Call the original onKeyDown handler if provided
+    if (type === "password" && e.key === " ") {
+      e.preventDefault();
+      return;
+    }
+
     if (onKeyDown) {
       onKeyDown(e as React.KeyboardEvent<HTMLInputElement>);
     }
   };
-  // Handle paste for number inputs to prevent 'e' and 'E'
   const handleNumberPaste = (
     e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    // If it's a number input, prevent paste if it contains 'e' or 'E'
     if (type === "number") {
       const pastedText = e.clipboardData.getData("text");
       if (pastedText.includes("e") || pastedText.includes("E")) {
@@ -150,7 +229,6 @@ const InputField: React.FC<InputFieldProps> = ({
       }
     }
 
-    // Call the original onPaste handler if provided
     if (onPaste) {
       onPaste(e as React.ClipboardEvent<HTMLInputElement>);
     }
@@ -167,9 +245,7 @@ const InputField: React.FC<InputFieldProps> = ({
     ? theme.palette.error.main
     : theme.palette.border.focus;
 
-  // Helper function to render the side button icon
   const renderSideButtonIcon = () => {
-    // Use custom width/height if provided, otherwise fallback to default responsive sizes
     const iconWidth = sideButtonIconWidth ?? (isMobile ? "16px" : "18px");
     const iconHeight = sideButtonIconHeight ?? (isMobile ? "16px" : "18px");
 
@@ -185,9 +261,7 @@ const InputField: React.FC<InputFieldProps> = ({
       );
     }
 
-    // Check if it's a StaticImageData (SVG import from Next.js)
     if (typeof sideButtonIcon === "object" && "src" in sideButtonIcon) {
-      // Convert px string to number for Next.js Image component
       const widthNum = parseInt(iconWidth.replace("px", "")) || 12;
       const heightNum = parseInt(iconHeight.replace("px", "")) || 12;
 
@@ -208,8 +282,6 @@ const InputField: React.FC<InputFieldProps> = ({
       );
     }
 
-    // Otherwise, treat it as a React component (MUI icon or custom component)
-    // Wrap it to ensure consistent sizing
     return (
       <Box
         sx={{
@@ -245,6 +317,7 @@ const InputField: React.FC<InputFieldProps> = ({
           variant="body2"
           sx={{
             fontWeight: 500,
+            fontFamily: "UrbanistMedium",
             fontSize: isMobile ? "13px" : "15px",
             textAlign: "start",
             color: "#242428",
@@ -273,9 +346,38 @@ const InputField: React.FC<InputFieldProps> = ({
         >
           <TextField
             placeholder={placeholder}
-            value={value}
+            value={inputValue}
             name={name}
-            onChange={onChange}
+            onChange={
+              type === "password" && !showPassword
+                ? handlePasswordInput
+                : type === "password" && showPassword
+                ? (
+                    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+                  ) => {
+                    const newValue = e.target.value;
+                    const valueWithoutSpaces = newValue.replace(/\s/g, "");
+                    const newArray = valueWithoutSpaces.split("");
+                    setPasswordArray(newArray);
+                    if (onChange) {
+                      const inputEvent = {
+                        ...e,
+                        target: {
+                          ...(e.target as HTMLInputElement),
+                          value: newArray.join(""),
+                        },
+                      } as React.ChangeEvent<HTMLInputElement>;
+                      onChange(inputEvent);
+                    }
+                    if (
+                      inputRefInternal.current &&
+                      newValue !== valueWithoutSpaces
+                    ) {
+                      inputRefInternal.current.value = valueWithoutSpaces;
+                    }
+                  }
+                : onChange
+            }
             onBlur={onBlur}
             onFocus={onFocus}
             onKeyDown={handleNumberKeyDown as any}
@@ -284,17 +386,59 @@ const InputField: React.FC<InputFieldProps> = ({
                 ? (e: React.ClipboardEvent<HTMLDivElement>) => {
                     handleNumberPaste(e as any);
                   }
+                : type === "password"
+                ? (e: React.ClipboardEvent<HTMLDivElement>) => {
+                    e.preventDefault();
+                    const pastedText = e.clipboardData.getData("text");
+                    const pastedTextWithoutSpaces = pastedText.replace(
+                      /\s/g,
+                      ""
+                    );
+                    const newArray = [
+                      ...passwordArray,
+                      ...pastedTextWithoutSpaces.split(""),
+                    ];
+                    setPasswordArray(newArray);
+                    if (onChange) {
+                      const syntheticEvent = {
+                        ...e,
+                        target: {
+                          ...e.target,
+                          name: name || "",
+                          value: newArray.join(""),
+                        },
+                      } as any;
+                      onChange(syntheticEvent);
+                    }
+                  }
                 : undefined
             }
             type={inputType}
             variant={variant}
             disabled={disabled}
-            inputRef={inputRef}
+            inputRef={(el) => {
+              if (inputRef) {
+                if (typeof inputRef === "function") {
+                  inputRef(el);
+                } else {
+                  (
+                    inputRef as React.MutableRefObject<HTMLInputElement | null>
+                  ).current = el;
+                }
+              }
+              inputRefInternal.current = el;
+            }}
             inputProps={{
               readOnly: readOnly,
               maxLength: maxLength,
               inputMode: inputMode,
-              autoComplete: autoComplete,
+              autoComplete:
+                type === "password"
+                  ? "new-password"
+                  : autoComplete || "off",
+              "data-form-type": type === "password" ? "other" : undefined,
+              "data-lpignore": type === "password" ? "true" : undefined,
+              "data-1p-ignore": type === "password" ? "true" : undefined,
               style: {
                 cursor: readOnly ? "not-allowed" : "auto",
               },
@@ -342,9 +486,10 @@ const InputField: React.FC<InputFieldProps> = ({
                   "&::placeholder": {
                     color: theme.palette.secondary.contrastText,
                     fontFamily: "UrbanistMedium",
+                    fontSize: isMobile ? "10px" : "13px",
+                    lineHeight: 1.2,
                   },
                   fontFamily: "UrbanistMedium",
-                  // Hide number input spinners
                   ...(type === "number" && {
                     MozAppearance: "textfield",
                     "&::-webkit-outer-spin-button": {
