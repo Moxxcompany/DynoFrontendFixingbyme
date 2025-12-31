@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -18,6 +18,7 @@ import {
 import MenuIcon from "@/assets/Icons/menu-icon.svg";
 import Image from "next/image";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useTranslation } from "react-i18next";
 
 interface RowsPerPageSelectorProps {
   value: number;
@@ -40,6 +41,14 @@ const RowsPerPageSelector: React.FC<RowsPerPageSelectorProps> = ({
   const selectRef = useRef<HTMLDivElement>(null);
   const open = Boolean(anchorEl);
   const isMobile = useIsMobile("md");
+  const { t } = useTranslation("transactions");
+  const tRowsPerPageSelector = useCallback(
+    (key: string, options?: any): string => {
+      const result = t(key, { ns: "transactions", ...options });
+      return typeof result === "string" ? result : String(result);
+    },
+    [t]
+  );
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -98,7 +107,7 @@ const RowsPerPageSelector: React.FC<RowsPerPageSelectorProps> = ({
           },
         }}
       >
-        Rows per page:
+        {tRowsPerPageSelector("rowsPerPage")}:
       </Typography>
       <VerticalSeparator />
       <Box ref={selectRef} sx={{ position: "relative" }}>

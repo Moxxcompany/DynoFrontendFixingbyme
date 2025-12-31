@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Box, Typography } from "@mui/material";
 import PopupModal from "@/Components/UI/PopupModal";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
@@ -15,6 +15,7 @@ import { verifyOtp } from "@/Redux/Sagas/WalletSaga";
 import { useDispatch, useSelector } from "react-redux";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { rootReducer } from "@/utils/types";
+import { useTranslation } from "react-i18next";
 import {
   WarningContainer,
   WarningIconContainer,
@@ -45,6 +46,14 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   const dispatch = useDispatch();
   const userState = useSelector((state: rootReducer) => state.userReducer);
   const isMobile = useIsMobile("sm");
+  const { t } = useTranslation("walletScreen");
+  const tWallet = useCallback(
+    (key: string): string => {
+      const result = t(key, { ns: "walletScreen" });
+      return typeof result === "string" ? result : String(result);
+    },
+    [t]
+  );
   const [walletName, setWalletName] = useState("");
   const [cryptocurrency, setCryptocurrency] = useState("BTC");
   const [walletAddress, setWalletAddress] = useState("");
@@ -64,15 +73,15 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
     const newErrors: typeof errors = {};
 
     if (!walletName.trim()) {
-      newErrors.walletName = "Wallet name is required";
+      newErrors.walletName = tWallet("walletNameRequired");
     }
 
     if (!cryptocurrency) {
-      newErrors.cryptocurrency = "Cryptocurrency is required";
+      newErrors.cryptocurrency = tWallet("cryptocurrencyRequired");
     }
 
     if (!walletAddress.trim()) {
-      newErrors.walletAddress = "Wallet address is required";
+      newErrors.walletAddress = tWallet("walletAddressRequired");
     }
 
     setErrors(newErrors);
@@ -289,7 +298,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       }}
     >
       <PanelCard
-        title="Add New Wallet"
+        title={tWallet("addWalletTitle")}
         showHeaderBorder={false}
         headerIcon={
           <Image
@@ -321,12 +330,12 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             mb: "10px",
           }}
         >
-          Add a cryptocurrency wallet address to receive payments
+          {tWallet("addWalletDescription")}
         </Typography>
         <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           <InputField
-            label="Wallet Name"
-            placeholder="e.g.: Main Bitcoin Wallet"
+            label={tWallet("walletName")}
+            placeholder={tWallet("walletNamePlaceholder")}
             value={walletName}
             onChange={(e) => {
               setWalletName(e.target.value);
@@ -335,17 +344,27 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             helperText={errors.walletName}
           />
           <CryptocurrencySelector
-            label="Cryptocurrency"
+            label={tWallet("cryptocurrency")}
             value={cryptocurrency}
             onChange={(value) => {
               setCryptocurrency(value);
             }}
             error={!!errors.cryptocurrency}
             helperText={errors.cryptocurrency}
+            sxIconChip={{
+              [theme.breakpoints.down("sm")]: {
+                height: "26px",
+                padding: "4px 6px",
+                "& img": {
+                  width: "14px",
+                  height: "14px",
+                },
+              },
+            }}
           />
           <InputField
-            label="Wallet Address"
-            placeholder="Enter the wallet address"
+            label={tWallet("walletAddress")}
+            placeholder={tWallet("walletAddressPlaceholder")}
             value={walletAddress}
             onChange={(e) => {
               setWalletAddress(e.target.value);
@@ -368,16 +387,13 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
               />
             </WarningIconContainer>
             <WarningContent>
-              <p>
-                Please check the wallet address carefully. Transactions cannot
-                be reversed
-              </p>
+              <p>{tWallet("warningMessage")}</p>
             </WarningContent>
           </WarningContainer>
         </Box>
         <Box sx={{ display: "flex", gap: "20px", mt: "20px" }}>
           <CustomButton
-            label="Cancel"
+            label={tWallet("cancel")}
             variant="outlined"
             onClick={handleClose}
             disabled={isSubmitting}
@@ -390,7 +406,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             }}
           />
           <CustomButton
-            label="Continue"
+            label={tWallet("continue")}
             variant="primary"
             onClick={handleSubmit}
             disabled={popupLoading || isSubmitting}
@@ -411,8 +427,8 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
           setOtpModalOpen(false);
           setOtpError("");
         }}
-        title="Email Verification"
-        subtitle="We've sent a verification code to your email."
+        title={tWallet("emailVerification")}
+        subtitle={tWallet("emailVerificationSubtitle")}
         contactInfo={userState.email}
         contactType="email"
         otpLength={6}

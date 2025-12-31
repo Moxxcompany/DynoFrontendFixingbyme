@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
 import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
 import LitecoinIcon from "@/assets/cryptocurrency/Litecoin-icon.svg";
@@ -17,6 +18,7 @@ import HourglassIcon from "@/assets/Icons/hourglass-icon.svg";
 import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
 import CryptoIcon from "@/assets/Icons/crypto-icon.svg";
 import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
+import CurrencyIcon from "@/assets/Icons/dollar-sign-icon.svg";
 import HexagonIcon from "@/assets/Icons/hexagon-icon.svg";
 import TimeIcon from "@/assets/Icons/time-icon.svg";
 
@@ -60,6 +62,14 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   rowsPerPage: initialRowsPerPage = 10,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation("transactions");
+  const tTransactions = useCallback(
+    (key: string, options?: any): string => {
+      const result = t(key, { ns: "transactions", ...options });
+      return typeof result === "string" ? result : String(result);
+    },
+    [t]
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
   const [selectedTransaction, setSelectedTransaction] =
@@ -124,32 +134,32 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
   const HeaderData = [
     {
-      label: isMobile ? "ID" : "Transaction ID",
+      label: isMobile ? tTransactions("id") : tTransactions("transactionId"),
       key: "id",
       icon: TransactionIcon,
     },
     {
-      label: "Crypto",
+      label: tTransactions("crypto"),
       key: "crypto",
       icon: CryptoIcon,
     },
     {
-      label: "Amount",
+      label: tTransactions("amount"),
       key: "amount",
       icon: RoundedStackIcon,
     },
     {
-      label: "USD Value",
+      label: tTransactions("usdValue"),
       key: "usdValue",
-      icon: RoundedStackIcon,
+      icon: CurrencyIcon,
     },
     {
-      label: "Date & Time",
+      label: tTransactions("dateTime"),
       key: "dateTime",
       icon: TimeIcon,
     },
     {
-      label: "Status",
+      label: tTransactions("status"),
       key: "status",
       icon: HexagonIcon,
     },
@@ -219,7 +229,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       {getStatusIcon(transaction.status)}
                     </StatusIconWrapper>
                     <StatusText status={transaction.status}>
-                      {transaction.status}
+                      {tTransactions(transaction.status)}
                     </StatusText>
                   </StatusBadge>
                 </TransactionsTableCell>
@@ -240,11 +250,13 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           />
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <TransactionsTableFooterText>
-              Showing {currentTransactions.length} of {transactions.length}{" "}
-              transactions
+              {tTransactions("showingTransactions", {
+                count: currentTransactions.length,
+                total: transactions.length,
+              })}
             </TransactionsTableFooterText>
             <CustomButton
-              label={"Previous"}
+              label={tTransactions("previous")}
               variant="outlined"
               size="medium"
               sx={{
@@ -277,7 +289,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               onClick={() => setCurrentPage(currentPage - 1)}
             />
             <CustomButton
-              label={"Next"}
+              label={tTransactions("next")}
               variant="outlined"
               size="medium"
               sx={{

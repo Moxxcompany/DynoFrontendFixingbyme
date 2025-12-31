@@ -1,20 +1,26 @@
 import CustomDatePicker from "@/Components/UI/DatePicker";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { Box } from "@mui/material";
 import { pageProps } from "@/utils/types";
 import TransactionPage from "@/Components/Page/Transactions";
+import { useTranslation } from "react-i18next";
 
 const TransactionsPage = ({
   setPageName,
   setPageDescription,
   setPageAction,
 }: pageProps) => {
+  const { t } = useTranslation("transactions");
+  const tTransactions = useCallback(
+    (key: string) => t(key, { ns: "transactions" }),
+    [t]
+  );
   useEffect(() => {
     if (setPageName && setPageDescription) {
-      setPageName("Transactions");
-      setPageDescription("View and manage all crypto payment transactions");
+      setPageName(tTransactions("transactionsTitle"));
+      setPageDescription(tTransactions("transactionsDescription"));
     }
-  }, [setPageName, setPageDescription]);
+  }, [setPageName, setPageDescription, tTransactions]);
   return (
     <div>
       {/* <CustomDatePicker /> */}

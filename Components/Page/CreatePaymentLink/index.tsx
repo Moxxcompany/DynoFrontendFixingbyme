@@ -10,7 +10,8 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   PaymentSettingsLabel,
   TabContainer,
@@ -35,6 +36,14 @@ import useIsMobile from "@/hooks/useIsMobile";
 
 const CreatePaymentLinkPage = () => {
   const isMobile = useIsMobile("md");
+  const { t } = useTranslation("createPaymentLinkScreen");
+  const tPaymentLink = useCallback(
+    (key: string): string => {
+      const result = t(key, { ns: "createPaymentLinkScreen" });
+      return typeof result === "string" ? result : String(result);
+    },
+    [t]
+  );
   const [activeTab, setActiveTab] = useState(0);
   const [blockchainFees, setBlockchainFees] = useState("company");
   const expireAnchorEl = useRef<HTMLElement | null>(null);
@@ -87,21 +96,21 @@ const CreatePaymentLinkPage = () => {
 
     // Validate value field
     if (!paymentSettings.value || paymentSettings.value.trim() === "") {
-      errors.value = "Value is required";
+      errors.value = tPaymentLink("valueRequired");
     } else {
       const numValue = parseFloat(paymentSettings.value);
       if (isNaN(numValue) || numValue <= 0) {
-        errors.value = "Value must be a valid number greater than 0";
+        errors.value = tPaymentLink("valueInvalid");
       } else if (numValue > 999999999) {
-        errors.value = "Value is too large";
+        errors.value = tPaymentLink("valueTooLarge");
       } else if (paymentSettings.value.split(".")[1]?.length > 2) {
-        errors.value = "Value can have maximum 2 decimal places";
+        errors.value = tPaymentLink("valueDecimalPlaces");
       }
     }
 
     // Validate description (optional but check max length if provided)
     if (paymentSettings.description && paymentSettings.description.length > 500) {
-      errors.description = "Description must be less than 500 characters";
+      errors.description = tPaymentLink("descriptionMaxLength");
     }
 
     setPaymentSettingsErrors(errors);
@@ -227,13 +236,13 @@ const CreatePaymentLinkPage = () => {
               onClick={() => handleTabChange(0)}
               active={activeTab === 0}
             >
-              <p>Payment Settings</p>
+              <p>{tPaymentLink("paymentSettings")}</p>
             </TabItem>
             <TabItem
               onClick={() => handleTabChange(1)}
               active={activeTab === 1}
             >
-              <p>Post-Payment Settings</p>
+              <p>{tPaymentLink("postPaymentSettings")}</p>
             </TabItem>
           </TabContainer>
         </Box>
@@ -265,7 +274,7 @@ const CreatePaymentLinkPage = () => {
                           filter: `brightness(0) saturate(100%) invert(15%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(95%) contrast(100%)`,
                         }}
                       />
-                      <span>Value ($)</span>
+                      <span>{tPaymentLink("value")}</span>
                     </PaymentSettingsLabel>
                   }
                   value={paymentSettings.value}
@@ -298,7 +307,7 @@ const CreatePaymentLinkPage = () => {
                 >
                   <PaymentSettingsLabel>
                     <Image src={HourglassIcon} alt="expire" draggable={false} />
-                    <span>Expire</span>
+                    <span>{tPaymentLink("expire")}</span>
                   </PaymentSettingsLabel>
                   <Box
                     sx={{
@@ -337,7 +346,11 @@ const CreatePaymentLinkPage = () => {
                         }}
                       >
                         <ExpireText isMobile={isMobile}>
-                          {paymentSettings.expire || "No"}
+                          {paymentSettings.expire === "no" 
+                            ? tPaymentLink("no") 
+                            : paymentSettings.expire === "yes"
+                            ? tPaymentLink("yes")
+                            : tPaymentLink("no")}
                         </ExpireText>
                       </Box>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -406,7 +419,11 @@ const CreatePaymentLinkPage = () => {
                           >
                             <ListItemText
                               primary={
-                                option.charAt(0).toUpperCase() + option.slice(1)
+                                option === "no" 
+                                  ? tPaymentLink("no")
+                                  : option === "yes"
+                                  ? tPaymentLink("yes")
+                                  : option.charAt(0).toUpperCase() + option.slice(1)
                               }
                               primaryTypographyProps={{
                                 sx: {
@@ -433,7 +450,7 @@ const CreatePaymentLinkPage = () => {
                       alt="blockchain fees"
                       draggable={false}
                     />
-                    <span>Blockchain fees paid by</span>
+                    <span>{tPaymentLink("blockchainFeesPaidBy")}</span>
                   </PaymentSettingsLabel>
                   <Box sx={{ marginTop: { xs: "8px", md: "16px" } }}>
                     <FormControl component="fieldset">
@@ -456,13 +473,13 @@ const CreatePaymentLinkPage = () => {
                         <FormControlLabel
                           value="customer"
                           control={<CustomRadio />}
-                          label="Customer (fees added to the total)"
+                          label={tPaymentLink("customerFeesAdded")}
                           sx={{ margin: "0px" }}
                         />
                         <FormControlLabel
                           value="company"
                           control={<CustomRadio />}
-                          label="Company (we pay the fees)"
+                          label={tPaymentLink("companyPaysFees")}
                           sx={{ margin: "0px" }}
                         />
                       </RadioGroup>
@@ -479,7 +496,7 @@ const CreatePaymentLinkPage = () => {
                   label={
                     <PaymentSettingsLabel>
                       <Image src={NoteIcon} alt="note" draggable={false} />
-                      <span>Description</span>
+                      <span>{tPaymentLink("description")}</span>
                     </PaymentSettingsLabel>
                   }
                   value={paymentSettings.description}
@@ -508,7 +525,7 @@ const CreatePaymentLinkPage = () => {
             </Box>
             <Box>
               <CustomButton
-                label="Create Payment Link"
+                label={tPaymentLink("createPayment")}
                 variant="primary"
                 size="medium"
                 fullWidth={true}
@@ -532,39 +549,39 @@ const CreatePaymentLinkPage = () => {
         {activeTab === 1 && (
           <TabContentContainer>
             <InputField
-              label={"URL de Callback"}
-              placeholder="https://api.example.com/callback"
+              label={tPaymentLink("callbackUrl")}
+              placeholder={tPaymentLink("callbackUrlPlaceholder")}
               value={postPaymentSettings.callbackUrl}
               onChange={(e) =>
                 handlePostPaymentSettingsChange("callbackUrl", e.target.value)
               }
-              helperText="URL to receive payment notifications"
+              helperText={tPaymentLink("callbackUrlHelper")}
               type="url"
               sx={{
                 width: "100%",
               }}
             />
             <InputField
-              label={"Redirect URL"}
-              placeholder="https://api.example.com/callback"
+              label={tPaymentLink("redirectUrl")}
+              placeholder={tPaymentLink("redirectUrlPlaceholder")}
               value={postPaymentSettings.redirectUrl}
               onChange={(e) =>
                 handlePostPaymentSettingsChange("redirectUrl", e.target.value)
               }
-              helperText="Where to redirect the customer after successful payment"
+              helperText={tPaymentLink("redirectUrlHelper")}
               type="url"
               sx={{
                 width: "100%",
               }}
             />
             <InputField
-              label={"Webhook URL"}
-              placeholder="https://api.example.com/callback"
+              label={tPaymentLink("webhookUrl")}
+              placeholder={tPaymentLink("webhookUrlPlaceholder")}
               value={postPaymentSettings.webhookUrl}
               onChange={(e) =>
                 handlePostPaymentSettingsChange("webhookUrl", e.target.value)
               }
-              helperText="URL to receive transaction updates"
+              helperText={tPaymentLink("webhookUrlHelper")}
               type="url"
               sx={{
                 width: "100%",
@@ -572,7 +589,7 @@ const CreatePaymentLinkPage = () => {
             />
             <Box>
               <CustomButton
-                label="Create Payment"
+                label={tPaymentLink("createPayment")}
                 variant="primary"
                 size="medium"
                 fullWidth={true}

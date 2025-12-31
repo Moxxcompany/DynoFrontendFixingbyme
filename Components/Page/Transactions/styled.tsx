@@ -317,14 +317,12 @@ export const TransactionsTopBarContainer = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   alignItems: "stretch",
   gap: "12px",
-  padding: "16px 0",
   [theme.breakpoints.up("md")]: {
     flexDirection: "row",
     alignItems: "center",
   },
   [theme.breakpoints.down("md")]: {
     gap: "8px",
-    padding: "12px 0",
   },
 }));
 
@@ -350,6 +348,7 @@ export const FiltersContainer = styled(Box)(({ theme }) => ({
   gap: "10px",
   flex: 1,
   [theme.breakpoints.down("md")]: {
+    flexWrap: "wrap",
     gap: "8px",
   },
 }));

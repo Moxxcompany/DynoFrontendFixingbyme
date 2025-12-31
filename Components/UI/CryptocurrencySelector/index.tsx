@@ -59,6 +59,8 @@ export interface CryptocurrencySelectorProps {
   fullWidth?: boolean;
   required?: boolean;
   name?: string;
+  sx?: React.CSSProperties;
+  sxIconChip?: React.CSSProperties;
 }
 
 const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
@@ -70,6 +72,8 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
   fullWidth = true,
   required = false,
   name,
+  sx,
+  sxIconChip,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
@@ -129,6 +133,7 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
         display: "flex",
         flexDirection: "column",
         gap: "6px",
+        ...sx,
       }}
     >
       {label && (
@@ -170,7 +175,7 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
           isMobile={isMobile}
           sx={{
             borderColor: borderColor,
-            borderRadius: "8px",
+            borderRadius: "6px",
             "&:hover": {
               borderColor: focusBorderColor,
             },
@@ -193,7 +198,7 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
               flex: 1,
             }}
           >
-            <IconChip sx={{ minWidth: "fit-content",height: "28px" }}>
+            <IconChip sx={{ minWidth: "fit-content",height: "28px", ...sxIconChip }}>
               <CryptocurrencyIcon
                 src={selectedCrypto.icon}
                 alt={selectedCrypto.name}

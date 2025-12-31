@@ -1,13 +1,15 @@
-import React, { useState, useRef } from "react";
-import { Box, Typography, useTheme, Menu, MenuItem } from "@mui/material";
-import DownloadIcon from "@mui/icons-material/Download";
+import React, { useState, useRef, useCallback } from "react";
+import { Box, Typography, useTheme, Menu, ListItemButton } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import CheckIcon from "@mui/icons-material/Check";
 import CustomDatePicker, {
   DateRange,
   DatePickerRef,
 } from "@/Components/UI/DatePicker";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useTranslation } from "react-i18next";
 import {
   TransactionsTopBarContainer,
   DatePickerTriggerButton,
@@ -18,6 +20,7 @@ import {
   DatePickerWrapper,
   WalletSelectorWrapper,
   ExportButtonWrapper,
+  CryptoIconChip,
 } from "./styled";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import { format } from "date-fns";
@@ -25,6 +28,9 @@ import SearchIcon from "@/assets/Icons/search-icon.svg";
 import CalendarIcon from "@/assets/Icons/calendar-icon.svg";
 import WalletIcon from "@/assets/Icons/wallet-icon.svg";
 import ExportIcon from "@/assets/Icons/export-icon.svg";
+import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
+import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
+import LitecoinIcon from "@/assets/cryptocurrency/Litecoin-icon.svg";
 import Image from "next/image";
 interface TransactionsTopBarProps {
   onSearch?: (searchTerm: string) => void;
@@ -41,6 +47,11 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
+  const { t } = useTranslation("transactions");
+  const tTransactions = useCallback(
+    (key: string) => t(key, { ns: "transactions" }),
+    [t]
+  );
   const datePickerRef = useRef<DatePickerRef>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const walletButtonRef = useRef<HTMLButtonElement>(null);
@@ -108,14 +119,29 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
       }
       return format(dateRange.startDate, "MMM dd, yyyy");
     }
-    return isMobile ? "Period" : "Select date range";
+    return isMobile ? tTransactions("period") : tTransactions("selectDateRange");
   };
 
   const walletOptions = [
-    { value: "all", label: "All Wallets" },
-    { value: "wallet1", label: "Wallet 1" },
-    { value: "wallet2", label: "Wallet 2" },
-    { value: "wallet3", label: "Wallet 3" },
+    { value: "all", label: tTransactions("allWallets"), code: "ALL", icon: WalletIcon },
+    {
+      value: "wallet1",
+      label: tTransactions("mainBitcoinWallet"),
+      code: "BTC",
+      icon: BitcoinIcon,
+    },
+    {
+      value: "wallet2",
+      label: tTransactions("ethereumPayments"),
+      code: "ETH",
+      icon: EthereumIcon,
+    },
+    {
+      value: "wallet3",
+      label: tTransactions("litecoinWallet"),
+      code: "LTC",
+      icon: LitecoinIcon,
+    },
   ];
 
   return (
@@ -123,7 +149,7 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
       <SearchContainer>
         <InputField
           inputHeight={isMobile ? "32px" : "40px"}
-          placeholder="Search"
+          placeholder={tTransactions("search")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={handleSearchKeyPress}
@@ -194,7 +220,7 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
             <Image src={WalletIcon} alt="wallet" width={17} height={17} />
             <Typography className="wallet-text">
               {walletOptions.find((opt) => opt.value === selectedWallet)
-                ?.label || "All Wallets"}
+                ?.label || tTransactions("allWallets")}
             </Typography>
             <Box className="separator" />
             <KeyboardArrowDownIcon className="arrow-icon" />
@@ -214,39 +240,109 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
             PaperProps={{
               sx: {
                 mt: "8px",
-                borderRadius: "8px",
-                minWidth: isMobile ? "180px" : "200px",
+                borderRadius: "6px",
+                minWidth: isMobile ? "180px" : "240px",
                 boxShadow: "rgba(16, 24, 40, 0.12) 0px 8px 24px 0px",
                 border: `1px solid ${theme.palette.border.main}`,
+                padding: "0 8px",
               },
             }}
           >
-            {walletOptions.map((option) => (
-              <MenuItem
-                key={option.value}
-                onClick={() => handleWalletChange(option.value)}
-                selected={selectedWallet === option.value}
-                sx={{
-                  fontSize: isMobile ? "13px" : "14px",
-                  fontFamily: "UrbanistMedium",
-                  padding: isMobile ? "8px 12px" : "10px 16px",
-                  "&.Mui-selected": {
-                    backgroundColor: theme.palette.primary.light,
+            {/* Menu Items */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: isMobile ? "4px" : "6px",
+              }}
+            >
+              {walletOptions.map((option) => (
+                <ListItemButton
+                  key={option.value}
+                  onClick={() => handleWalletChange(option.value)}
+                  selected={selectedWallet === option.value}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    fontSize: isMobile ? "13px" : "15px",
+                    fontFamily: "UrbanistMedium",
+                    fontWeight: 500,
+                    lineHeight: 1.2,
+                    padding: "3px 8px 3px 3px",
+                    borderRadius: "50px",
+                    backgroundColor:
+                      selectedWallet === option.value
+                        ? theme.palette.primary.light
+                        : "transparent",
                     "&:hover": {
                       backgroundColor: theme.palette.primary.light,
                     },
-                  },
-                }}
-              >
-                {option.label}
-              </MenuItem>
-            ))}
+                    "&.Mui-selected": {
+                      backgroundColor: theme.palette.primary.light,
+                      "&:hover": {
+                        backgroundColor: theme.palette.primary.light,
+                      },
+                    },
+                  }}
+                >
+                  {/* Icon and Code Badge Combined */}
+                  <CryptoIconChip
+                    sx={{
+                      width: "fit-content",
+                      background: theme.palette.secondary.light,
+                      height: isMobile ? "24px" : "32px",
+                    }}
+                  >
+                    <Image
+                      src={option.icon}
+                      alt={option.label}
+                      draggable={false}
+                    />
+                    <Typography
+                      component="span"
+                      sx={{
+                        color: theme.palette.text.primary,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {option.code}
+                    </Typography>
+                  </CryptoIconChip>
+
+                  {/* Label */}
+                  <Typography
+                    sx={{
+                      flex: 1,
+                      fontSize: isMobile ? "13px" : "14px",
+                      fontFamily: "UrbanistMedium",
+                      fontWeight: 400,
+                      color: theme.palette.text.primary,
+                      lineHeight: "1.2",
+                    }}
+                  >
+                    {option.label}
+                  </Typography>
+
+                  {/* Checkmark */}
+                  {selectedWallet === option.value && (
+                    <CheckIcon
+                      sx={{
+                        fontSize: "18px",
+                        color: theme.palette.text.primary,
+                        flexShrink: 0,
+                      }}
+                    />
+                  )}
+                </ListItemButton>
+              ))}
+            </Box>
           </Menu>
         </WalletSelectorWrapper>
 
         <ExportButtonWrapper>
           <CustomButton
-            label="Export"
+            label={tTransactions("export")}
             startIcon={
               <Image
                 src={ExportIcon}

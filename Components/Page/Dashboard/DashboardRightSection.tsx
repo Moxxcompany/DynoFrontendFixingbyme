@@ -12,7 +12,7 @@ import FeeTierProgress from "./FeeTierProgress";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
-import CurrencyIcon from "@/assets/Icons/dollar_sign.svg";
+import CurrencyIcon from "@/assets/Icons/dollar-sign-icon.svg";
 import CheckCircleIcon from "@/assets/Icons/correct-icon.png";
 import BgImage from "@/assets/Images/bg-white.png";
 import CrownIcon from "@/assets/Icons/premium-icon.svg";

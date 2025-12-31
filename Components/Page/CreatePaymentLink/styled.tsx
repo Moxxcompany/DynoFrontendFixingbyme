@@ -40,19 +40,30 @@ export const TabItem = styled(Box)<{ active?: boolean }>(
       fontFamily: active ? "UrbanistBold" : "UrbanistMedium",
       textTransform: "capitalize",
       textAlign: "center",
+      whiteSpace: "nowrap",
       [theme.breakpoints.down("md")]: {
+        fontSize: "15px",
+        lineHeight: 1.2,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      },
+      [theme.breakpoints.down("sm")]: {
         fontSize: "10px",
         lineHeight: 1.2,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       },
     },
   })
 );
 
 export const TabContentContainer = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(2, 0),
+  padding: theme.spacing(2, 0, 0, 0),
   display: "flex",
   flexDirection: "column",
-  gap: theme.spacing(2),
+  gap: theme.spacing(2.25),
   [theme.breakpoints.down("md")]: {
     padding: theme.spacing(1.75, 0, 0),
     gap: theme.spacing(1.75),

@@ -98,6 +98,9 @@ const WalletPage = ({
             },
             [theme.breakpoints.down("sm")]: {
               flex: 1,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             },
           }}
         />
@@ -113,6 +116,9 @@ const WalletPage = ({
             fontSize: isMobile ? 13 : 15,
             [theme.breakpoints.down("sm")]: {
               flex: 1,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             },
           }}
         />

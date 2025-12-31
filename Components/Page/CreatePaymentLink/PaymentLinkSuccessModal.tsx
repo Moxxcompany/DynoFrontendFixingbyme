@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import Image from "next/image";
 import PopupModal from "@/Components/UI/PopupModal";
@@ -6,6 +6,7 @@ import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import { theme } from "@/styles/theme";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useTranslation } from "react-i18next";
 import {
   CloseIconButton,
   LabelText,
@@ -62,6 +63,9 @@ const PaymentDetailRow: React.FC<PaymentDetailRowProps> = ({
         width={isMobile ? 12 : 16}
         height={isMobile ? 12 : 16}
         draggable={false}
+        style={{
+          filter: "brightness(0) saturate(100%) invert(40%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)",
+        }}
       />
 
       <LabelText>{label}:</LabelText>
@@ -79,16 +83,24 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
   onCopyLink,
 }) => {
   const isMobile = useIsMobile("md");
+  const { t } = useTranslation("createPaymentLinkScreen");
+  const tPaymentLink = useCallback(
+    (key: string): string => {
+      const result = t(key, { ns: "createPaymentLinkScreen" });
+      return typeof result === "string" ? result : String(result);
+    },
+    [t]
+  );
 
   const getExpireText = () => {
-    if (paymentSettings.expire === "no") return "No expiration";
-    return "24h";
+    if (paymentSettings.expire === "no") return tPaymentLink("noExpiration");
+    return tPaymentLink("expires24h");
   };
 
   const getBlockchainFeesText = () => {
     return paymentSettings.blockchainFees === "customer"
-      ? "Paid by the Customer"
-      : "Paid by the Client";
+      ? tPaymentLink("paidByCustomer")
+      : tPaymentLink("paidByClient");
   };
 
   const handleCopyPaymentLink = () => {
@@ -116,8 +128,8 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
       }}
     >
       <PanelCard
-        title="Payment Link Successfully Created"
-        subTitle="Share the link to receive payment."
+        title={tPaymentLink("paymentLinkSuccessfullyCreated")}
+        subTitle={tPaymentLink("shareLinkToReceivePayment")}
         showHeaderBorder={false}
         bodyPadding={
           isMobile
@@ -147,7 +159,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
             <InputField
               value={paymentLink}
               readOnly
-              label="Payment Link"
+              label={tPaymentLink("paymentLink")}
               inputHeight={isMobile ? "32px" : "40px"}
             />
             <ApiKeyCopyButton onClick={handleCopyPaymentLink}>
@@ -162,34 +174,34 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
           </Box>
 
           <PaymentDetailsContainer>
-            <PaymentDetailsTitle>Payment Details</PaymentDetailsTitle>
+            <PaymentDetailsTitle>{tPaymentLink("paymentDetails")}</PaymentDetailsTitle>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <PaymentDetailRow
                 icon={RoundedStackIcon.src}
                 alt="value"
-                label="Value"
+                label={tPaymentLink("value").replace(" ($)", "")}
                 value={`$${paymentSettings.value || "0.00"}`}
               />
 
               <PaymentDetailRow
                 icon={HourglassIcon.src}
                 alt="expire"
-                label="Expires on"
+                label={tPaymentLink("expiresOn")}
                 value={getExpireText()}
               />
 
               <PaymentDetailRow
                 icon={PaymentIcon.src}
                 alt="blockchain fees"
-                label="Taxas Blockchain"
+                label={tPaymentLink("blockchainFees")}
                 value={getBlockchainFeesText()}
               />
 
               <PaymentDetailRow
                 icon={NoteIcon.src}
                 alt="description"
-                label="Description"
-                value={paymentSettings.description || "N/A"}
+                label={tPaymentLink("description")}
+                value={paymentSettings.description || tPaymentLink("nA")}
               />
             </Box>
           </PaymentDetailsContainer>
@@ -203,7 +215,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
             }}
           >
             <CustomButton
-              label="To close"
+              label={tPaymentLink("toClose")}
               variant="outlined"
               size="medium"
               onClick={onClose}
@@ -216,7 +228,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
               }}
             />
             <CustomButton
-              label="Copy Link"
+              label={tPaymentLink("copyLink")}
               variant="primary"
               size="medium"
               onClick={onCopyLink}

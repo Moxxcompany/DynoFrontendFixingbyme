@@ -15,8 +15,10 @@ const TransactionPage = () => {
       status: "done",
       fees: "0.0001 BTC",
       confirmations: "6/6",
-      incomingTransactionId: "3a7b9cd2e3f4a5b6c7d8e9f0ab2c3d4e5f6a7b8c9d0e1f2a0b4c5d6e718a9b",
-      outgoingTransactionId: "98a7b6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0c9f8e7d6c5b4a3f2e1d0c9b8a",
+      incomingTransactionId:
+        "3a7b9cd2e3f4a5b6c7d8e9f0ab2c3d4e5f6a7b8c9d0e1f2a0b4c5d6e718a9b",
+      outgoingTransactionId:
+        "98a7b6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0c9f8e7d6c5b4a3f2e1d0c9b8a",
       callbackUrl: "https://api.example.com/callback",
       webhookResponse: {
         status: "done",
@@ -34,7 +36,8 @@ const TransactionPage = () => {
       status: "pending",
       fees: "0.0001 LTC",
       confirmations: "3/6",
-      incomingTransactionId: "4b8c0de3f4a5b6c7d8e9f0ab2c3d4e5f6a7b8c9d0e1f2a0b4c5d6e718a9c",
+      incomingTransactionId:
+        "4b8c0de3f4a5b6c7d8e9f0ab2c3d4e5f6a7b8c9d0e1f2a0b4c5d6e718a9c",
     },
     {
       id: "TX003",
@@ -45,7 +48,8 @@ const TransactionPage = () => {
       status: "done",
       fees: "0.0001 ETH",
       confirmations: "12/12",
-      incomingTransactionId: "5c9d1ef4a5b6c7d8e9f0ab2c3d4e5f6a7b8c9d0e1f2a0b4c5d6e718a9d",
+      incomingTransactionId:
+        "5c9d1ef4a5b6c7d8e9f0ab2c3d4e5f6a7b8c9d0e1f2a0b4c5d6e718a9d",
       callbackUrl: "https://api.example.com/callback",
     },
     {
@@ -65,7 +69,8 @@ const TransactionPage = () => {
       status: "done",
       fees: "0.0001 BTC",
       confirmations: "6/6",
-      incomingTransactionId: "6d0e2fa5b6c7d8e9f0ab2c3d4e5f6a7b8c9d0e1f2a0b4c5d6e718a9e",
+      incomingTransactionId:
+        "6d0e2fa5b6c7d8e9f0ab2c3d4e5f6a7b8c9d0e1f2a0b4c5d6e718a9e",
     },
     {
       id: "TX006",
@@ -100,7 +105,13 @@ const TransactionPage = () => {
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: { md: "20px", xs: "16px" },
+      }}
+    >
       <TransactionsTopBar
         onSearch={handleSearch}
         onDateRangeChange={handleDateRangeChange}

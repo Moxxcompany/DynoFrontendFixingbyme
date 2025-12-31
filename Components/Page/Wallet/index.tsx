@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
 import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
 import LitecoinIcon from "@/assets/cryptocurrency/Litecoin-icon.svg";
@@ -18,6 +18,7 @@ import { theme } from "@/styles/theme";
 import { getCurrencySymbol, formatNumberWithComma } from "@/helpers";
 import { useDispatch } from "react-redux";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import { useTranslation } from "react-i18next";
 import PanelCard from "@/Components/UI/PanelCard";
 import {
   HeaderIcon,
@@ -42,74 +43,85 @@ interface WalletData {
 
 const Wallet = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation("walletScreen");
+  const tWallet = useCallback(
+    (key: string): string => {
+      const result = t(key, { ns: "walletScreen" });
+      return typeof result === "string" ? result : String(result);
+    },
+    [t]
+  );
 
   const [openEditModal, setOpenEditModal] = useState(false);
 
-  const [walletData] = useState<WalletData[]>([
-    {
-      icon: BitcoinIcon,
-      walletTitle: "Main Bitcoin wallet",
-      walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-      name: "BTC",
-      totalProcessed: 125430.5,
-    },
-    {
-      icon: EthereumIcon,
-      walletTitle: "Ethereum Payments",
-      walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-      name: "ETH",
-      totalProcessed: 89234.2,
-    },
-    {
-      icon: LitecoinIcon,
-      walletTitle: "Litecoin wallet",
-      walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-      name: "LTC",
-      totalProcessed: 45678.9,
-    },
-    {
-      icon: BNBIcon,
-      walletTitle: "BNB Wallet",
-      walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-      name: "BNB",
-      totalProcessed: 125430.5,
-    },
-    {
-      icon: DogecoinIcon,
-      walletTitle: "Dogecoin Wallet",
-      walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-      name: "DOGE",
+  const walletData = useMemo<WalletData[]>(
+    () => [
+      {
+        icon: BitcoinIcon,
+        walletTitle: tWallet("mainBitcoinWallet"),
+        walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+        name: "BTC",
+        totalProcessed: 125430.5,
+      },
+      {
+        icon: EthereumIcon,
+        walletTitle: tWallet("ethereumPayments"),
+        walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+        name: "ETH",
+        totalProcessed: 89234.2,
+      },
+      {
+        icon: LitecoinIcon,
+        walletTitle: tWallet("litecoinWallet"),
+        walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+        name: "LTC",
+        totalProcessed: 45678.9,
+      },
+      {
+        icon: BNBIcon,
+        walletTitle: tWallet("bnbWallet"),
+        walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+        name: "BNB",
+        totalProcessed: 125430.5,
+      },
+      {
+        icon: DogecoinIcon,
+        walletTitle: tWallet("dogecoinWallet"),
+        walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+        name: "DOGE",
       totalProcessed: 89234.2,
     },
     // {
     //   icon: BitcoinCashIcon,
-    //   walletTitle: "Bitcoin Cash Wallet",
+    //   walletTitle: tWallet("bitcoinCashWallet"),
     //   walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
     //   name: "BCH",
     //   totalProcessed: 45678.9,
     // },
     // {
     //   icon: TronIcon,
-    //   walletTitle: "Tron Wallet",
+    //   walletTitle: tWallet("tronWallet"),
     //   walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
     //   name: "TRX",
     //   totalProcessed: 125430.5,
     // },
     // {
     //   icon: USDTIcon,
-    //   walletTitle: "USDT (TRC-20) Wallet",
+    //   walletTitle: tWallet("usdtWallet"),
     //   walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
     //   name: "USDT",
     //   totalProcessed: 89234.2,
     // },
-  ]);
+    ],
+    [tWallet]
+  );
 
   const copyAddressToClipboard = (address: string) => {
     navigator.clipboard.writeText(address);
     dispatch({
       type: TOAST_SHOW,
       payload: {
-        message: "Address copied to clipboard!",
+        message: tWallet("addressCopied"),
         severity: "success",
       },
     });
@@ -164,7 +176,7 @@ const Wallet = () => {
                     label={
                       <WalletLabel>
                         <Image src={LinkIcon} alt="Address" draggable={false} />
-                        <span>Address</span>
+                        <span>{tWallet("address")}</span>
                       </WalletLabel>
                     }
                     sx={{
@@ -186,7 +198,7 @@ const Wallet = () => {
                         alt="Total processed"
                         draggable={false}
                       />
-                      <span>Total processed</span>
+                      <span>{tWallet("totalProcessed")}</span>
                     </WalletLabel>
                     <Typography
                       sx={{
@@ -207,7 +219,7 @@ const Wallet = () => {
 
                 <WalletCardBodyRow>
                   <CustomButton
-                    label="View Transactions"
+                    label={tWallet("viewTransactions")}
                     variant="outlined"
                     endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
                     sx={{

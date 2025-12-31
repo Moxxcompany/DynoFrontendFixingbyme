@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 import PopupModal from "@/Components/UI/PopupModal";
 import CustomButton from "@/Components/UI/Buttons";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
@@ -86,6 +87,14 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
+  const { t } = useTranslation("transactions");
+  const tTransactions = useCallback(
+    (key: string, options?: any): string => {
+      const result = t(key, { ns: "transactions", ...options });
+      return typeof result === "string" ? result : String(result);
+    },
+    [t]
+  );
   if (!transaction) return null;
 
   const getCryptoIcon = (crypto: string) => {
@@ -152,7 +161,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
       }}
     >
       <PanelCard
-        title="Transaction Details"
+        title={tTransactions("transactionDetails")}
         showHeaderBorder={false}
         headerPadding={theme.spacing(3.75, 3.75, 0, 3.75)}
         bodyPadding={theme.spacing(3, 3.75, 3.75, 3.75)}
@@ -162,7 +171,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               {getStatusIcon(transaction.status)}
             </StatusIconWrapper>
             <StatusText status={transaction.status}>
-              {transaction.status}
+              {tTransactions(transaction.status)}
             </StatusText>
           </StatusBadge>
         }
@@ -185,11 +194,11 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
         <Box sx={{ marginBottom: 3 }}>
           <HeaderTitleRow>
             <TitleColumn>
-              <TitleLabel>Transaction ID</TitleLabel>
+              <TitleLabel>{tTransactions("transactionId")}</TitleLabel>
               <TitleValue>{transaction.id}</TitleValue>
             </TitleColumn>
             <TitleColumn>
-              <TitleLabel>Date & Time</TitleLabel>
+              <TitleLabel>{tTransactions("dateTime")}</TitleLabel>
               <TitleValue>{transaction.dateTime}</TitleValue>
             </TitleColumn>
           </HeaderTitleRow>
@@ -205,11 +214,11 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               height={15}
               draggable={false}
             />
-            <SectionTitle>Amount Details</SectionTitle>
+            <SectionTitle>{tTransactions("amountDetails")}</SectionTitle>
           </SectionTitleWithIcon>
           <Box sx={{ display: "flex", flexDirection: "column", gap: "14px" }}>
             <DetailRow>
-              <TitleLabel>Cryptocurrency</TitleLabel>
+              <TitleLabel>{tTransactions("cryptocurrency")}</TitleLabel>
               <CryptoIconChip sx={{ width: "fit-content" }}>
                 <Image
                   src={getCryptoIcon(transaction.crypto)}
@@ -230,22 +239,22 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               </CryptoIconChip>
             </DetailRow>
             <DetailRow>
-              <TitleLabel>Amount</TitleLabel>
+              <TitleLabel>{tTransactions("amount")}</TitleLabel>
               <TitleValue>{transaction.amount}</TitleValue>
             </DetailRow>
             <DetailRow>
-              <TitleLabel>USD Value</TitleLabel>
+              <TitleLabel>{tTransactions("usdValue")}</TitleLabel>
               <TitleValue>{transaction.usdValue}</TitleValue>
             </DetailRow>
             {transaction.fees && (
               <DetailRow>
-                <TitleLabel>Fees</TitleLabel>
+                <TitleLabel>{tTransactions("fees")}</TitleLabel>
                 <TitleValue>{transaction.fees}</TitleValue>
               </DetailRow>
             )}
             {transaction.confirmations && (
               <DetailRow>
-                <TitleLabel>Confirmations</TitleLabel>
+                <TitleLabel>{tTransactions("confirmations")}</TitleLabel>
                 <TitleValue>{transaction.confirmations}</TitleValue>
               </DetailRow>
             )}
@@ -265,7 +274,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   height={20}
                   draggable={false}
                 />
-                <SectionTitle>Transaction Hashes</SectionTitle>
+                <SectionTitle>{tTransactions("transactionHashes")}</SectionTitle>
               </SectionTitleWithIcon>
               <Box
                 sx={{ display: "flex", flexDirection: "column", gap: "16px" }}
@@ -276,7 +285,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                       <InputField
                         value={transaction.incomingTransactionId}
                         readOnly
-                        label={<TitleLabel>Incoming Transaction ID</TitleLabel>}
+                        label={<TitleLabel>{tTransactions("incomingTransactionId")}</TitleLabel>}
                         inputHeight={isMobile ? "32px" : "40px"}
                         sx={{
                           gap: isMobile ? "6px" : "12px",
@@ -287,7 +296,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                           onClick={() =>
                             handleCopy(transaction.incomingTransactionId!)
                           }
-                          title="Copy"
+                          title={tTransactions("copy")}
                         >
                           <Image
                             src={CopyIcon}
@@ -297,7 +306,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                             draggable={false}
                           />
                         </CopyButton>
-                        <ExplorerButton title="View on Explorer">
+                        <ExplorerButton title={tTransactions("viewOnExplorer")}>
                           <Image
                             src={RightArrowIcon}
                             alt="Right Arrow"
@@ -316,7 +325,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                       <InputField
                         value={transaction.outgoingTransactionId}
                         readOnly
-                        label={<TitleLabel>Outgoing Transaction ID</TitleLabel>}
+                        label={<TitleLabel>{tTransactions("outgoingTransactionId")}</TitleLabel>}
                         inputHeight={isMobile ? "32px" : "40px"}
                         sx={{
                           gap: isMobile ? "6px" : "12px",
@@ -328,7 +337,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                           onClick={() =>
                             handleCopy(transaction.outgoingTransactionId!)
                           }
-                          title="Copy"
+                          title={tTransactions("copy")}
                         >
                           <Image
                             src={CopyIcon}
@@ -338,7 +347,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                             draggable={false}
                           />
                         </CopyButton>
-                        <ExplorerButton title="View on Explorer">
+                        <ExplorerButton title={tTransactions("viewOnExplorer")}>
                           <Image
                             src={RightArrowIcon}
                             alt="Right Arrow"
@@ -357,9 +366,9 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
           </>
         )}
 
-        {(transaction.callbackUrl || transaction.webhookResponse) && (
+          {(transaction.callbackUrl || transaction.webhookResponse) && (
           <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <SectionTitle>Callback Information</SectionTitle>
+            <SectionTitle>{tTransactions("callbackInformation")}</SectionTitle>
             <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               {transaction.callbackUrl && (
                 <Box>
@@ -367,16 +376,16 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                     <InputField
                       value={transaction.callbackUrl}
                       readOnly
-                      label={<TitleLabel>Callback URL</TitleLabel>}
+                      label={<TitleLabel>{tTransactions("callbackUrl")}</TitleLabel>}
                       inputHeight={isMobile ? "32px" : "40px"}
                       sx={{
                         gap: isMobile ? "6px" : "12px",
                       }}
                     />
-                    <CopyButton
-                      onClick={() => handleCopy(transaction.callbackUrl!)}
-                      title="Copy"
-                    >
+                      <CopyButton
+                        onClick={() => handleCopy(transaction.callbackUrl!)}
+                        title={tTransactions("copy")}
+                      >
                       <Image
                         src={CopyIcon}
                         alt="Copy"
@@ -396,7 +405,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                     gap: isMobile ? "6px" : "12px",
                   }}
                 >
-                  <TitleLabel>Webhook Response</TitleLabel>
+                  <TitleLabel>{tTransactions("webhookResponse")}</TitleLabel>
                   <WebhookResponseBox>
                     <pre
                       style={{
@@ -414,22 +423,35 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
           </Box>
         )}
 
-        <Box sx={{ display: "flex", gap: 2, marginTop: 3 }}>
-          <CustomButton
-            label="Close"
-            variant="outlined"
-            size="medium"
-            onClick={onClose}
-            fullWidth
-          />
-          <CustomButton
-            label="View on Explorer"
-            variant="primary"
-            size="medium"
-            onClick={handleViewOnExplorer}
-            fullWidth
-          />
-        </Box>
+          <Box sx={{ display: "flex", gap: 2, marginTop: 3 }}>
+            <CustomButton
+              label={tTransactions("close")}
+              variant="outlined"
+              size="medium"
+              onClick={onClose}
+              fullWidth
+              sx={{
+                [theme.breakpoints.down("md")]: {
+                  width: "fit-content",
+                  flex: 1,
+                  height: "32px",
+                },
+              }}
+            />
+            <CustomButton
+              label={tTransactions("viewOnExplorer")}
+              variant="primary"
+              size="medium"
+              onClick={handleViewOnExplorer}
+              fullWidth
+              sx={{
+                [theme.breakpoints.down("md")]: {
+                  width: "fit-content",
+                  height: "32px",
+                },
+              }}
+            />
+          </Box>
       </PanelCard>
     </PopupModal>
   );
