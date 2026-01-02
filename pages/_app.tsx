@@ -18,6 +18,7 @@ import LanguageBootstrap from "@/helpers/LanguageBootstrap";
 import type { ReactNode } from "react";
 import { SxProps, Theme } from "@mui/material";
 import HomeLayout from "@/Containers/Home";
+import { homeTheme } from "@/styles/homeTheme";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter();
@@ -41,9 +42,11 @@ export default function App({ Component, pageProps }: AppProps) {
         <SessionProvider session={pageProps.session}>
           <ThemeProvider theme={theme}>
             {isHomePath && (
-              <HomeLayout>
-                <Component {...pageProps} />
-              </HomeLayout>
+              <ThemeProvider theme={homeTheme}>
+                <HomeLayout>
+                  <Component {...pageProps} />
+                </HomeLayout>
+              </ThemeProvider>
             )}
 
             {!isHomePath &&
