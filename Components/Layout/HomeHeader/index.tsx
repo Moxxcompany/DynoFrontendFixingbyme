@@ -1,47 +1,64 @@
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Button, Divider } from "@mui/material";
 import { useRouter } from "next/router";
-import React from "react";
+import Image from "next/image";
+import DynopayLogo from "@/assets/Images/auth/dynopay-logo.svg";
+import { HeaderContainer, NavLinks, Actions } from "./styled";
+import CustomButton from "@/Components/UI/Buttons";
+import { homeTheme } from "@/styles/homeTheme";
 
 const HomeHeader = () => {
-  const HeaderItems = [
-    {
-      label: "Home",
-      href: "/",
-    },
-    {
-      label: "Terms & Conditions",
-      href: "/terms-conditions",
-    },
-    {
-      label: "Privacy Policy",
-      href: "/privacy-policy",
-    },
-    {
-      label: "AML Policy",
-      href: "/aml-policy",
-    },
-    {
-      label: "API Status",
-      href: "/api-status",
-    },
-  ];
   const router = useRouter();
+
+  const HeaderItems = [
+    // { label: "How It Works", path: "/how-it-works" },
+    // { label: "Features", path: "/features" },
+    // { label: "Use Cases", path: "/use-cases" },
+    // { label: "Documentation", path: "/docs" },
+    { label: "How It Works", path: "/" },
+    { label: "Features", path: "/" },
+    { label: "Use Cases", path: "/" },
+    { label: "Documentation", path: "/" },
+  ];
+
   return (
-    <Box>
-      <Grid container spacing={2}>
-        {HeaderItems.map((item) => (
-          <Grid item key={item.href}>
-            <Button
-              variant="text"
-              color="primary"
-              onClick={() => router.push(item.href)}
-            >
+    <div>
+      <HeaderContainer>
+        {/* Logo */}
+        <Image
+          src={DynopayLogo}
+          alt="Dynopay"
+          width={120}
+          height={40}
+          draggable={false}
+          className="logo"
+          onClick={() => router.push("/")}
+        />
+
+        {/* Center Nav */}
+        <NavLinks>
+          {HeaderItems.map((item) => (
+            <Button key={item.path} onClick={() => router.push(item.path)}>
               {item.label}
             </Button>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+          ))}
+        </NavLinks>
+
+        {/* Right Actions */}
+        <Actions>
+          <Button className="signin" onClick={() => router.push("/auth/login")}>
+            Sign In
+          </Button>
+
+          <CustomButton
+            label="Get Started"
+            variant="primary"
+            size="medium"
+            onClick={() => router.push("/auth/register")}
+          />
+        </Actions>
+      </HeaderContainer>
+      <Divider sx={{ borderColor: homeTheme.palette.border.main }} />
+    </div>
   );
 };
 

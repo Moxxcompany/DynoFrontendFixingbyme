@@ -7,17 +7,16 @@ import HomeHeader from "@/Components/Layout/HomeHeader";
 import HomeFooter from "@/Components/Layout/HomeFooter";
 import { HomeContainer } from "./styled";
 
-
 const HomeLayout = ({ children }: { children: React.ReactNode }) => {
   const theme = useTheme();
   const tokenData = useTokenData();
   const ToastState = useSelector((state: rootReducer) => state.toastReducer);
   return (
-    <HomeContainer>
+    <>
       <HomeHeader />
-      {children}
+      <HomeContainer>{children}</HomeContainer>
       <HomeFooter />
-    </HomeContainer>
+    </>
   );
 };
 
