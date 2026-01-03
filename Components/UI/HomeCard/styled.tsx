@@ -4,13 +4,13 @@ import { styled } from "@mui/material/styles";
 import { homeTheme } from "@/styles/homeTheme";
 
 export const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: "20px",
   background: "#fff",
   width: "100%",
   height: "100%",
   maxHeight: "612px",
   border: `1px solid ${homeTheme.palette.border.main}`,
   boxShadow: "none !important",
+  borderRadius: "20px",
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
@@ -69,7 +69,7 @@ export const GoLiveDescription = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-export const FeatureIcon = styled(Box)(({ theme }) => ({
+export const FeatureIcon = styled(Box)(() => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -77,6 +77,56 @@ export const FeatureIcon = styled(Box)(({ theme }) => ({
   height: "48px",
   borderRadius: "16px",
   background: homeTheme.palette.background.default,
+}));
+
+export const WhyChooseUsCard = styled(Box)(() => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  textAlign: "center",
+  flexDirection: "column",
+  width: "100%",
+  height: "100%",
+  maxWidth: "294px",
+  maxHeight: "218px",
+  padding: "25px",
+  background: theme.palette.primary.contrastText,
+  border: `1px solid #E7E8EF`,
+  boxShadow: "none !important",
+  borderRadius: "20px",
+}));
+
+export const WhyChooseDynoPayTitle = styled(Typography)(() => ({
+  fontSize: "18px",
+  fontWeight: 500,
+  lineHeight: "28px",
+  fontStyle: "semibold",
+  letterSpacing: 0,
+  textAlign: "center",
+  fontFamily: "OutfitMedium",
+  color: homeTheme.palette.text.primary,
+}));
+
+export const WhyChooseDynoPayDescription = styled(Typography)(() => ({
+  fontSize: "14px",
+  fontWeight: 400,
+  lineHeight: "20px",
+  letterSpacing: 0,
+  textAlign: "center",
+  fontFamily: "OutfitRegular",
+  color: homeTheme.palette.text.secondary,
+}));
+
+export const WhyChooseDynoPayIcon = styled(Box)(() => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "56px",
+  height: "56px",
+  minHeight: "56px",
+  minWidth: "56px",
+  borderRadius: "20px",
+  background: "#0004FF1A",
 }));
 
 export const CardHeader = styled(Box)(({ theme }) => ({

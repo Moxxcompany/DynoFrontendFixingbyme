@@ -7,6 +7,7 @@ import {
   HomeFullWidthContainer,
 } from "@/Containers/Home/styled";
 import UseCaseSection from "./UseCase";
+import WhyChooseDynopaySection from "./WhyChooseDynoPay";
 
 const HomePage = () => {
   return (
@@ -22,6 +23,10 @@ const HomePage = () => {
       <HomeContainer>
         <FeaturesSection />
       </HomeContainer>
+
+      <HomeFullWidthContainer>
+        <WhyChooseDynopaySection />
+      </HomeFullWidthContainer>
 
       <HomeContainer>
         <UseCaseSection />

@@ -5,11 +5,9 @@ import { Box, Grid, Typography } from "@mui/material";
 import useIsMobile from "@/hooks/useIsMobile";
 import {
   FeatureIcon,
-  GoLiveCount,
   GoLiveDescription,
   GoLiveTitle,
 } from "@/Components/UI/HomeCard/styled";
-import { homeTheme } from "@/styles/homeTheme";
 import { ImageCenter } from "@/Containers/Login/styled";
 import HomeSectionTitle from "@/Components/UI/SectionTitle";
 import PaymentLinkSuccessImage from "@/assets/Images/home/payment-link-success.png";
@@ -24,16 +22,17 @@ import WalletIcon from "@/assets/Icons/home/wallet-icon.svg";
 import APIKeyIcon from "@/assets/Icons/home/code-icon.svg";
 import ProgressCounterIcon from "@/assets/Icons/home/trend-down-icon.svg";
 import WebhookIcon from "@/assets/Icons/home/webhook-icon.svg";
+import HomeButton from "@/Components/Layout/HomeButton";
 
 const FeaturesSection = () => {
   const isMobile = useIsMobile("md");
   return (
     <section
       style={{
-        padding: "83px 0px",
+        padding: isMobile ? "60px 0px" : "83px 0px",
       }}
     >
-      {/* Go Live Section Title */}
+      {/* Features Section Title */}
       <HomeSectionTitle
         type="small"
         badgeText="Features"
@@ -42,7 +41,7 @@ const FeaturesSection = () => {
         subtitle="Focus on your business and let us manage your crypto payment processes for you."
         sx={{ maxWidth: "100%" }}
       />
-      {/* Go Live Section Cards */}
+      {/* Features Section Cards */}
       <Box
         sx={{
           paddingTop: isMobile ? 5 : 8,
@@ -50,7 +49,15 @@ const FeaturesSection = () => {
         }}
       >
         <Grid container spacing={4}>
-          <Grid item xs={12} sm={12} md={6} lg={4} xl={4}>
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={6}
+            lg={4}
+            xl={4}
+            sx={{ order: { xs: 3, md: 1 } }}
+          >
             <HomeCard>
               <Box
                 sx={{
@@ -60,7 +67,7 @@ const FeaturesSection = () => {
                   flexDirection: "column",
                   width: "100%",
                   height: "100%",
-                  padding: isMobile ? 2 : "33px 32px 18px",
+                  padding: isMobile ? 2 : "25px",
                   overflow: "hidden",
                 }}
               >
@@ -76,7 +83,7 @@ const FeaturesSection = () => {
                 <GoLiveTitle sx={{ marginTop: 2 }}>
                   No-Code Payment Links
                 </GoLiveTitle>
-                <GoLiveDescription sx={{ marginTop: 1.5 }}>
+                <GoLiveDescription sx={{ marginTop: 1 }}>
                   Simple way to send a payment request without any technical
                   setup.
                 </GoLiveDescription>
@@ -106,7 +113,15 @@ const FeaturesSection = () => {
               </Box>
             </HomeCard>
           </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={4} xl={4}>
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={6}
+            lg={4}
+            xl={4}
+            sx={{ order: { xs: 2, md: 2 } }}
+          >
             <HomeCard>
               <Box
                 sx={{
@@ -116,7 +131,7 @@ const FeaturesSection = () => {
                   flexDirection: "column",
                   width: "100%",
                   height: "100%",
-                  padding: isMobile ? 2 : "33px 32px 30px",
+                  padding: isMobile ? 2 : "25px",
                 }}
               >
                 <FeatureIcon>
@@ -161,7 +176,15 @@ const FeaturesSection = () => {
               </Box>
             </HomeCard>
           </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={4} xl={4}>
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={6}
+            lg={4}
+            xl={4}
+            sx={{ order: { xs: 1, md: 3 } }}
+          >
             <Box sx={{ width: "100%", height: "100%" }}>
               <HomeCard>
                 <Box
@@ -172,7 +195,7 @@ const FeaturesSection = () => {
                     flexDirection: "column",
                     width: "100%",
                     height: "100%",
-                    padding: isMobile ? 2 : "33px 32px 0px",
+                    padding: isMobile ? 2 : "25px",
                   }}
                 >
                   <FeatureIcon>
@@ -217,7 +240,15 @@ const FeaturesSection = () => {
               </HomeCard>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={4} xl={4}>
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={6}
+            lg={4}
+            xl={4}
+            sx={{ order: { xs: 6, md: 4 } }}
+          >
             <Box sx={{ width: "100%", height: "100%" }}>
               <HomeCard>
                 <Box
@@ -228,7 +259,7 @@ const FeaturesSection = () => {
                     flexDirection: "column",
                     width: "100%",
                     height: "100%",
-                    padding: isMobile ? 2 : "33px 32px 0px",
+                    padding: isMobile ? 2 : "25px",
                   }}
                 >
                   <FeatureIcon>
@@ -273,7 +304,15 @@ const FeaturesSection = () => {
               </HomeCard>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={4} xl={4}>
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={6}
+            lg={4}
+            xl={4}
+            sx={{ order: { xs: 5, md: 5 } }}
+          >
             <Box sx={{ width: "100%", height: "100%" }}>
               <HomeCard>
                 <Box
@@ -284,7 +323,7 @@ const FeaturesSection = () => {
                     flexDirection: "column",
                     width: "100%",
                     height: "100%",
-                    padding: isMobile ? 2 : "33px 32px 0px",
+                    padding: isMobile ? 2 : "25px",
                   }}
                 >
                   <FeatureIcon>
@@ -329,7 +368,15 @@ const FeaturesSection = () => {
               </HomeCard>
             </Box>
           </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={4} xl={4}>
+          <Grid
+            item
+            xs={12}
+            sm={12}
+            md={6}
+            lg={4}
+            xl={4}
+            sx={{ order: { xs: 4, md: 6 } }}
+          >
             <Box sx={{ width: "100%", height: "100%" }}>
               <HomeCard>
                 <Box
@@ -340,7 +387,7 @@ const FeaturesSection = () => {
                     flexDirection: "column",
                     width: "100%",
                     height: "100%",
-                    padding: isMobile ? 2 : "33px 32px 0px",
+                    padding: isMobile ? 2 : "25px",
                   }}
                 >
                   <FeatureIcon>
@@ -386,6 +433,16 @@ const FeaturesSection = () => {
             </Box>
           </Grid>
         </Grid>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: isMobile ? 5 : 8,
+          }}
+        >
+          <HomeButton variant="primary" label="Start Accepting Crypto" />
+        </Box>
       </Box>
     </section>
   );

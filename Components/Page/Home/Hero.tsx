@@ -13,6 +13,7 @@ import EthereumBg from "@/assets/Images/home/Ethereum-bg.png";
 import LitecoinBg from "@/assets/Images/home/Litecoin-bg.png";
 
 import Image from "next/image";
+import HomeButton from "@/Components/Layout/HomeButton";
 
 const HeroSection = () => {
   return (
@@ -82,40 +83,10 @@ const HeroSection = () => {
             zIndex: 10,
           }}
         >
-          <CustomButton
-            label="Start Accepting Crypto"
-            variant="primary"
-            endIcon={
-              <RightArrowIcon fill={homeTheme.palette.common.white} size={12} />
-            }
-            size="medium"
-            onClick={() => {}}
-            sx={{
-              borderRadius: "10px",
-              fontFamily: "OutfitMedium",
-              fontWeight: 500,
-              fontSize: "14px",
-              lineHeight: "20px",
-            }}
-          />
-          <CustomButton
-            label="Learn More"
-            variant="outlined"
-            sx={{
-              border: `1px solid ${homeTheme.palette.border.main}`,
-              color: homeTheme.palette.text.primary,
-              borderRadius: "10px",
-              fontFamily: "OutfitMedium",
-              fontWeight: 500,
-              fontSize: "14px",
-              lineHeight: "20px",
-              "&:hover": {
-                backgroundColor: "transparent",
-              },
-            }}
-            size="medium"
-            onClick={() => {}}
-          />
+          {/* Start Accepting Crypto Button */}
+          <HomeButton variant="primary" label="Start Accepting Crypto" />
+          {/* Learn More Button */}
+          <HomeButton variant="outlined" label="Learn More" />
         </Box>
       </Box>
 

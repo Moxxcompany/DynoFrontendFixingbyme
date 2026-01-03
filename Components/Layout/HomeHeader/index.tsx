@@ -16,6 +16,7 @@ import {
 import CustomButton from "@/Components/UI/Buttons";
 import { homeTheme } from "@/styles/homeTheme";
 import useIsMobile from "@/hooks/useIsMobile";
+import HomeButton from "../HomeButton";
 
 const HomeHeader = () => {
   const router = useRouter();
@@ -63,21 +64,17 @@ const HomeHeader = () => {
             Sign In
           </Button>
 
-          <CustomButton
-            label="Get Started"
+          <HomeButton
             variant="primary"
-            size={isMobile ? "small" : "medium"}
-            sx={{
-              borderRadius: "10px",
-              height: isMobile ? "36px" : "40px",
-              fontFamily: "UrbanistMedium",
-              fontWeight: 500,
-              fontSize: "14px",
-              lineHeight: isMobile ? "18px" : "20px",
-            }}
+            label="Get Started"
             onClick={() => router.push("/auth/register")}
+            showIcon={false}
+            sx={{
+              borderRadius: "8px",
+              padding: "8px 12px",
+              maxWidth: "fit-content",
+            }}
           />
-
           {/* Mobile Menu Button */}
           {isMobile && (
             <MobileMenuButton onClick={() => setMobileMenuOpen(true)}>

@@ -9,6 +9,7 @@ import BitcoinBg from "@/assets/Images/home/Bitcoin-bg.png";
 import EthereumBg from "@/assets/Images/home/Ethereum-bg.png";
 import LitecoinBg from "@/assets/Images/home/Litecoin-bg.png";
 import { theme } from "@/styles/theme";
+import HomeButton from "@/Components/Layout/HomeButton";
 
 const UseCaseBannerWrapper = styled(Box)(() => ({
   width: "100%",
@@ -100,10 +101,10 @@ const UseCaseBanner = () => {
         <TextWrapper>
           <DecorativeImage
             sx={{
-              top: { md: "-40%", lg: "-70%",sm:"-0%", xs: "-10%" },
-              left: { md: "-25px",sm:"100%", xs: "85%" },
+              top: { md: "-40%", lg: "-70%", sm: "-0%", xs: "-10%" },
+              left: { md: "-25px", sm: "100%", xs: "85%" },
             }}
-            >
+          >
             <Image
               src={BitcoinBg}
               alt="Bitcoin"
@@ -119,24 +120,16 @@ const UseCaseBanner = () => {
             Set up your workspace, add your wallets, and go live within minutes.
             Join thousands of businesses already accepting crypto.
           </SubText>
-          <CustomButton
-            label="Start Accepting Crypto"
-            variant="primary"
-            endIcon={
-              <RightArrowIcon fill={homeTheme.palette.common.white} size={12} />
-            }
-            size="medium"
-            onClick={() => {}}
+          {/* Start Accepting Crypto Button */}
+          <Box
             sx={{
-              borderRadius: "10px",
-              fontFamily: "OutfitMedium",
-              fontWeight: 500,
-              fontSize: "14px",
-              lineHeight: "20px",
+              display: "flex",
+              justifyContent: "start",
               marginTop: "16px",
-              width: "fit-content",
             }}
-          />
+          >
+            <HomeButton variant="primary" label="Start Accepting Crypto" />
+          </Box>
           <DecorativeImage
             sx={{
               bottom: "10%",
