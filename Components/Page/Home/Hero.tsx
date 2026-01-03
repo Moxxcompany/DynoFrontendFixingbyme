@@ -20,7 +20,7 @@ const HeroSection = () => {
       <Box
         sx={{
           pt: { lg: "63px", md: "48px", sm: "35px", xs: "24px" },
-          zIndex: 10,
+          zIndex: 20,
         }}
       >
         <Box sx={{ position: "relative" }}>
@@ -79,6 +79,7 @@ const HeroSection = () => {
             gap: { xs: 1, sm: 2 },
             marginTop: "24px",
             justifyContent: "center",
+            zIndex: 10,
           }}
         >
           <CustomButton
@@ -120,11 +121,23 @@ const HeroSection = () => {
 
       <Box
         sx={{
-          mt: 8,
+          my: 8,
           position: "relative",
           display: { lg: "flex", md: "flex", sm: "none", xs: "none" },
           alignItems: "center",
           justifyContent: "center",
+          ":before": {
+            content: '""',
+            position: "absolute",
+            top: "-10%",
+            left: 0,
+            width: "100%",
+            height: "110%",
+            backgroundColor: "rgba(0, 4, 255, 0.05)",
+            filter: "blur(100px)",
+            borderRadius: "1000px",
+            zIndex: 0,
+          },
         }}
       >
         <Box
@@ -136,19 +149,18 @@ const HeroSection = () => {
           }}
         >
           {/* Glow */}
-          <Box
+          {/* <Box
             sx={{
               bgcolor: "rgba(0, 4, 255, 0.05)",
               position: "absolute",
-              top: "-25%",
-              left: 0,
-              right: 0,
-              bottom: 0,
+              top: "-10%",
+              width: "100%",
+              height: "110%",
               filter: "blur(100px)",
               borderRadius: "1000px",
-              zIndex: -5,
+              zIndex: 0,
             }}
-          />
+          /> */}
 
           <Box
             sx={{
@@ -242,19 +254,96 @@ const HeroSection = () => {
       </Box>
 
       {/* Mobile Section */}
-      <Box sx={{ display: { md: "none", sm: "block", xs: "block" }, mt: 4 }}>
+      <Box
+        sx={{
+          display: { md: "none", sm: "block", xs: "block" },
+          my: 4,
+          position: "relative",
+          height: "450px",
+          "&:before": {
+            content: '""',
+            position: "absolute",
+            top: "0%",
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 4, 255, 0.05)",
+            filter: "blur(100px)",
+            borderRadius: "1000px",
+            zIndex: 0,
+          },
+        }}
+      >
         <Box
           sx={{
-            position: "relative",
+            position: "absolute",
+            top: "0%",
+            left: "0",
+            width: "258px",
+            height: "168px",
+            filter: "blur(1px)",
+          }}
+        >
+          <Image
+            src={Wallet}
+            alt="Wallet Container"
+            fill
+            style={{ objectFit: "fill" }}
+            draggable={false}
+          />
+        </Box>
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "0%",
+            right: "0",
+            width: "308px",
+            height: "251px",
+            filter: "blur(1px)",
+          }}
+        >
+          <Image
+            src={Payment}
+            alt="Payment Container"
+            fill
+            style={{ objectFit: "fill" }}
+            draggable={false}
+          />
+        </Box>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "0%",
+            right: "-16px",
+            width: "97px",
+            height: "97px",
+            filter: "blur(3px)",
+            zIndex: 0,
+          }}
+        >
+          <Image
+            src={LitecoinBg}
+            alt="Dashboard Mobile"
+            fill
+            style={{ objectFit: "cover" }}
+            draggable={false}
+          />
+        </Box>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "10%",
+            transform: "translateY(-50%)",
             width: "847px",
-            height: "360px",
+            height: "367px",
           }}
         >
           <Image
             src={Dashboard}
             alt="Dashboard Mobile"
             fill
-            style={{ objectFit: "contain" }}
+            style={{ objectFit: "cover", placeContent: "left" }}
             draggable={false}
           />
         </Box>

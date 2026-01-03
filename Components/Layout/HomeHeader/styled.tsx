@@ -114,7 +114,7 @@ export const MobileNavItem = styled("div")(({ theme }) => ({
   fontSize: "16px",
   fontWeight: 400,
   lineHeight: "24px",
-  fontFamily: "UrbanistRegular",
+  fontFamily: "OutfitRegular",
   color: homeTheme.palette.text.primary,
   cursor: "pointer",
   borderBottom: `1px solid ${homeTheme.palette.border.main}`,
