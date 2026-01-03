@@ -1,24 +1,38 @@
-import { Box, Button, Divider } from "@mui/material";
+import { useState } from "react";
+import { Box, Button, Divider, IconButton, Drawer } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import DynopayLogo from "@/assets/Images/auth/dynopay-logo.svg";
-import { HeaderContainer, NavLinks, Actions } from "./styled";
+import CloseIcon from "@/assets/Icons/close-icon.svg";
+import {
+  HeaderContainer,
+  NavLinks,
+  Actions,
+  MobileMenuButton,
+  MobileDrawer,
+  MobileNavItem,
+} from "./styled";
 import CustomButton from "@/Components/UI/Buttons";
 import { homeTheme } from "@/styles/homeTheme";
+import useIsMobile from "@/hooks/useIsMobile";
 
 const HomeHeader = () => {
   const router = useRouter();
+  const isMobile = useIsMobile("md");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const HeaderItems = [
-    // { label: "How It Works", path: "/how-it-works" },
-    // { label: "Features", path: "/features" },
-    // { label: "Use Cases", path: "/use-cases" },
-    // { label: "Documentation", path: "/docs" },
     { label: "How It Works", path: "/" },
     { label: "Features", path: "/" },
     { label: "Use Cases", path: "/" },
     { label: "Documentation", path: "/" },
   ];
+
+  const handleNavClick = (path: string) => {
+    router.push(path);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <div>
@@ -34,10 +48,10 @@ const HomeHeader = () => {
           onClick={() => router.push("/")}
         />
 
-        {/* Center Nav */}
-        <NavLinks>
+        {/* Center Nav - Desktop Only */}
+        <NavLinks className="desktop-nav">
           {HeaderItems.map((item) => (
-            <Button key={item.path} onClick={() => router.push(item.path)}>
+            <Button key={item.path} onClick={() => handleNavClick(item.path)}>
               {item.label}
             </Button>
           ))}
@@ -52,11 +66,95 @@ const HomeHeader = () => {
           <CustomButton
             label="Get Started"
             variant="primary"
-            size="medium"
+            size={isMobile ? "small" : "medium"}
+            sx={{
+              borderRadius: "10px",
+              height: isMobile ? "36px" : "40px",
+              fontFamily: "UrbanistMedium",
+              fontWeight: 500,
+              fontSize: "14px",
+              lineHeight: isMobile ? "18px" : "20px",
+            }}
             onClick={() => router.push("/auth/register")}
           />
+
+          {/* Mobile Menu Button */}
+          {isMobile && (
+            <MobileMenuButton onClick={() => setMobileMenuOpen(true)}>
+              <MenuIcon sx={{ fontSize: 24 }} />
+            </MobileMenuButton>
+          )}
         </Actions>
       </HeaderContainer>
+
+      {/* Mobile Drawer */}
+      <Drawer
+        anchor="right"
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: "100%",
+            maxWidth: "320px",
+          },
+          "& .MuiBackdrop-root": {
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+          },
+        }}
+      >
+        <MobileDrawer>
+          {/* Close Button */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              padding: "16px",
+              flexShrink: 0,
+            }}
+          >
+            <IconButton
+              onClick={() => setMobileMenuOpen(false)}
+              sx={{
+                padding: "8px",
+                "&:hover": {
+                  backgroundColor: "transparent",
+                },
+              }}
+            >
+              <Image
+                src={CloseIcon}
+                alt="Close"
+                width={24}
+                height={24}
+                draggable={false}
+              />
+            </IconButton>
+          </Box>
+
+          {/* Mobile Nav Items - Scrollable */}
+          <Box
+            sx={{
+              padding: "0 24px",
+              marginTop: "32px",
+              paddingBottom: "32px",
+              flex: 1,
+              overflowY: "auto",
+            }}
+          >
+            {HeaderItems.map((item) => (
+              <MobileNavItem
+                key={item.path}
+                onClick={() => handleNavClick(item.path)}
+              >
+                {item.label}
+              </MobileNavItem>
+            ))}
+          </Box>
+        </MobileDrawer>
+      </Drawer>
+
       <Divider sx={{ borderColor: homeTheme.palette.border.main }} />
     </div>
   );
