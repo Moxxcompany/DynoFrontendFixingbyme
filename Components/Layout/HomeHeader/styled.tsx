@@ -28,7 +28,7 @@ export const NavLinks = styled("div")({
     fontSize: "14px",
     fontWeight: 400,
     lineHeight: "20px",
-    fontFamily: "UrbanistRegular",
+    fontFamily: "OutfitRegular",
     color: homeTheme.palette.text.secondary,
     padding: 0,
 
@@ -50,7 +50,7 @@ export const Actions = styled("div")({
     fontWeight: 500,
     color: homeTheme.palette.text.primary,
     lineHeight: "20px",
-    fontFamily: "UrbanistMedium",
+    fontFamily: "OutfitMedium",
 
     "&:hover": {
       background: "transparent",

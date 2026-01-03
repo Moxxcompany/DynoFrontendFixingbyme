@@ -64,6 +64,7 @@ const HomeFooter = () => {
                 opacity: 0.6,
                 fontSize: 14,
                 maxWidth: 420,
+                fontFamily: "OutfitRegular",
               }}
             >
               Accept crypto payments in minutes. The modern
@@ -107,6 +108,7 @@ const HomeFooter = () => {
               color: theme.palette.common.white,
               opacity: 0.6,
               fontSize: 14,
+              fontFamily: "OutfitRegular",
             }}
           >
             © 2024 DynoPay. All rights reserved

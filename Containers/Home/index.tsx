@@ -8,13 +8,13 @@ import HomeFooter from "@/Components/Layout/HomeFooter";
 import { HomeContainer } from "./styled";
 
 const HomeLayout = ({ children }: { children: React.ReactNode }) => {
-  const theme = useTheme();
+  const homeTheme = useTheme();
   const tokenData = useTokenData();
   const ToastState = useSelector((state: rootReducer) => state.toastReducer);
   return (
     <>
       <HomeHeader />
-      <HomeContainer>{children}</HomeContainer>
+      {children}
       <HomeFooter />
     </>
   );

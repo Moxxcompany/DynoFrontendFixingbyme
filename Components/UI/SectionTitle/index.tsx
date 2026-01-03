@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, styled, Typography } from "@mui/material";
+import { Box, styled, Theme, SxProps, Typography } from "@mui/material";
 import { homeTheme } from "@/styles/homeTheme";
 
 const HomeSectionTitleWrapper = styled(Box)(({ theme }) => ({
@@ -16,7 +16,7 @@ const Badge = styled(Box)(() => ({
   fontSize: 14,
   lineHeight: "20px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "OutfitMedium",
   color: homeTheme.palette.primary.main,
   backgroundColor: homeTheme.palette.background.default,
   padding: "6px 16px",
@@ -29,12 +29,12 @@ const Heading = styled(Typography)<{ type: "small" | "large" }>(
     fontSize: type === "large" ? "60px" : "36px",
     lineHeight: type === "large" ? "60px" : "40px",
     fontWeight: 500,
-    fontFamily: "UrbanistMedium",
+    fontFamily: "OutfitMedium",
     color: homeTheme.palette.text.primary,
-    maxWidth: 705,
+    maxWidth: type === "large" ? 705 : "auto",
     marginTop: type === "large" ? "24px" : "16px",
     marginBottom: type === "large" ? "15px" : "16px",
-    padding: "0 8px",
+    padding: "0 16px",
     [theme.breakpoints.down("md")]: {
       fontSize: type === "large" ? "45px" : "36px",
       lineHeight: type === "large" ? "48px" : "40px",
@@ -48,9 +48,9 @@ const SubText = styled(Typography)<{ type: "small" | "large" }>(
     fontSize: type === "large" ? "18px" : "16px",
     lineHeight: type === "large" ? "28px" : "24px",
     fontWeight: 400,
-    fontFamily: "UrbanistRegular",
+    fontFamily: "OutfitRegular",
     color: homeTheme.palette.text.secondary,
-    maxWidth: 500,
+    maxWidth: type === "large" ? 500 : "auto",
     [theme.breakpoints.down("md")]: {
       fontSize: type === "large" ? "18px" : "16px",
       lineHeight: type === "large" ? "28px" : "24px",
@@ -73,9 +73,11 @@ interface HomeSectionTitleProps {
   title: string;
   highlightText?: string;
   subtitle: string;
+  sx?: SxProps<Theme>;
 }
 
 const HomeSectionTitle: React.FC<HomeSectionTitleProps> = ({
+  sx,
   badgeText,
   title,
   highlightText,

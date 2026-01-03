@@ -201,10 +201,10 @@ const TermsConditions = () => {
   const isMobile = useIsMobile("md");
 
   return (
-    <Box sx={{ minWidth: isMobile ? "360px" : "1280px", mt: "63px", mb: "93px", display: "flex", justifyContent: "center", paddingX: isMobile ? "auto" : 32, fontFamily: "UrbanistMedium" }}>
+    <Box sx={{ minWidth: isMobile ? "360px" : "1280px", mt: "63px", mb: "93px", display: "flex", justifyContent: "center", paddingX: isMobile ? "auto" : 32, fontFamily: "OutfitRegular" }}>
       <Box sx={{ minWidth: isMobile ? "360px" : "768px" }}>
 
-        <Typography variant="h3" component="div" sx={{ fontSize: isMobile ? "45px" : "60px", textAlign: "center", mb: "15px", fontFamily: "UrbanistMedium" }}>
+        <Typography variant="h3" component="div" sx={{ fontSize: isMobile ? "45px" : "60px", textAlign: "center", mb: "15px", fontFamily: "OutfitRegular" }}>
           Terms &
           {isMobile ? <br /> : " "}
           Conditions
@@ -213,14 +213,14 @@ const TermsConditions = () => {
         <ol style={{ paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "24px", lineHeight: "25px" }}>
           {data.map((section, index) => (
             <li key={index} style={{ fontWeight: "600", color: "#676B7E" }}>
-              <Typography variant="body1" sx={{ fontSize: "18px", color: "#676B7E", fontWeight: "600", fontFamily: "UrbanistMedium" }}>{section.title}</Typography>
+              <Typography variant="body1" sx={{ fontSize: "18px", color: "#676B7E", fontWeight: "600", fontFamily: "OutfitRegular" }}>{section.title}</Typography>
               {section.content1 && (
-                <Typography variant="body1" sx={{ fontSize: "18px", color: "#676B7E", fontWeight: "400", fontFamily: "UrbanistMedium" }}>
+                <Typography variant="body1" sx={{ fontSize: "18px", color: "#676B7E", fontWeight: "400", fontFamily: "OutfitRegular" }}>
                   {section.content1}
                 </Typography>
               )}
               {section.content2 && (
-                <Typography variant="body1" sx={{ fontSize: "18px", color: "#676B7E", fontWeight: "400", fontFamily: "UrbanistMedium" }}>
+                <Typography variant="body1" sx={{ fontSize: "18px", color: "#676B7E", fontWeight: "400", fontFamily: "OutfitRegular" }}>
                   {section.content2}
                 </Typography>
               )}
@@ -232,7 +232,7 @@ const TermsConditions = () => {
                 </ul>
               )}
               {section.content3 && (
-                <Typography variant="body1" sx={{ fontSize: "18px", color: "#676B7E", fontWeight: "400", fontFamily: "UrbanistMedium" }}>
+                <Typography variant="body1" sx={{ fontSize: "18px", color: "#676B7E", fontWeight: "400", fontFamily: "OutfitRegular" }}>
                   {section.content3}
                 </Typography>
               )}
