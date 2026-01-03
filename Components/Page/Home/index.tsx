@@ -6,6 +6,7 @@ import {
   HomeContainer,
   HomeFullWidthContainer,
 } from "@/Containers/Home/styled";
+import UseCaseSection from "./UseCase";
 
 const HomePage = () => {
   return (
@@ -20,6 +21,10 @@ const HomePage = () => {
 
       <HomeContainer>
         <FeaturesSection />
+      </HomeContainer>
+
+      <HomeContainer>
+        <UseCaseSection />
       </HomeContainer>
     </div>
   );

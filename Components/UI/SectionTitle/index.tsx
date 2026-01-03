@@ -25,7 +25,6 @@ const Badge = styled(Box)(() => ({
 
 const Heading = styled(Typography)<{ type: "small" | "large" }>(
   ({ theme, type }) => ({
-    textAlign: "center",
     fontSize: type === "large" ? "60px" : "36px",
     lineHeight: type === "large" ? "60px" : "40px",
     fontWeight: 500,
@@ -44,7 +43,6 @@ const Heading = styled(Typography)<{ type: "small" | "large" }>(
 
 const SubText = styled(Typography)<{ type: "small" | "large" }>(
   ({ theme, type }) => ({
-    textAlign: "center",
     fontSize: type === "large" ? "18px" : "16px",
     lineHeight: type === "large" ? "28px" : "24px",
     fontWeight: 400,
@@ -73,6 +71,7 @@ interface HomeSectionTitleProps {
   title: string;
   highlightText?: string;
   subtitle: string;
+  align?: "center" | "start";
   sx?: SxProps<Theme>;
 }
 
@@ -83,6 +82,7 @@ const HomeSectionTitle: React.FC<HomeSectionTitleProps> = ({
   highlightText,
   subtitle,
   type = "large",
+  align = "center",
 }) => {
   const renderTitle = () => {
     if (!highlightText || !title.includes(highlightText)) {
@@ -100,15 +100,37 @@ const HomeSectionTitle: React.FC<HomeSectionTitleProps> = ({
     );
   };
 
-  return (
-    <HomeSectionTitleWrapper>
-      {badgeText && <Badge>{badgeText}</Badge>}
+  const textAlign = align === "start" ? "left" : "center";
+  const alignItems = align === "start" ? "flex-start" : "center";
 
-      <Heading type={type} variant="h1">
+  return (
+    <HomeSectionTitleWrapper 
+      sx={{ 
+        alignItems,
+        ...sx 
+      }}
+    >
+      {badgeText && (
+        <Badge sx={{ textAlign, alignSelf: align === "start" ? "flex-start" : "center" }}>
+          {badgeText}
+        </Badge>
+      )}
+
+      <Heading 
+        className="title" 
+        type={type} 
+        variant="h1"
+        sx={{ textAlign: textAlign || "center" }}
+      >
         {renderTitle()}
       </Heading>
 
-      <SubText type={type} variant="body1">
+      <SubText 
+        className="subtitle" 
+        type={type} 
+        variant="body1"
+        sx={{ textAlign: textAlign || "center" }}
+      >
         {subtitle}
       </SubText>
     </HomeSectionTitleWrapper>

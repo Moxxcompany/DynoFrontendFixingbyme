@@ -9,7 +9,7 @@ export const StyledCard = styled(Card)(({ theme }) => ({
   width: "100%",
   height: "100%",
   maxHeight: "612px",
-  border: `1px solid #E7E8EF`,
+  border: `1px solid ${homeTheme.palette.border.main}`,
   boxShadow: "none !important",
   display: "flex",
   flexDirection: "column",
