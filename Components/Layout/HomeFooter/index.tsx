@@ -1,10 +1,10 @@
 import { Box, Divider, Link, Typography } from "@mui/material";
 import Image from "next/image";
-import Logo from "@/assets/Icons/dynopay-whiteLogo.svg";
-import X from "@/assets/Icons/X.svg";
-import Instagram from "@/assets/Icons/instagram.svg";
-import LinkedIn from "@/assets/Icons/LinkeIn.svg";
-import Facebook from "@/assets/Icons/Facebook.svg";
+import Logo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
+import X from "@/assets/Icons/home/X.svg";
+import Instagram from "@/assets/Icons/home/instagram.svg";
+import LinkedIn from "@/assets/Icons/home/LinkeIn.svg";
+import Facebook from "@/assets/Icons/home/Facebook.svg";
 import { Navigation } from "./styled";
 import { homeTheme } from "@/styles/homeTheme";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -83,8 +83,8 @@ const HomeFooter = () => {
               <Navigation href="#">Documentation</Navigation>
               <Navigation href="#">Sandbox</Navigation>
               <Navigation href="/terms-conditions">Term & Conditions</Navigation>
-              <Navigation href="#">Privacy Policy</Navigation>
-              <Navigation href="#">API Status</Navigation>
+              <Navigation href="/privacy-policy">Privacy Policy</Navigation>
+              <Navigation href="/api-status">API Status</Navigation>
               <Navigation href="#">Support</Navigation>
             </Box>
           </Box>
