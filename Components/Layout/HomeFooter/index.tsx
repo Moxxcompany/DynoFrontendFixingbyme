@@ -1,4 +1,4 @@
-import { Box, Divider, Link, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Image from "next/image";
 import Logo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import X from "@/assets/Icons/home/X.svg";
@@ -10,6 +10,7 @@ import { homeTheme } from "@/styles/homeTheme";
 import useIsMobile from "@/hooks/useIsMobile";
 import { theme } from "@/styles/theme";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 const socials = [
   { label: "X", icon: X, link: "#" },
@@ -21,6 +22,15 @@ const socials = [
 const HomeFooter = () => {
   const router = useRouter();
   const isMobile = useIsMobile("md");
+
+  const routes = [
+    { label: "Documentation", link: "#" },
+    { label: "Sandbox", link: "#" },
+    { label: "Term & Conditions", link: "/terms-conditions" },
+    { label: "Privacy Policy", link: "/privacy-policy" },
+    { label: "API Status", link: "/api-status" },
+    { label: "Support", link: "#" },
+  ];
 
   return (
     <Box
@@ -80,12 +90,11 @@ const HomeFooter = () => {
                 alignItems: "flex-end",
               }}
             >
-              <Navigation href="#">Documentation</Navigation>
-              <Navigation href="#">Sandbox</Navigation>
-              <Navigation href="/terms-conditions">Term & Conditions</Navigation>
-              <Navigation href="/privacy-policy">Privacy Policy</Navigation>
-              <Navigation href="/api-status">API Status</Navigation>
-              <Navigation href="#">Support</Navigation>
+              {routes.map((item) => (
+                <Link key={item.label} href={item.link}>
+                  <Navigation>{item.label}</Navigation>
+                </Link>
+              ))}
             </Box>
           </Box>
         </Box>
