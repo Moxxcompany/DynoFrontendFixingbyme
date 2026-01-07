@@ -133,8 +133,6 @@ const HomeFooter = () => {
               >
                 <Box
                   sx={{
-                    // background: theme.palette.common.white,
-                    // opacity: 0.1,
                     background: "rgba(255, 255, 255, 0.1)",
                     p: "10px",
                     borderRadius: "50%",

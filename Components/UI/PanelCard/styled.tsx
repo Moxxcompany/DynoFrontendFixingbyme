@@ -35,8 +35,8 @@ export const HeaderContent = styled(Box)({
 export const HeaderTitle = styled(Typography)({
   fontSize: "20px",
   fontWeight: 500,
-  lineHeight: 1.2,
-  letterSpacing: "100%",
+  lineHeight: "100%",
+  letterSpacing: 0,
   fontFamily: "UrbanistMedium",
   color: "#242428",
   [theme.breakpoints.down("md")]: {
