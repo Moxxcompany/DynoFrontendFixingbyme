@@ -384,6 +384,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
                 width={16}
                 height={16}
                 draggable={false}
+                style={{filter: "brightness(0)"}}
               />
             </WarningIconContainer>
             <WarningContent>

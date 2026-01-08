@@ -21,11 +21,13 @@ import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { theme } from "@/styles/theme";
 import { useTranslation } from "react-i18next";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useWalletData } from "@/hooks/useWalletData";
 
 const NewHeader = () => {
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
   const isMobile = useIsMobile("md");
+  const { walletWarning } = useWalletData();
   return (
     <HeaderContainer>
       <Grid container spacing={{ xs: 0.5, md: 3 }} alignItems="center">
@@ -74,7 +76,7 @@ const NewHeader = () => {
               <Box sx={{ display: { xs: "none", lg: "flex" }, gap: 2 }}>
                 <LanguageSwitcher />
 
-                <RequiredKYC>
+                {/* <RequiredKYC>
                   <InfoIcon
                     sx={{ fontSize: 20, color: theme.palette.error.main }}
                   />
@@ -83,7 +85,15 @@ const NewHeader = () => {
                   <ArrowOutwardIcon
                     sx={{ color: theme.palette.text.secondary, fontSize: 20 }}
                   />
-                </RequiredKYC>
+                </RequiredKYC> */}
+                {walletWarning && (
+                  <RequiredKYC>
+                    <InfoIcon
+                      sx={{ fontSize: 20, color: theme.palette.error.main }}
+                    />
+                    <RequiredKYCText>Complete wallet setup</RequiredKYCText>
+                  </RequiredKYC>
+                )}
               </Box>
 
               <UserMenu />

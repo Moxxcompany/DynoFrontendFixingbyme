@@ -1,17 +1,10 @@
-import React, { useState, useCallback, useMemo } from "react";
-import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
-import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
-import LitecoinIcon from "@/assets/cryptocurrency/Litecoin-icon.svg";
-import BNBIcon from "@/assets/cryptocurrency/BNB-icon.svg";
-import DogecoinIcon from "@/assets/cryptocurrency/Dogecoin-icon.svg";
-import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
-import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
-import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
+import React, { useState, useCallback } from "react";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
+import WalletIcon from "@/assets/Icons/home/wallet.svg";
 import LinkIcon from "@/assets/Icons/link-icon.svg";
 import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
-import { Box, Typography, Grid, IconButton } from "@mui/material";
+import { Box, Typography, Grid, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import Image from "next/image";
 import { ArrowOutward } from "@mui/icons-material";
 import { theme } from "@/styles/theme";
@@ -20,8 +13,10 @@ import { useDispatch } from "react-redux";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useTranslation } from "react-i18next";
 import PanelCard from "@/Components/UI/PanelCard";
+import InfoIcon from "@/assets/Icons/info-icon.svg";
 import {
   HeaderIcon,
+  SetupWarnnigContainer,
   WalletCardBody,
   WalletCardBodyRow,
   WalletCopyButton,
@@ -32,6 +27,9 @@ import {
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
+import { WarningIconContainer } from "@/Components/UI/AddWalletModal/styled";
+import useIsMobile from "@/hooks/useIsMobile";
+import { useWalletData } from "@/hooks/useWalletData";
 
 interface WalletData {
   icon: any;
@@ -42,6 +40,7 @@ interface WalletData {
 }
 
 const Wallet = () => {
+  const isMobile = useIsMobile("md");
   const dispatch = useDispatch();
   const { t } = useTranslation("walletScreen");
   const tWallet = useCallback(
@@ -54,67 +53,68 @@ const Wallet = () => {
 
   const [openEditModal, setOpenEditModal] = useState(false);
 
-  const walletData = useMemo<WalletData[]>(
-    () => [
-      {
-        icon: BitcoinIcon,
-        walletTitle: tWallet("mainBitcoinWallet"),
-        walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-        name: "BTC",
-        totalProcessed: 125430.5,
-      },
-      {
-        icon: EthereumIcon,
-        walletTitle: tWallet("ethereumPayments"),
-        walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-        name: "ETH",
-        totalProcessed: 89234.2,
-      },
-      {
-        icon: LitecoinIcon,
-        walletTitle: tWallet("litecoinWallet"),
-        walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-        name: "LTC",
-        totalProcessed: 45678.9,
-      },
-      {
-        icon: BNBIcon,
-        walletTitle: tWallet("bnbWallet"),
-        walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-        name: "BNB",
-        totalProcessed: 125430.5,
-      },
-      {
-        icon: DogecoinIcon,
-        walletTitle: tWallet("dogecoinWallet"),
-        walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-        name: "DOGE",
-      totalProcessed: 89234.2,
-    },
-    // {
-    //   icon: BitcoinCashIcon,
-    //   walletTitle: tWallet("bitcoinCashWallet"),
-    //   walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-    //   name: "BCH",
-    //   totalProcessed: 45678.9,
-    // },
-    // {
-    //   icon: TronIcon,
-    //   walletTitle: tWallet("tronWallet"),
-    //   walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-    //   name: "TRX",
-    //   totalProcessed: 125430.5,
-    // },
-    // {
-    //   icon: USDTIcon,
-    //   walletTitle: tWallet("usdtWallet"),
-    //   walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
-    //   name: "USDT",
-    //   totalProcessed: 89234.2,
-    // },
-    ],
-    [tWallet]
-  );
+  const { walletData } = useWalletData();
+  // const walletData = useMemo<WalletData[]>(
+  //   () => [
+  //     {
+  //       icon: BitcoinIcon,
+  //       walletTitle: tWallet("mainBitcoinWallet"),
+  //       walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+  //       name: "BTC",
+  //       totalProcessed: 125430.5,
+  //     },
+  //     {
+  //       icon: EthereumIcon,
+  //       walletTitle: tWallet("ethereumPayments"),
+  //       walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+  //       name: "ETH",
+  //       totalProcessed: 89234.2,
+  //     },
+  //     {
+  //       icon: LitecoinIcon,
+  //       walletTitle: tWallet("litecoinWallet"),
+  //       walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+  //       name: "LTC",
+  //       totalProcessed: 45678.9,
+  //     },
+  //     {
+  //       icon: BNBIcon,
+  //       walletTitle: tWallet("bnbWallet"),
+  //       walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+  //       name: "BNB",
+  //       totalProcessed: 125430.5,
+  //     },
+  //     {
+  //       icon: DogecoinIcon,
+  //       walletTitle: tWallet("dogecoinWallet"),
+  //       walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+  //       name: "DOGE",
+  //       totalProcessed: 89234.2,
+  //     },
+  //     {
+  //       icon: BitcoinCashIcon,
+  //       walletTitle: tWallet("bitcoinCashWallet"),
+  //       walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+  //       name: "BCH",
+  //       totalProcessed: 45678.9,
+  //     },
+  //     {
+  //       icon: TronIcon,
+  //       walletTitle: tWallet("tronWallet"),
+  //       walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+  //       name: "TRX",
+  //       totalProcessed: 125430.5,
+  //     },
+  //     {
+  //       icon: USDTIcon,
+  //       walletTitle: tWallet("usdtWallet"),
+  //       walletAddress: "1A1zP1ePSQGeF2DMPTTTLSSLmv7DvfNo",
+  //       name: "USDT",
+  //       totalProcessed: 89234.2,
+  //     },
+  //   ],
+  //   [tWallet]
+  // );
 
   const copyAddressToClipboard = (address: string) => {
     navigator.clipboard.writeText(address);
@@ -140,9 +140,29 @@ const Wallet = () => {
     <Box
       sx={{
         width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+        mt: isMobile ? 1 : 0
       }}
     >
-      <Grid container spacing={2.5}>
+      <SetupWarnnigContainer>
+        <WarningIconContainer>
+          <Image
+            src={InfoIcon}
+            alt="info icon"
+            width={16}
+            height={16}
+            draggable={false}
+            style={{ filter: "brightness(0)" }}
+          />
+        </WarningIconContainer>
+        <Box>
+          <Typography sx={{ fontFamily: "UrbanistSemibold", fontWeight: "600", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>Complete wallet setup</Typography>
+          <Typography sx={{ fontFamily: "UrbanistMedium", fontWeight: "500", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>Please add all eight crypto wallet addresses. Some features will remain unavailable until all wallets are added.</Typography>
+        </Box>
+      </SetupWarnnigContainer>
+      <Grid container spacing={isMobile ? 2 : 2.5}>
         {walletData.map((wallet, index) => (
           <Grid item xs={12} md={6} xl={4} key={index}>
             <PanelCard
@@ -162,17 +182,19 @@ const Wallet = () => {
               headerAction={
                 <WalletHeaderAction>
                   <Image
-                    src={wallet.icon}
+                    src={wallet?.icon}
                     alt={wallet.name}
                     draggable={false}
                   />
-                  <span>{wallet.name}</span>
+                  <span>{wallet.name === "USDT-TRC20" ? "USDT" : wallet.name}</span>
                 </WalletHeaderAction>
               }
             >
               <WalletCardBody>
                 <WalletCardBodyRow>
                   <InputField
+                    value={wallet.walletAddress}
+                    readOnly
                     label={
                       <WalletLabel>
                         <Image src={LinkIcon} alt="Address" draggable={false} />
@@ -184,7 +206,7 @@ const Wallet = () => {
                       gap: 1.25,
                     }}
                   />
-                  <WalletCopyButton>
+                  <WalletCopyButton onClick={() => copyAddressToClipboard(wallet.walletAddress)}>
                     <Image src={CopyIcon} alt="Copy" draggable={false} />
                   </WalletCopyButton>
                 </WalletCardBodyRow>
@@ -245,10 +267,6 @@ const Wallet = () => {
                       alt="View Transactions"
                       width={16}
                       height={16}
-                      style={{
-                        objectFit: "contain",
-                        filter: `brightness(0) saturate(100%) invert(15%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(95%) contrast(100%)`,
-                      }}
                       draggable={false}
                     />
                   </WalletEditButton>
@@ -258,6 +276,86 @@ const Wallet = () => {
           </Grid>
         ))}
       </Grid>
+
+      {/* <Dialog
+        open={true}
+        fullWidth
+        maxWidth="xs"
+        PaperProps={{
+          sx: { borderRadius: "12px" }
+        }}
+      >
+        <DialogContent sx={{ px: "30px", pt: "30px" }}>
+          <Box sx={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <Image src={WalletIcon} alt="wallet" width={14} height={14} />
+            <Typography
+              sx={{
+                fontFamily: "UrbanistMedium",
+                fontWeight: 500,
+                fontSize: "20px",
+                lineHeight: "100%"
+              }}
+            >
+              You Don’t Have Active Wallets
+            </Typography>
+          </Box>
+
+          <Typography
+            sx={{
+              fontFamily: "UrbanistMedium",
+              fontWeight: 500,
+              fontSize: "15px",
+              lineHeight: "140%",
+              mt: "12px",
+              color: "#676768"
+            }}
+          >
+            You have to have at least one wallet address added in order to proceed.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions
+          sx={{
+            px: "30px",
+            pb: "30px",
+            display: "flex",
+            gap: "12px"
+          }}
+        >
+          <Button
+            fullWidth
+            sx={{
+              fontFamily: "UrbanistMedium",
+              fontWeight: 500,
+              fontSize: "15px",
+              color: "#676768",
+              border: "1px solid #E9ECF2",
+              py: "11px",
+              borderRadius: "6px"
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            fullWidth
+            sx={{
+              fontFamily: "UrbanistMedium",
+              fontWeight: 500,
+              fontSize: "15px",
+              color: "#FFFFFF",
+              backgroundColor: "#0004FF",
+              py: "11px",
+              borderRadius: "6px",
+              "&:hover": {
+                backgroundColor: "#0003cc"
+              }
+            }}
+          >
+            Go to Wallets
+          </Button>
+        </DialogActions>
+      </Dialog> */}
 
       <AddWalletModal
         open={openEditModal}
