@@ -12,14 +12,14 @@ import { ApiAction, CompanyAction } from "@/Redux/Actions";
 import { API_DELETE, API_FETCH, API_INSERT } from "@/Redux/Actions/ApiAction";
 import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { menuItem, rootReducer } from "@/utils/types";
+import { rootReducer } from "@/utils/types";
 import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import TrashIcon from "@/assets/Icons/trash-icon.svg";
 import EyeIcon from "@/assets/Icons/eye-icon.svg";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
-
+import { formatDate, getTime } from "@/helpers/dateTimeFormatter";
 import BgImage from "@/assets/Images/card-bg.png";
 
 import * as yup from "yup";
@@ -42,22 +42,13 @@ import CreateApiModel from "@/Components/UI/ApiKeysModel/CreateApiModel";
 import DeleteModel from "@/Components/UI/DeleteModel";
 import UnitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
 import useIsMobile from "@/hooks/useIsMobile";
+import { stringShorten } from "@/helpers";
 
 const companyInitial = {
   company_id: 0,
-  base_currency: "USD",
-  withdrawal_whitelist: false,
+  base_currency: "",
 };
 
-function isProdKey(key: string) {
-  const k = key.toLowerCase();
-  return k.includes("live") || k.startsWith("dpk_live") || k.startsWith("live");
-}
-
-function isDevKey(key: string) {
-  const k = key.toLowerCase();
-  return k.includes("test") || k.startsWith("dpk_test") || k.startsWith("test");
-}
 
 type ApiRow = any;
 
@@ -153,12 +144,26 @@ const ApiKeyCard = ({
   onDelete: (apiId: number) => void;
 }) => {
   const { t } = useTranslation("apiScreen");
-  const [show, setShow] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [showAdminToken, setShowAdminToken] = useState(false);
   const isMobile = useIsMobile("md");
 
   const apiKey: string = apiRow?.apiKey || "";
+  const adminToken: string = apiRow?.adminToken || "";
+  const baseCurrency: string = apiRow?.base_currency || "USD";
   const createdAt =
     apiRow?.created_at || apiRow?.createdAt || apiRow?.createdOn || "";
+
+  const displayApiKey = showApiKey
+    ? apiKey
+    : apiKey
+    ? stringShorten(apiKey)
+    : "";
+  const displayAdminToken = showAdminToken
+    ? adminToken
+    : adminToken
+    ? stringShorten(adminToken)
+    : "";
 
   return (
     <PanelCard
@@ -185,13 +190,15 @@ const ApiKeyCard = ({
             draggable={false}
           />
         </span>
-        USD
+        {baseCurrency}
       </ApiKeyCardSubTitle>
 
       <ApiKeyCardBody sx={{ pt: "18px" }}>
         <ApiKeyCardTopRow sx={{ gap: 1.25 }}>
           <InputField
             label={t("generate.yourKey")}
+            value={displayApiKey}
+            readOnly
             sx={{
               width: "100%",
               "& .label": {
@@ -213,7 +220,10 @@ const ApiKeyCard = ({
               draggable={false}
             />
           </ApiKeyCopyButton>
-          <ApiKeyViewButton size="small" onClick={() => setShow(!show)}>
+          <ApiKeyViewButton
+            size="small"
+            onClick={() => setShowApiKey(!showApiKey)}
+          >
             <Image
               src={EyeIcon.src}
               alt={t("icons.eyeAlt")}
@@ -226,6 +236,8 @@ const ApiKeyCard = ({
         <ApiKeyCardTopRow sx={{ gap: 1.25 }}>
           <InputField
             label={t("generate.adminToken")}
+            value={displayAdminToken}
+            readOnly
             sx={{
               width: "100%",
               "& .label": {
@@ -238,7 +250,7 @@ const ApiKeyCard = ({
             }}
           />
 
-          <ApiKeyCopyButton>
+          <ApiKeyCopyButton onClick={() => onCopy(adminToken)}>
             <Image
               src={CopyIcon.src}
               alt={t("icons.copyAlt")}
@@ -247,7 +259,10 @@ const ApiKeyCard = ({
               draggable={false}
             />
           </ApiKeyCopyButton>
-          <ApiKeyViewButton size="small" onClick={() => setShow(!show)}>
+          <ApiKeyViewButton
+            size="small"
+            onClick={() => setShowAdminToken(!showAdminToken)}
+          >
             <Image
               src={EyeIcon.src}
               alt={t("icons.eyeAlt")}
@@ -258,7 +273,10 @@ const ApiKeyCard = ({
           </ApiKeyViewButton>
         </ApiKeyCardTopRow>
         <ApiKeyCardTopRow sx={{ alignItems: "center" }}>
-          <ApiKeyDeleteButton size="small" onClick={() => onDelete(Number(1))}>
+          <ApiKeyDeleteButton
+            size="small"
+            onClick={() => onDelete(apiRow?.api_id || apiRow?.id || 0)}
+          >
             <Image
               src={TrashIcon.src}
               alt={t("icons.trashAlt")}
@@ -273,7 +291,10 @@ const ApiKeyCard = ({
               <AccessTimeFilledIcon sx={{ fontSize: 15 }} />
             </Box>
             <Typography component="span" className="created-on-text">
-              {t("createdOn", { date: "17/12/2025", time: "10:00:00" })}
+              {t("createdOn", {
+                date: formatDate(createdAt),
+                time: getTime(createdAt),
+              })}
             </Typography>
           </ApiKeyCreatedText>
         </ApiKeyCardTopRow>
@@ -297,7 +318,6 @@ const ApiKeysPage = ({
   );
   const apiState = useSelector((state: rootReducer) => state.apiReducer);
 
-  const [menuItems, setMenuItems] = useState<menuItem[]>([]);
   const [initialValue, setInitialValue] = useState(
     structuredClone(companyInitial)
   );
@@ -324,26 +344,25 @@ const ApiKeysPage = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (companyList?.length > 0) {
-      const tempList: menuItem[] = companyList.map((c: any) => ({
-        label: c.company_name,
-        value: c.company_id,
-      }));
-      setMenuItems([
-        { label: t("company.selectCompany"), value: 0 },
-        ...tempList,
-      ]);
-    }
-  }, [companyList, t]);
-
+  // const { prodKey, devKey } = useMemo(() => {
+  //   const list: ApiRow[] = apiState?.apiList || [];
+  //   // const prod = list.find((x) => isProdKey(String(x?.apiKey || "")));
+  //   // const dev = list.find((x) => isDevKey(String(x?.apiKey || "")));
+  //   return {
+  //     prodKey: prod || list[0],
+  //     devKey: dev || list.find((x) => x !== prod) || list[1],
+  //   };
+  // }, [apiState?.apiList]);
   const { prodKey, devKey } = useMemo(() => {
     const list: ApiRow[] = apiState?.apiList || [];
-    const prod = list.find((x) => isProdKey(String(x?.apiKey || "")));
-    const dev = list.find((x) => isDevKey(String(x?.apiKey || "")));
+
+    const prod = list.find((x) => x?.base_currency === "USD");
+
+    const dev = list.find((x) => x?.base_currency === "NGN");
+
     return {
-      prodKey: prod || list[0],
-      devKey: dev || list.find((x) => x !== prod) || list[1],
+      prodKey: prod,
+      devKey: dev,
     };
   }, [apiState?.apiList]);
 
@@ -359,6 +378,15 @@ const ApiKeysPage = ({
   const handleCreateClose = () => {
     setInitialValue(structuredClone(companyInitial));
     setOpenCreate(false);
+  };
+
+  const handleCreateSubmit = (values: any) => {
+    const payload = {
+      ...values,
+    };
+
+    dispatch(ApiAction(API_INSERT, payload));
+    handleCreateClose();
   };
 
   const requestDelete = (apiId: number) => {
@@ -400,7 +428,7 @@ const ApiKeysPage = ({
         onConfirm={confirmDelete}
       /> */}
 
-      <Grid container spacing={2.5} sx={{ mb: 2.5 }} alignItems="flex-start">
+      {/* <Grid container spacing={2.5} sx={{ mb: 2.5 }} alignItems="flex-start">
         <Grid item xs={12} md={6} lg={6} xl={4}>
           <ApiKeyCard
             title={t("keys.production")}
@@ -417,6 +445,22 @@ const ApiKeysPage = ({
             onDelete={requestDelete}
           />
         </Grid>
+        <Grid item xs={12} md={6} lg={6} xl={4}>
+          <ApiDocumentationCard docsUrl={docsUrl} />
+        </Grid>
+      </Grid> */}
+      <Grid container spacing={2.5} sx={{ mb: 2.5 }} alignItems="flex-start">
+        {apiState?.apiList?.map((api: any) => (
+          <Grid key={api.api_id} item xs={12} md={6} lg={6} xl={4}>
+            <ApiKeyCard
+              title={`keys.${api.base_currency.toLowerCase()}`}
+              apiRow={api}
+              onCopy={handleCopy}
+              onDelete={requestDelete}
+            />
+          </Grid>
+        ))}
+
         <Grid item xs={12} md={6} lg={6} xl={4}>
           <ApiDocumentationCard docsUrl={docsUrl} />
         </Grid>
