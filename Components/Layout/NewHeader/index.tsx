@@ -22,10 +22,11 @@ import { theme } from "@/styles/theme";
 import { useTranslation } from "react-i18next";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
+import Link from "next/link";
 
 const NewHeader = () => {
   const router = useRouter();
-  const { t } = useTranslation("dashboardLayout");
+  const { t } = useTranslation("walletScreen");
   const isMobile = useIsMobile("md");
   const { walletWarning } = useWalletData();
   return (
@@ -87,12 +88,14 @@ const NewHeader = () => {
                   />
                 </RequiredKYC> */}
                 {walletWarning && (
-                  <RequiredKYC>
-                    <InfoIcon
-                      sx={{ fontSize: 20, color: theme.palette.error.main }}
-                    />
-                    <RequiredKYCText>Complete wallet setup</RequiredKYCText>
-                  </RequiredKYC>
+                  <Link href='/wallet'>
+                    <RequiredKYC>
+                      <InfoIcon
+                        sx={{ fontSize: 20, color: theme.palette.error.main }}
+                      />
+                      <RequiredKYCText>{t("walletSetUpWarnnigTitle")}</RequiredKYCText>
+                    </RequiredKYC>
+                  </Link>
                 )}
               </Box>
 

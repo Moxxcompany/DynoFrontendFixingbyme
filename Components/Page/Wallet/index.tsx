@@ -53,7 +53,8 @@ const Wallet = () => {
 
   const [openEditModal, setOpenEditModal] = useState(false);
 
-  const { walletData } = useWalletData();
+  const { walletLoading, walletData, walletWarning } = useWalletData();
+  console.log(walletLoading);
   // const walletData = useMemo<WalletData[]>(
   //   () => [
   //     {
@@ -136,6 +137,10 @@ const Wallet = () => {
     setOpenEditModal(true);
   };
 
+  if (walletLoading) {
+    return <Box sx={{display: "flex", justifyContent: "center"}}>Loading...</Box>;
+  }
+
   return (
     <Box
       sx={{
@@ -146,27 +151,29 @@ const Wallet = () => {
         mt: isMobile ? 1 : 0
       }}
     >
-      <SetupWarnnigContainer>
-        <WarningIconContainer>
-          <Image
-            src={InfoIcon}
-            alt="info icon"
-            width={16}
-            height={16}
-            draggable={false}
-            style={{ filter: "brightness(0)" }}
-          />
-        </WarningIconContainer>
-        <Box>
-          <Typography sx={{ fontFamily: "UrbanistSemibold", fontWeight: "600", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>Complete wallet setup</Typography>
-          <Typography sx={{ fontFamily: "UrbanistMedium", fontWeight: "500", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>Please add all eight crypto wallet addresses. Some features will remain unavailable until all wallets are added.</Typography>
-        </Box>
-      </SetupWarnnigContainer>
+      {walletWarning && (
+        <SetupWarnnigContainer>
+          <WarningIconContainer>
+            <Image
+              src={InfoIcon}
+              alt="info icon"
+              width={16}
+              height={16}
+              draggable={false}
+              style={{ filter: "brightness(0)" }}
+            />
+          </WarningIconContainer>
+          <Box>
+            <Typography sx={{ fontFamily: "UrbanistSemibold", fontWeight: "600", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>{t("walletSetUpWarnnigTitle")}</Typography>
+            <Typography sx={{ fontFamily: "UrbanistMedium", fontWeight: "500", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>{t("walletSetUpWarnnigSubtitle")}</Typography>
+          </Box>
+        </SetupWarnnigContainer>
+      )}
       <Grid container spacing={isMobile ? 2 : 2.5}>
         {walletData.map((wallet, index) => (
           <Grid item xs={12} md={6} xl={4} key={index}>
             <PanelCard
-              title={wallet.walletTitle}
+              title={wallet.name}
               headerIcon={
                 <HeaderIcon>
                   <Image
@@ -186,7 +193,7 @@ const Wallet = () => {
                     alt={wallet.name}
                     draggable={false}
                   />
-                  <span>{wallet.name === "USDT-TRC20" ? "USDT" : wallet.name}</span>
+                  <span>{wallet.name === "USDT-TRC20" ? "USDT" : wallet.walletTitle}</span>
                 </WalletHeaderAction>
               }
             >
@@ -314,12 +321,12 @@ const Wallet = () => {
           </Typography>
         </DialogContent>
 
-        <DialogActions
+        <DialogActions  
           sx={{
             px: "30px",
             pb: "30px",
             display: "flex",
-            gap: "12px"
+            gap: "20px"
           }}
         >
           <Button

@@ -1,5 +1,5 @@
 import { rootReducer } from "@/utils/types";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { WalletAction } from "@/Redux/Actions";
 import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
@@ -98,10 +98,15 @@ const normalizeWalletCode = (code: WalletType): CryptoCode =>
 export const useWalletData = () => {
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const [walletLoading, setWalletLoading] = useState(true);
 
   useEffect(() => {
     dispatch(WalletAction(WALLET_FETCH));
   }, [dispatch]);
+
+  useEffect(() => {
+    setWalletLoading(false);
+  }, [walletState?.loading]);
 
   /* ---------------------------- Wallet Data ---------------------------- */
 
@@ -149,6 +154,7 @@ export const useWalletData = () => {
   const walletWarning = cryptocurrencies.length > 0;
 
   return {
+    walletLoading,
     walletData,
     cryptocurrencies,
     walletWarning,

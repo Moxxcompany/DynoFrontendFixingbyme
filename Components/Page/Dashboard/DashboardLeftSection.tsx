@@ -31,6 +31,14 @@ import TimePeriodSelector, {
   TimePeriod,
 } from "@/Components/UI/TimePeriodSelector";
 import { useRouter } from "next/router";
+import { DateRange } from "@/Components/UI/DatePicker";
+import {
+  eachDayOfInterval,
+  endOfDay,
+  isAfter,
+  isValid,
+  startOfDay,
+} from "date-fns";
 
 // Active wallets data array
 interface ActiveWallet {
@@ -69,20 +77,61 @@ const formatDate = (date: Date): string => {
 };
 
 // Helper function to generate date range based on period
-const generateDateRange = (period: TimePeriod): Date[] => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+type SelectedPeriod = TimePeriod | DateRange;
 
-  let days = 7; // default
+const isDateRange = (value: SelectedPeriod): value is DateRange => {
+  return typeof value !== "string";
+};
+
+const normalizeDateRange = (range: DateRange): DateRange => {
+  const normalizedStart =
+    range.startDate && isValid(range.startDate)
+      ? startOfDay(range.startDate)
+      : null;
+  const normalizedEnd =
+    range.endDate && isValid(range.endDate) ? endOfDay(range.endDate) : null;
+
+  if (
+    normalizedStart &&
+    normalizedEnd &&
+    isAfter(normalizedStart, normalizedEnd)
+  ) {
+    return { startDate: normalizedStart, endDate: null };
+  }
+
+  return { startDate: normalizedStart, endDate: normalizedEnd };
+};
+
+const generateDateRange = (period: SelectedPeriod): Date[] => {
+  const today = startOfDay(new Date());
+
+  if (isDateRange(period)) {
+    const normalized = normalizeDateRange(period);
+    if (!normalized.startDate) {
+      return [];
+    }
+    const intervalEnd = normalized.endDate
+      ? startOfDay(normalized.endDate)
+      : normalized.startDate;
+    if (isAfter(normalized.startDate, intervalEnd)) {
+      return [];
+    }
+    return eachDayOfInterval({
+      start: normalized.startDate,
+      end: intervalEnd,
+    }).map((d) => startOfDay(d));
+  }
+
+  let days = 7;
   if (period === "30days") days = 30;
   else if (period === "90days") days = 90;
-  else if (period === "custom") days = 7; // For custom, you might want to handle differently
+  else if (period === "custom") days = 7;
 
   const dates: Date[] = [];
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
-    dates.push(date);
+    dates.push(startOfDay(date));
   }
   return dates;
 };
@@ -90,9 +139,11 @@ const generateDateRange = (period: TimePeriod): Date[] => {
 // Helper function to process and fill in missing dates
 const processTransactionData = (
   rawData: Array<{ date: string; value: number }>,
-  period: TimePeriod
+  period: SelectedPeriod
 ): Array<{ date: string; value: number }> => {
   const dateRange = generateDateRange(period);
+  const safeDateRange =
+    dateRange.length > 0 ? dateRange : generateDateRange("7days");
   const dateMap = new Map<string, number>();
 
   // Create a map of existing data by date string
@@ -101,7 +152,7 @@ const processTransactionData = (
   });
 
   // Fill in all dates in the range
-  const result = dateRange.map((date) => {
+  const result = safeDateRange.map((date) => {
     const dateStr = formatDate(date);
     return {
       date: dateStr,
@@ -116,7 +167,7 @@ const processTransactionData = (
 const TransactionVolumeChart = ({
   selectedPeriod,
 }: {
-  selectedPeriod: TimePeriod;
+  selectedPeriod: SelectedPeriod;
 }) => {
   const isMobile = useIsMobile("md");
   const isSmall = useIsMobile("sm");
@@ -244,7 +295,9 @@ const TransactionVolumeChart = ({
         isAnimationActive={true}
         animationDuration={500}
         enableHorizontalScroll={true}
-        gridCellWidthMobile={selectedPeriod === "7days" && isSmall ? 82 : isMobile ? 132: 105}
+        gridCellWidthMobile={
+          selectedPeriod === "7days" && isSmall ? 82 : isMobile ? 132 : 105
+        }
         gridCellHeightMobile={60}
         gridCellWidthDesktop={150.5}
         gridCellHeightDesktop={72.25}
@@ -400,6 +453,10 @@ const DashboardLeftSection = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [isStatCardsDragging, setIsStatCardsDragging] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("7days");
+  const [customDateRange, setCustomDateRange] = useState<DateRange>({
+    startDate: null,
+    endDate: null,
+  });
 
   const { t } = useTranslation(namespaces);
   const tDashboard = useCallback(
@@ -571,11 +628,19 @@ const DashboardLeftSection = () => {
         <PanelCard
           title={tDashboard("totalTransactions")}
           showHeaderBorder={false}
-          headerPadding={isMobile ? theme.spacing(2, 2, 0, 2) : theme.spacing(2.5, 2.5, 0, 2.5)}
-          bodyPadding={isMobile ? theme.spacing(1.5, 2, 2, 2) : theme.spacing(2, 2.5, 2.5, 2.5)}
+          headerPadding={
+            isMobile
+              ? theme.spacing(2, 2, 0, 2)
+              : theme.spacing(2.5, 2.5, 0, 2.5)
+          }
+          bodyPadding={
+            isMobile
+              ? theme.spacing(1.5, 2, 2, 2)
+              : theme.spacing(2, 2, 2.5, 2.5)
+          }
           sx={{
-            width: isMobile ? "200px" : "315px",
-            height: isMobile ? "128px" : "176px",
+            width: { xs: "200px", sm: "240px", md: "315px" },
+            height: { xs: "128px", sm: "140px", md: "176px" },
             flexShrink: 0,
           }}
           headerAction={
@@ -619,7 +684,7 @@ const DashboardLeftSection = () => {
               display: "flex",
               alignItems: "center",
               gap: 1,
-              mt: isMobile ? "18px" : 2.5,
+              mt: { xs: "18px", sm: 3, md: 2.5 },
             }}
           >
             <PercentageChip
@@ -669,11 +734,17 @@ const DashboardLeftSection = () => {
         <PanelCard
           title={t("totalVolume")}
           showHeaderBorder={false}
-          headerPadding={isMobile ? theme.spacing(2, 2, 0, 2) : theme.spacing(2.5, 2.5, 0, 2.5)}
-          bodyPadding={isMobile ? theme.spacing(1.5, 2, 2, 2) : theme.spacing(2, 2.5, 2.5, 2.5)}
+          headerPadding={
+            isMobile
+              ? theme.spacing(2, 2, 0, 2)
+              : theme.spacing(2.5, 2.5, 0, 2.5)
+          }
+          bodyPadding={
+            isMobile ? theme.spacing(1.5, 2, 2, 2) : theme.spacing(2, 2, 2.5, 2)
+          }
           sx={{
-            width: isMobile ? "200px" : "315px",
-            height: isMobile ? "128px" : "176px",
+            width: { xs: "200px", sm: "240px", md: "315px" },
+            height: { xs: "128px", sm: "140px", md: "176px" },
             flexShrink: 0,
           }}
           headerAction={
@@ -718,7 +789,7 @@ const DashboardLeftSection = () => {
               justifyContent: "start",
               alignItems: "center",
               gap: 1,
-              mt: isMobile ? "18px" : 2.5,
+              mt: { xs: "18px", sm: 3, md: 2.5 },
             }}
           >
             <PercentageChip
@@ -769,11 +840,19 @@ const DashboardLeftSection = () => {
         <PanelCard
           title={tDashboard("activeWallets")}
           showHeaderBorder={false}
-          headerPadding={isMobile ? theme.spacing(2, 2, 0, 2) : theme.spacing(2.5, 2.5, 0, 2.5)}
-          bodyPadding={isMobile ? theme.spacing(1.5, 2, 2, 2) : theme.spacing(2, 2.5, 2.5, 2.5)}
+          headerPadding={
+            isMobile
+              ? theme.spacing(2, 2, 0, 2)
+              : theme.spacing(2.5, 2.5, 0, 2.5)
+          }
+          bodyPadding={
+            isMobile
+              ? theme.spacing(1.5, 2, 2, 2)
+              : theme.spacing(2, 2, 2.5, 2.5)
+          }
           sx={{
-            width: isMobile ? "200px" : "315px",
-            height: isMobile ? "128px" : "176px",
+            width: { xs: "200px", sm: "240px", md: "315px" },
+            height: { xs: "128px", sm: "140px", md: "176px" },
             flexShrink: 0,
           }}
           headerAction={
@@ -823,7 +902,7 @@ const DashboardLeftSection = () => {
               justifyContent: "start",
               alignItems: "center",
               gap: isMobile ? "6px" : "8px",
-              mt: isMobile ? "18px" : 2.5,
+              mt: { xs: "18px", sm: 3, md: 2.5 },
               overflowX: "auto",
               overflowY: "hidden",
               flexWrap: "nowrap",
@@ -981,6 +1060,8 @@ const DashboardLeftSection = () => {
             <TimePeriodSelector
               value={selectedPeriod}
               onChange={(period) => setSelectedPeriod(period)}
+              dateRange={customDateRange}
+              onDateRangeChange={setCustomDateRange}
               sx={{ flexShrink: 0 }}
             />
             <Box>
@@ -995,7 +1076,11 @@ const DashboardLeftSection = () => {
             </Box>
           </Box>
         </Box>
-        <TransactionVolumeChart selectedPeriod={selectedPeriod} />
+        <TransactionVolumeChart
+          selectedPeriod={
+            selectedPeriod === "custom" ? customDateRange : selectedPeriod
+          }
+        />
       </PanelCard>
     </Box>
   );

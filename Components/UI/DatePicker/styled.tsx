@@ -216,7 +216,7 @@ export const DateButton = styled(Button)<{
   ...(selected && {
     backgroundColor: theme.palette.primary.main,
     color: "#FFFFFF",
-    fontWeight: 600,
+    fontWeight: 500,
     boxShadow: "0 2px 4px rgba(0, 4, 255, 0.3)",
     "&:hover": {
       backgroundColor: theme.palette.primary.main,
