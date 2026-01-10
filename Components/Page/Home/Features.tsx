@@ -92,9 +92,9 @@ const FeaturesSection = () => {
       {/* Feature Cards */}
       <Box sx={{ paddingTop: isMobile ? 5 : 8 }}>
         <Grid container spacing={4}>
-          {cardData.slice(0, 3).map((card, index) => (
+          {cardData.slice(0, 3).map((card) => (
             <Grid
-              key={index}
+              key={card.title}
               item
               xs={12}
               sm={12}
@@ -153,9 +153,9 @@ const FeaturesSection = () => {
               </HomeCard>
             </Grid>
           ))}
-          {cardData.slice(3, cardData.length).map((card, index) => (
+          {cardData.slice(3, cardData.length).map((card) => (
             <Grid
-              key={index}
+              key={card.title}
               item
               xs={12}
               sm={12}

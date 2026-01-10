@@ -52,7 +52,7 @@ const HomeHeader = () => {
         {/* Center Nav - Desktop Only */}
         <NavLinks className="desktop-nav">
           {HeaderItems.map((item) => (
-            <Button key={item.path} onClick={() => handleNavClick(item.path)}>
+            <Button key={item.label} onClick={() => handleNavClick(item.path)}>
               {item.label}
             </Button>
           ))}
@@ -142,7 +142,7 @@ const HomeHeader = () => {
           >
             {HeaderItems.map((item) => (
               <MobileNavItem
-                key={item.path}
+                key={item.label}
                 onClick={() => handleNavClick(item.path)}
               >
                 {item.label}

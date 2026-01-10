@@ -469,8 +469,7 @@ const ApiKeysPage = ({
       <Box
         sx={{
           bgcolor: theme.palette.primary.light,
-          px: 2.25,
-          py: 1.25,
+          p: 2,
           borderRadius: "6px",
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },

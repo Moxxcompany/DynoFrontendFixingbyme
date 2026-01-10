@@ -1,30 +1,3 @@
-/**
- * DatePicker Component
- *
- * A customizable date range picker component with a button trigger that opens a popover
- * with presets and filter options. The button displays the selected date range.
- *
- * @example
- * ```tsx
- * import CustomDatePicker, { DateRange } from "@/Components/UI/DatePicker";
- *
- * const MyComponent = () => {
- *   const [dateRange, setDateRange] = useState<DateRange>({ startDate: null, endDate: null });
- *
- *   return (
- *     <CustomDatePicker
- *       value={dateRange}
- *       onChange={(range) => setDateRange(range)}
- *       onPresetChange={(preset) => console.log("Preset selected:", preset)}
- *       showPresets={true}
- *       placeholder="Select date range"
- *       fullWidth={true}
- *     />
- *   );
- * };
- * ```
- */
-
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { Box, Typography, useTheme, Popover } from "@mui/material";
 import {
@@ -86,10 +59,10 @@ export interface DatePickerProps {
   fullWidth?: boolean;
   hideTrigger?: boolean;
   trigger?:
-    | React.ReactElement
-    | ((
-        onClick: (event: React.MouseEvent<HTMLElement>) => void
-      ) => React.ReactElement);
+  | React.ReactElement
+  | ((
+    onClick: (event: React.MouseEvent<HTMLElement>) => void
+  ) => React.ReactElement);
   disableFutureDates?: boolean;
   blockedDateMessage?: string;
   noscriptStartDateName?: string;
@@ -310,8 +283,8 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
     // Initialize with "thisMonth" preset if no value provided
     return getPresetDates("thisMonth", today);
   });
-  const [leftMonth, setLeftMonth] = useState(subMonths(today, 1));
-  const [rightMonth, setRightMonth] = useState(today);
+  const [leftMonth, setLeftMonth] = useState(today);               // Now left = current
+  const [rightMonth, setRightMonth] = useState(addMonths(today, 1)); // Now right = next
   const [activePreset, setActivePreset] = useState<PresetType | null>(() => {
     if (value && value.startDate && value.endDate) {
       return detectPreset(value, today);
@@ -397,23 +370,22 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
       if (sanitized.startDate) {
         const startMonth = startOfMonth(sanitized.startDate);
         const todayMonth = startOfMonth(today);
-        const preferredRight = addMonths(startMonth, 1);
-        const nextRight =
-          disableFutureDates && isAfter(preferredRight, todayMonth) ? todayMonth : preferredRight;
-        const nextLeft =
-          disableFutureDates && isSameMonth(nextRight, todayMonth)
-            ? subMonths(todayMonth, 1)
-            : startMonth;
-        setLeftMonth(nextLeft);
-        setRightMonth(nextRight);
-      }
-    } else if (!value) {
-      // If value is cleared, reset to "thisMonth" preset
-      const presetDates = getPresetDates("thisMonth", today);
-      setSelectedRange(presetDates);
-      setActivePreset("thisMonth");
-      if (onChange) {
-        onChange(presetDates);
+
+        if (isMobile) {
+          // Mobile: Show the month of the selected date
+          setLeftMonth(startMonth);
+          setRightMonth(addMonths(startMonth, 1));
+        } else {
+          // Desktop: If selecting current month, show [Prev | Current] 
+          // so the right side isn't a future (empty) month.
+          if (isSameMonth(startMonth, todayMonth) && disableFutureDates) {
+            setLeftMonth(subMonths(todayMonth, 1));
+            setRightMonth(todayMonth);
+          } else {
+            setLeftMonth(startMonth);
+            setRightMonth(addMonths(startMonth, 1));
+          }
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -432,15 +404,19 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
     if (presetDates.startDate) {
       const startMonth = startOfMonth(presetDates.startDate);
       const todayMonth = startOfMonth(today);
-      const preferredRight = addMonths(startMonth, 1);
-      const nextRight =
-        disableFutureDates && isAfter(preferredRight, todayMonth) ? todayMonth : preferredRight;
-      const nextLeft =
-        disableFutureDates && isSameMonth(nextRight, todayMonth)
-          ? subMonths(todayMonth, 1)
-          : startMonth;
-      setLeftMonth(nextLeft);
-      setRightMonth(nextRight);
+
+      if (isMobile) {
+        setLeftMonth(startMonth);
+        setRightMonth(addMonths(startMonth, 1));
+      } else {
+        if (isSameMonth(startMonth, todayMonth) && disableFutureDates) {
+          setLeftMonth(subMonths(todayMonth, 1));
+          setRightMonth(todayMonth);
+        } else {
+          setLeftMonth(startMonth);
+          setRightMonth(addMonths(startMonth, 1));
+        }
+      }
     }
   };
 
@@ -483,6 +459,7 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
   };
 
   const navigateLeft = () => {
+    // Move both months back by 1
     setLeftMonth(subMonths(leftMonth, 1));
     setRightMonth(subMonths(rightMonth, 1));
   };
@@ -490,11 +467,19 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
   const navigateRight = () => {
     if (disableFutureDates) {
       const todayMonth = startOfMonth(today);
-      const nextRight = addMonths(rightMonth, 1);
-      if (isAfter(startOfMonth(nextRight), todayMonth)) {
-        return;
+
+      // On Mobile: Check if leftMonth is already the current month
+      if (isMobile && isSameMonth(leftMonth, todayMonth)) {
+        return; // Block moving to future
+      }
+
+      // On Desktop: Check if rightMonth is already the current month
+      if (!isMobile && isSameMonth(rightMonth, todayMonth)) {
+        return; // Block moving to future
       }
     }
+
+    // Move both months forward by 1
     setLeftMonth(addMonths(leftMonth, 1));
     setRightMonth(addMonths(rightMonth, 1));
   };

@@ -1,14 +1,12 @@
 import React, { useMemo, useRef, useState, useCallback } from "react";
-import ReactDOM from "react-dom";
+import { createPortal } from "react-dom";
 import {
   AreaChart,
   Area,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
-  Dot,
 } from "recharts";
 import Image from "next/image";
 import { Box, Typography, useTheme } from "@mui/material";
@@ -224,18 +222,110 @@ const CustomTooltip = ({
       </Box>
     );
 
-    return ReactDOM.createPortal(tooltipElement, document.body);
+    return createPortal(tooltipElement, document.body);
   }
 
   return null;
 };
 
-const CustomDot = ({ cx = 20, cy = 20, fill, r = 5, ...props }: any) => {
-  // Use a static filter ID since all dots can share the same filter
-  // Ensure dots are interactive for tooltip
+interface CustomDotProps extends React.SVGProps<SVGGElement> {
+  cx?: number;
+  cy?: number;
+  fill?: string;
+  r?: number;
+  // per-point handlers passed from the parent element instance
+  onDotEnter?: (payload: any, cx: number, cy: number) => void;
+  onDotLeave?: () => void;
+  onDotClick?: (payload: any, cx: number, cy: number) => void;
+  payload?: any;
+}
+
+const CustomDot = ({ cx = 20, cy = 20, fill, r = 5, onDotEnter, onDotLeave, onDotClick, payload, ...props }: CustomDotProps) => {
+  // Slightly expand effective hover radius for better UX while keeping it tight
+  // Target: visible dot radius + ~6-8px. We use hysteresis to avoid flicker.
+  const ENTER_BUFFER = 8; // px beyond visible dot radius to enter
+  const LEAVE_BUFFER = 6; // px beyond visible dot radius to leave (hysteresis)
+  const enterRadius = (r ?? 5) + ENTER_BUFFER;
+  const leaveRadius = (r ?? 5) + LEAVE_BUFFER;
+  const enterRadiusSq = enterRadius * enterRadius;
+  const leaveRadiusSq = leaveRadius * leaveRadius;
+
+  // Track whether the pointer is considered inside the hit zone for this dot
+  const isInsideRef = React.useRef(false);
+
+  // Pointer move handler evaluates distance (squared math for perf) and
+  // only triggers enter/leave on transitions to avoid spamming parent state.
+  const handlePointerMove = (e: React.PointerEvent<SVGCircleElement>) => {
+    e.stopPropagation();
+
+    const svg = (e.currentTarget as SVGCircleElement).ownerSVGElement;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+
+    const dotClientX = rect.left + (cx ?? 0);
+    const dotClientY = rect.top + (cy ?? 0);
+    const dx = e.clientX - dotClientX;
+    const dy = e.clientY - dotClientY;
+    const distSq = dx * dx + dy * dy;
+
+    if (distSq <= enterRadiusSq) {
+      if (!isInsideRef.current) {
+        isInsideRef.current = true;
+        onDotEnter?.(payload, cx ?? 0, cy ?? 0);
+      }
+    } else if (distSq > leaveRadiusSq) {
+      if (isInsideRef.current) {
+        isInsideRef.current = false;
+        onDotLeave?.();
+      }
+    }
+  };
+
+  const handlePointerEnter = (e: React.PointerEvent<SVGCircleElement>) => {
+    e.stopPropagation();
+    // Re-evaluate immediately on enter to avoid waiting for move
+    handlePointerMove(e);
+  };
+
+  const handlePointerLeave = (e: React.PointerEvent<SVGCircleElement>) => {
+    e.stopPropagation();
+    if (isInsideRef.current) {
+      isInsideRef.current = false;
+      onDotLeave?.();
+    }
+  };
+
+  // Click handler to pin the tooltip to this dot
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDotClick?.(payload, cx ?? 0, cy ?? 0);
+  };
+
+  // Touch fallback: open on touchstart, close on touchend
+  const handleTouchStart = (e: React.TouchEvent<SVGCircleElement>) => {
+    e.stopPropagation();
+    isInsideRef.current = true;
+    onDotEnter?.(payload, cx ?? 0, cy ?? 0);
+  };
+  const handleTouchEnd = (e: React.TouchEvent<SVGCircleElement>) => {
+    e.stopPropagation();
+    if (isInsideRef.current) {
+      isInsideRef.current = false;
+      onDotLeave?.();
+    }
+  };
+
+  /*
+    Implementation detail:
+    - We render the visible circles with pointer-events: none so they don't capture events.
+    - We render an invisible, slightly larger circle (r = enterRadius) which captures pointer events
+      and performs distance-based hit testing. This gives a deterministic "tiny" hit area without
+      visually enlarging the dot.
+    - The invisible circle includes a data attribute so global click handlers can detect dot clicks.
+  */
   return (
-    <g {...props} style={{ pointerEvents: "all", cursor: "pointer" }}>
-      {/* Blurred background circle */}
+    <g {...props} style={{ pointerEvents: "none" }}>
+      {/* Blurred background circle (visual only) */}
       <circle
         cx={cx}
         cy={cy}
@@ -245,9 +335,27 @@ const CustomDot = ({ cx = 20, cy = 20, fill, r = 5, ...props }: any) => {
         stroke={fill}
         filter={`blur(12px)`}
         opacity={0.6}
+        style={{ pointerEvents: "none" }}
       />
-      {/* Sharp foreground circle */}
-      <circle cx={cx} cy={cy} r={r} strokeWidth={1} fill={fill} />
+
+      {/* Sharp foreground circle (visual only) */}
+      <circle cx={cx} cy={cy} r={r} strokeWidth={1} fill={fill} style={{ pointerEvents: "none" }} />
+
+      {/* Invisible larger hit target (logic only) */}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={enterRadius}
+        data-recharts-dot="true"
+        fill="transparent"
+        onPointerMove={handlePointerMove}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
+        onClick={handleClick}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{ pointerEvents: "all", cursor: "pointer", opacity: 0 }}
+      />
     </g>
   );
 };
@@ -389,7 +497,7 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
       return [minNum, roundedMax];
     }
 
-                   const valueRange = maxValue - minValue;
+    const valueRange = maxValue - minValue;
     const basePadding = Math.max(
       valueRange * 0.15, // 15% padding based on range
       maxValue * 0.1 // Or 10% of max value, whichever is larger
@@ -482,7 +590,7 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
       gridCellHeightDesktop;
 
     if (hasGridCellProps) {
-      const dataPoints = data.length;
+      const dataPoints = chartData.length;
 
       // Adjust cell width based on data points count
       // If data points > 10, reduce cell width to make chart more compact
@@ -555,30 +663,90 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
 
   // Enable scroll if: explicitly enabled OR chart width is calculated (grid cells provided)
   // This ensures scroll works on all screen sizes when grid dimensions are set
-  const shouldScroll =
-    enableHorizontalScroll || calculatedChartDimensions?.width !== undefined;
+  const shouldScroll = enableHorizontalScroll || calculatedChartDimensions?.width !== undefined;
+
+  // Helper to check if an event target is interactive (button/link/tooltip/dot)
+  // Treat chart dots (data-recharts-dot or recharts-dot) as interactive so clicks on them
+  // do not start a drag (which calls preventDefault and cancels the click event).
+  const isInteractiveElement = (el: HTMLElement | null) =>
+    !!el?.closest?.("button") ||
+    !!el?.closest?.("a") ||
+    !!el?.closest?.(".recharts-tooltip-wrapper") ||
+    !!el?.closest?.("[data-recharts-dot]") ||
+    !!el?.closest?.(".recharts-dot");
+
+  // Tooltip state (hover + pinned) — pinned true when user clicks a dot
+  const [hoveredDot, setHoveredDot] = useState<null | { cx: number; cy: number; payload: any; value: any; label?: string }>(null);
+  const [pinned, setPinned] = useState(false);
+  const pinnedRef = useRef(false);
+
+  // Keep ref in sync for event handlers (avoid stale closures)
+  React.useEffect(() => {
+    pinnedRef.current = pinned;
+  }, [pinned]);
+
+  const handleDotEnter = useCallback(
+    (payload: any, cx: number, cy: number) => {
+      // Only update if it's a different payload to avoid re-renders from repeated events
+      setHoveredDot((prev) => {
+        if (prev && prev.payload === payload) return prev;
+        const value = payload?.[valueKey];
+        const label = tooltipLabelFormatter ? tooltipLabelFormatter(payload) : payload?.[dataKey] ?? tooltipLabel;
+        return { cx, cy, payload, value, label };
+      });
+    },
+    [valueKey, dataKey, tooltipLabelFormatter, tooltipLabel]
+  );
+
+  // Only clear hover state when not pinned
+  const handleDotLeave = useCallback(() => {
+    if (pinnedRef.current) return; // keep tooltip visible if pinned
+    setHoveredDot(null);
+  }, []);
+
+  // Click on a dot pins the tooltip (sticky) until user clicks outside
+  const handleDotClick = useCallback((payload: any, cx: number, cy: number) => {
+    const value = payload?.[valueKey];
+    const label = tooltipLabelFormatter ? tooltipLabelFormatter(payload) : payload?.[dataKey] ?? tooltipLabel;
+    setHoveredDot({ cx, cy, payload, value, label });
+    setPinned(true);
+    pinnedRef.current = true;
+  }, [valueKey, dataKey, tooltipLabelFormatter, tooltipLabel]);
+
+  // Clear pinned tooltip when clicking outside any dot — use document pointerdown
+  React.useEffect(() => {
+    const handleDocPointerDown = (e: PointerEvent) => {
+      const target = e.target as Element | null;
+      if (!target) return;
+      // If pointerdown happened inside a dot element, ignore
+      if (target.closest?.('[data-recharts-dot]') || target.closest?.('.recharts-dot')) {
+        return;
+      }
+      if (pinnedRef.current) {
+        pinnedRef.current = false;
+        setPinned(false);
+        setHoveredDot(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", handleDocPointerDown);
+    return () => document.removeEventListener("pointerdown", handleDocPointerDown);
+  }, []);
 
   // Drag scroll handlers
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!scrollContainerRef.current || !shouldScroll) return;
-      // Don't start drag if clicking on interactive elements
-      if (
-        (e.target as HTMLElement).closest("button") ||
-        (e.target as HTMLElement).closest("a") ||
-        (e.target as HTMLElement).closest(".recharts-tooltip-wrapper")
-      )
-        return;
-      e.preventDefault();
-      e.stopPropagation();
-      isDraggingRef.current = true;
-      setIsDragging(true);
-      startXRef.current =
-        e.pageX - (scrollContainerRef.current.offsetLeft || 0);
-      scrollLeftRef.current = scrollContainerRef.current.scrollLeft;
-    },
-    [shouldScroll]
-  );
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!scrollContainerRef.current || !shouldScroll) return;
+    // Don't start drag if clicking on interactive elements
+    if (isInteractiveElement(e.target as HTMLElement)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    // Hide tooltip on drag start to avoid accidental display
+    setHoveredDot(null);
+    isDraggingRef.current = true;
+    setIsDragging(true);
+    startXRef.current = e.pageX - (scrollContainerRef.current.offsetLeft || 0);
+    scrollLeftRef.current = scrollContainerRef.current.scrollLeft;
+  }, [shouldScroll]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDraggingRef.current || !scrollContainerRef.current) return;
@@ -602,6 +770,8 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
       if (e) {
         e.stopPropagation();
       }
+      // Ensure tooltip closes when pointer leaves chart area
+      setHoveredDot(null);
       isDraggingRef.current = false;
       setIsDragging(false);
     },
@@ -747,6 +917,7 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
                 stroke={gridColor}
                 vertical={showVerticalGrid}
                 horizontal={true}
+                style={{ pointerEvents: "none" }}
               />
             )}
 
@@ -821,32 +992,18 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
               />
             )}
 
-            {showTooltip && (
-              <Tooltip
-                content={(props: any) => {
-                  // Only show tooltip when hovering over a dot
-                  // shared={false} ensures tooltip only shows on specific data points
-                  if (!props.active || !props.payload || props.payload.length === 0) {
-                    return null;
-                  }
-                  return (
-                    <CustomTooltip
-                      {...props}
-                      labelFormatter={tooltipLabelFormatter}
-                      valueFormatter={tooltipValueFormatter}
-                      label={tooltipLabel}
-                      valuePrefix={tooltipValuePrefix}
-                      valueSuffix={tooltipValueSuffix}
-                      isMobile={isMobile}
-                      chartRef={chartInnerRef}
-                    />
-                  );
-                }}
-                cursor={false}
-                shared={false}
-                allowEscapeViewBox={{ x: false, y: true }}
-                offset={0}
-                filterNull={false}
+            {showTooltip && hoveredDot && (
+              <CustomTooltip
+                active={true}
+                payload={[{ payload: hoveredDot.payload, dataKey, value: hoveredDot.value, name: "" }]}
+                labelFormatter={tooltipLabelFormatter}
+                valueFormatter={tooltipValueFormatter}
+                label={hoveredDot.label ?? tooltipLabel}
+                valuePrefix={tooltipValuePrefix}
+                valueSuffix={tooltipValueSuffix}
+                isMobile={isMobile}
+                coordinate={{ x: hoveredDot.cx, y: hoveredDot.cy }}
+                chartRef={chartInnerRef}
               />
             )}
 
@@ -864,17 +1021,18 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
                 animationDuration={animationDuration}
                 dot={
                   showDots ? (
-                    <CustomDot fill={finalDotColor} r={dotRadius} />
+                    <CustomDot
+                      fill={finalDotColor}
+                      r={dotRadius}
+                      onDotEnter={handleDotEnter}
+                      onDotLeave={handleDotLeave}
+                      onDotClick={handleDotClick}
+                    />
                   ) : (
                     false
                   )
                 }
-                activeDot={{
-                  r: dotRadius + 3,
-                  fill: finalDotColor,
-                  stroke: "none",
-                  strokeWidth: 0,
-                }}
+                activeDot={false}
                 style={{
                   outline: "none",
                   border: "none",

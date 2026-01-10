@@ -206,7 +206,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 onClick={() => fileRef.current?.click()}
                 sx={{
                   width: { xs: "100%", sm: "auto" },
-                  padding: "0px 16px",
+                  padding: {xs:"0px 10px", md: "0px 16px"},
                   fontSize: { xs: "13px", sm: "15px" },
                 }}
               />

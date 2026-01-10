@@ -50,7 +50,7 @@ const activeWalletsData: ActiveWallet[] = [
   { code: "BTC", icon: BitcoinIcon },
   { code: "ETH", icon: EthereumIcon },
   { code: "LTC", icon: LitecoinIcon },
-  { code: "BNB", icon: BNBIcon },
+  // { code: "BNB", icon: BNBIcon },
   { code: "DOGE", icon: DogecoinIcon },
   { code: "BCH", icon: BitcoinCashIcon },
   { code: "TRX", icon: TronIcon },
@@ -585,7 +585,7 @@ const DashboardLeftSection = () => {
         sx={{
           mb: 2.5,
           display: "flex",
-          gap: isMobile ? "8px" : "20px",
+          gap: isMobile ? "8px" : "16px",
           overflowX: "auto",
           overflowY: "hidden",
           cursor: isStatCardsDragging ? "grabbing" : "grab",

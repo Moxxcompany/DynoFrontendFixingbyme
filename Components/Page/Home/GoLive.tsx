@@ -57,7 +57,7 @@ const GoLiveSection = () => {
         <Grid container spacing={4} justifyContent="center">
           {cardData.map((card, index) => (
             <Grid
-              key={index}
+              key={card.title}
               item
               xs={12}
               sm={12}
