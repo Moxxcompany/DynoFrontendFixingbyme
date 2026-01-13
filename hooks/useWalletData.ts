@@ -21,6 +21,7 @@ export type WalletType =
   | "DOGE"
   | "BCH"
   | "TRX"
+  | "USDT-ERC20"
   | "USDT-TRC20";
 
 export type CryptoCode =
@@ -30,7 +31,8 @@ export type CryptoCode =
   | "DOGE"
   | "BCH"
   | "TRX"
-  | "USDT";
+  | "USDT-ERC20"
+  | "USDT-TRC20";
 
 export interface WalletDataType {
   icon: any;
@@ -55,6 +57,7 @@ const WALLET_ORDER: readonly WalletType[] = [
   "DOGE",
   "BCH",
   "TRX",
+  "USDT-ERC20",
   "USDT-TRC20",
 ];
 
@@ -65,6 +68,7 @@ const WALLET_ICONS: Record<WalletType, any> = {
   DOGE: DogecoinIcon,
   BCH: BitcoinCashIcon,
   TRX: TronIcon,
+  "USDT-ERC20": USDTIcon,
   "USDT-TRC20": USDTIcon,
 };
 
@@ -75,45 +79,48 @@ const WALLET_NAMES: Record<WalletType, string> = {
   DOGE: "Dogecoin",
   BCH: "Bitcoin Cash",
   TRX: "Tron",
-  "USDT-TRC20": "USDT",
+  "USDT-ERC20": "USDT-ERC20",
+  "USDT-TRC20": "USDT-TRC20",
 };
 
-const ALLCRYPTOCURRENCIES: readonly Cryptocurrency[] = [
+export const ALLCRYPTOCURRENCIES: readonly Cryptocurrency[] = [
   { code: "BTC", name: "Bitcoin", icon: BitcoinIcon },
   { code: "ETH", name: "Ethereum", icon: EthereumIcon },
   { code: "LTC", name: "Litecoin", icon: LitecoinIcon },
   { code: "DOGE", name: "Dogecoin", icon: DogecoinIcon },
   { code: "BCH", name: "Bitcoin Cash", icon: BitcoinCashIcon },
   { code: "TRX", name: "Tron", icon: TronIcon },
-  { code: "USDT", name: "USDT-TRC20", icon: USDTIcon },
+  { code: "USDT-ERC20", name: "USDT-ERC20", icon: USDTIcon },
+  { code: "USDT-TRC20", name: "USDT-TRC20", icon: USDTIcon },
 ];
-
-/* ------------------------------ Helpers ----------------------------------- */
-
-const normalizeWalletCode = (code: WalletType): CryptoCode =>
-  code === "USDT-TRC20" ? "USDT" : code;
 
 /* ------------------------------- Main Hook -------------------------------- */
 
 export const useWalletData = () => {
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
-  const [walletLoading, setWalletLoading] = useState(true);
+  const walletLoading = Boolean(walletState?.loading);
+  const [walletWarning, setWalletWarning] = useState(false);
 
   useEffect(() => {
-    dispatch(WalletAction(WALLET_FETCH));
-  }, [dispatch]);
-
-  useEffect(() => {
-    setWalletLoading(false);
-  }, [walletState?.loading]);
+    if (
+      !walletState?.loading &&
+      (!Array.isArray(walletState?.walletList) ||
+        walletState.walletList.length === 0)
+    ) {
+      dispatch(WalletAction(WALLET_FETCH));
+    }
+  }, [dispatch, walletState?.loading, walletState?.walletList]);
 
   /* ---------------------------- Wallet Data ---------------------------- */
 
   const walletData = useMemo<WalletDataType[]>(() => {
-    if (!walletState?.walletList) return [];
+    const list = Array.isArray(walletState?.walletList)
+      ? walletState.walletList
+      : [];
+    if (!list.length) return [];
 
-    return walletState.walletList
+    return list
       .filter(
         (wallet) =>
           WALLET_ORDER.includes(wallet.wallet_type as WalletType) &&
@@ -132,7 +139,7 @@ export const useWalletData = () => {
           walletTitle: type,
           walletAddress: wallet.wallet_address,
           name: WALLET_NAMES[type],
-          totalProcessed: Number(wallet.amount_in_usd),
+          totalProcessed: Number(wallet.amount_in_usd) || 0,
         };
       });
   }, [walletState?.walletList]);
@@ -142,21 +149,31 @@ export const useWalletData = () => {
   const cryptocurrencies = useMemo<Cryptocurrency[]>(() => {
     if (!walletData.length) return [...ALLCRYPTOCURRENCIES];
 
-    const walletCodes = new Set(
-      walletData.map((wallet) => normalizeWalletCode(wallet.walletTitle))
-    );
-
     return ALLCRYPTOCURRENCIES.filter(
-      (crypto) => !walletCodes.has(crypto.code)
+      (crypto) =>
+        !walletData.some((wallet) => wallet.walletTitle === crypto.code)
     );
   }, [walletData]);
 
-  const walletWarning = cryptocurrencies.length > 0;
+  useEffect(() => {
+    if (walletLoading) {
+      setWalletWarning(false);
+      return;
+    }
+    setWalletWarning(cryptocurrencies.length > 0);
+  }, [walletLoading, cryptocurrencies]);
+
+  const activeWalletsData = useMemo(() => {
+    return ALLCRYPTOCURRENCIES.filter((crypto) => {
+      return !cryptocurrencies.some((c) => c.code === crypto.code);
+    });
+  }, [cryptocurrencies]);
 
   return {
     walletLoading,
     walletData,
     cryptocurrencies,
     walletWarning,
+    activeWalletsData,
   };
 };

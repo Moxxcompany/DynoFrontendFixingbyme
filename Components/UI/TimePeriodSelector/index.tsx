@@ -70,6 +70,7 @@ export default function TimePeriodSelector({
   );
 
   const datePickerRef = useRef<DatePickerRef>(null);
+  const calendarButtonRef = useRef<HTMLButtonElement | null>(null);
   const [uncontrolledCustomDateRange, setUncontrolledCustomDateRange] = useState<DateRange>({
     startDate: null,
     endDate: null,
@@ -108,10 +109,21 @@ export default function TimePeriodSelector({
         handleSelect(period);
         return;
       }
+
+      // Set the value to custom and close the list first. The date picker
+      // is only rendered when `value === 'custom'`, so we wait a tick to
+      // ensure it mounts and then open it anchored to the calendar button.
       onChange?.("custom");
       setAnchorEl(null);
       setFocusedIndex(0);
-      handleCalendarButtonClick(event);
+
+      setTimeout(() => {
+        const target = (calendarButtonRef.current ?? (event.currentTarget as HTMLElement)) as HTMLElement;
+        // Cast to any to match the expected React.MouseEvent signature
+        datePickerRef.current?.open(({
+          currentTarget: target,
+        } as unknown) as React.MouseEvent<HTMLElement>);
+      }, 0);
     },
     [handleSelect, onChange]
   );
@@ -217,6 +229,7 @@ export default function TimePeriodSelector({
       {value === "custom" ? (
         <>
           <Button
+            ref={calendarButtonRef}
             onClick={handleCalendarButtonClick}
             sx={[
               {

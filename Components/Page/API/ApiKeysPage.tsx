@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, CircularProgress, Grid, Typography } from "@mui/material";
 
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 
@@ -157,13 +157,13 @@ const ApiKeyCard = ({
   const displayApiKey = showApiKey
     ? apiKey
     : apiKey
-    ? stringShorten(apiKey)
-    : "";
+      ? stringShorten(apiKey)
+      : "";
   const displayAdminToken = showAdminToken
     ? adminToken
     : adminToken
-    ? stringShorten(adminToken)
-    : "";
+      ? stringShorten(adminToken)
+      : "";
 
   return (
     <PanelCard
@@ -405,6 +405,36 @@ const ApiKeysPage = ({
     (process.env.NEXT_PUBLIC_API_DOCS_URL as string) ||
     "https://docs.dynopay.com";
 
+  const itemAnimation = {
+    '@keyframes fadeSlideIn': {
+      from: {
+        opacity: 0,
+        transform: 'translateY(16px)',
+      },
+      to: {
+        opacity: 1,
+        transform: 'translateY(0)',
+      },
+    },
+  };
+
+  if (apiState.loading) {
+    return <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <CircularProgress
+        sx={{
+          color: "#0004ff",
+        }}
+      />
+    </Box>;
+  }
+
   return (
     <>
       <DeleteModel
@@ -449,9 +479,26 @@ const ApiKeysPage = ({
           <ApiDocumentationCard docsUrl={docsUrl} />
         </Grid>
       </Grid> */}
-      <Grid container spacing={2.5} sx={{ mb: 2.5 }} alignItems="flex-start">
-        {apiState?.apiList?.map((api: any) => (
-          <Grid key={api.api_id} item xs={12} md={6} lg={6} xl={4}>
+      <Grid
+        container
+        spacing={2.5}
+        sx={{ mb: 2.5, ...itemAnimation }}
+        alignItems="flex-start"
+      >
+        {apiState?.apiList?.map((api: any, index: number) => (
+          <Grid
+            key={api.api_id}
+            item
+            xs={12}
+            md={6}
+            lg={6}
+            xl={4}
+            sx={{
+              opacity: 0,
+              animation: 'fadeSlideIn 0.5s ease forwards',
+              animationDelay: `${index * 0.1}s`,
+            }}
+          >
             <ApiKeyCard
               title={`keys.${api.base_currency.toLowerCase()}`}
               apiRow={api}
@@ -461,7 +508,19 @@ const ApiKeysPage = ({
           </Grid>
         ))}
 
-        <Grid item xs={12} md={6} lg={6} xl={4}>
+        {/* Last card */}
+        <Grid
+          item
+          xs={12}
+          md={6}
+          lg={6}
+          xl={4}
+          sx={{
+            opacity: 0,
+            animation: 'fadeSlideIn 0.5s ease forwards',
+            animationDelay: `${(apiState?.apiList?.length || 0) * 0.1}s`,
+          }}
+        >
           <ApiDocumentationCard docsUrl={docsUrl} />
         </Grid>
       </Grid>
@@ -478,6 +537,9 @@ const ApiKeysPage = ({
           gap: 1,
           border: `1px solid ${theme.palette.border.main}`,
           flexWrap: { xs: "wrap", sm: "nowrap" },
+          opacity: 0,
+          animation: 'fadeSlideIn 0.5s ease forwards',
+          animationDelay: `${(apiState?.apiList?.length || 0) * 0.2}s`,
         }}
       >
         <Box

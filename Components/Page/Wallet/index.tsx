@@ -4,7 +4,7 @@ import EditIcon from "@/assets/Icons/edit-icon.svg";
 import WalletIcon from "@/assets/Icons/home/wallet.svg";
 import LinkIcon from "@/assets/Icons/link-icon.svg";
 import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
-import { Box, Typography, Grid, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+import { Box, Typography, Grid, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress } from "@mui/material";
 import Image from "next/image";
 import { ArrowOutward } from "@mui/icons-material";
 import { theme } from "@/styles/theme";
@@ -53,8 +53,7 @@ const Wallet = () => {
 
   const [openEditModal, setOpenEditModal] = useState(false);
 
-  const { walletLoading, walletData, walletWarning } = useWalletData();
-  console.log(walletLoading);
+  const { walletLoading, walletData } = useWalletData();
   // const walletData = useMemo<WalletData[]>(
   //   () => [
   //     {
@@ -138,7 +137,20 @@ const Wallet = () => {
   };
 
   if (walletLoading) {
-    return <Box sx={{display: "flex", justifyContent: "center"}}>Loading...</Box>;
+    return <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <CircularProgress
+        sx={{
+          color: "#0004ff",
+        }}
+      />
+    </Box>;
   }
 
   return (
@@ -151,36 +163,37 @@ const Wallet = () => {
         mt: isMobile ? 1 : 0
       }}
     >
-      {walletWarning && (
-        <SetupWarnnigContainer>
-          <WarningIconContainer>
-            <Image
-              src={InfoIcon}
-              alt="info icon"
-              width={16}
-              height={16}
-              draggable={false}
-              style={{ filter: "brightness(0)" }}
-            />
-          </WarningIconContainer>
-          <Box>
-            <Typography sx={{ fontFamily: "UrbanistSemibold", fontWeight: "600", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>{t("walletSetUpWarnnigTitle")}</Typography>
-            <Typography sx={{ fontFamily: "UrbanistMedium", fontWeight: "500", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>{t("walletSetUpWarnnigSubtitle")}</Typography>
-          </Box>
-        </SetupWarnnigContainer>
-      )}
       <Grid container spacing={isMobile ? 2 : 2.5}>
         {walletData.map((wallet, index) => (
-          <Grid item xs={12} md={6} xl={4} key={index}>
+          <Grid
+            item
+            xs={12}
+            md={6}
+            xl={4}
+            key={index}
+            sx={{
+              opacity: 0,
+              transform: "translateY(20px)",
+              animation: "cardFadeUp 0.5s ease forwards",
+              animationDelay: `${index * 0.12}s`,
+
+              "@keyframes cardFadeUp": {
+                "0%": {
+                  opacity: 0,
+                  transform: "translateY(20px)",
+                },
+                "100%": {
+                  opacity: 1,
+                  transform: "translateY(0)",
+                },
+              },
+            }}
+          >
             <PanelCard
               title={wallet.name}
               headerIcon={
                 <HeaderIcon>
-                  <Image
-                    src={wallet.icon}
-                    alt={wallet.name}
-                    draggable={false}
-                  />
+                  <Image src={wallet.icon} alt={wallet.name} draggable={false} />
                 </HeaderIcon>
               }
               showHeaderBorder={false}
@@ -188,12 +201,10 @@ const Wallet = () => {
               bodyPadding={theme.spacing(3, 2.5, 2.5, 2.5)}
               headerAction={
                 <WalletHeaderAction>
-                  <Image
-                    src={wallet?.icon}
-                    alt={wallet.name}
-                    draggable={false}
-                  />
-                  <span>{wallet.name === "USDT-TRC20" ? "USDT" : wallet.walletTitle}</span>
+                  <Image src={wallet.icon} alt={wallet.name} draggable={false} />
+                  <span>
+                    {wallet.name === "USDT-TRC20" || wallet.name === "USDT-ERC20" ? "USDT" : wallet.walletTitle}
+                  </span>
                 </WalletHeaderAction>
               }
             >

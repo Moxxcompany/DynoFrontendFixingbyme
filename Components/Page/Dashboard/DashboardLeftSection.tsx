@@ -39,6 +39,7 @@ import {
   isValid,
   startOfDay,
 } from "date-fns";
+import { useWalletData } from "@/hooks/useWalletData";
 
 // Active wallets data array
 interface ActiveWallet {
@@ -46,16 +47,16 @@ interface ActiveWallet {
   icon: any;
 }
 
-const activeWalletsData: ActiveWallet[] = [
-  { code: "BTC", icon: BitcoinIcon },
-  { code: "ETH", icon: EthereumIcon },
-  { code: "LTC", icon: LitecoinIcon },
-  // { code: "BNB", icon: BNBIcon },
-  { code: "DOGE", icon: DogecoinIcon },
-  { code: "BCH", icon: BitcoinCashIcon },
-  { code: "TRX", icon: TronIcon },
-  { code: "USDT", icon: USDTIcon },
-];
+// const activeWalletsData: ActiveWallet[] = [
+//   { code: "BTC", icon: BitcoinIcon },
+//   { code: "ETH", icon: EthereumIcon },
+//   { code: "LTC", icon: LitecoinIcon },
+//   // { code: "BNB", icon: BNBIcon },
+//   { code: "DOGE", icon: DogecoinIcon },
+//   { code: "BCH", icon: BitcoinCashIcon },
+//   { code: "TRX", icon: TronIcon },
+//   { code: "USDT", icon: USDTIcon },
+// ];
 
 // Helper function to format date as "MMM D" (e.g., "Nov 30")
 const formatDate = (date: Date): string => {
@@ -463,6 +464,8 @@ const DashboardLeftSection = () => {
     (key: string) => t(key, { ns: "dashboardLayout" }),
     [t]
   );
+
+  const { activeWalletsData } = useWalletData();
 
   const maxWalletsToShow = isMobile ? 2 : 3;
   const walletsToDisplay = showAllWallets

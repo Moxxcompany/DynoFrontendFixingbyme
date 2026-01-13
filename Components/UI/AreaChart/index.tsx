@@ -149,6 +149,7 @@ const CustomTooltip = ({
 
     const tooltipElement = (
       <Box
+        data-areachart-tooltip="true"
         onMouseDown={(e) => e.stopPropagation()}
         onTouchStart={(e) => e.stopPropagation()}
         sx={{
@@ -673,7 +674,8 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     !!el?.closest?.("a") ||
     !!el?.closest?.(".recharts-tooltip-wrapper") ||
     !!el?.closest?.("[data-recharts-dot]") ||
-    !!el?.closest?.(".recharts-dot");
+    !!el?.closest?.(".recharts-dot") ||
+    !!el?.closest?.("[data-areachart-tooltip]");
 
   // Tooltip state (hover + pinned) — pinned true when user clicks a dot
   const [hoveredDot, setHoveredDot] = useState<null | { cx: number; cy: number; payload: any; value: any; label?: string }>(null);
@@ -718,8 +720,12 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     const handleDocPointerDown = (e: PointerEvent) => {
       const target = e.target as Element | null;
       if (!target) return;
-      // If pointerdown happened inside a dot element, ignore
-      if (target.closest?.('[data-recharts-dot]') || target.closest?.('.recharts-dot')) {
+      // If pointerdown happened inside a dot element or inside our tooltip, ignore
+      if (
+        target.closest?.("[data-recharts-dot]") ||
+        target.closest?.(".recharts-dot") ||
+        target.closest?.("[data-areachart-tooltip]")
+      ) {
         return;
       }
       if (pinnedRef.current) {
@@ -757,6 +763,21 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     scrollContainerRef.current.scrollLeft = scrollLeftRef.current - walk;
   }, []);
 
+  // When pointer moves, ensure tooltip is only visible while over interactive elements (dots or tooltip).
+  // Clear hover and pinned state when pointer is elsewhere.
+  const handlePointerMoveGeneral = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement | null;
+    if (!isInteractiveElement(target)) {
+      // Hide hover state
+      setHoveredDot(null);
+      // Unpin and hide tooltip if it was pinned
+      if (pinnedRef.current) {
+        pinnedRef.current = false;
+        setPinned(false);
+      }
+    }
+  }, []);
+
   const handleMouseUp = useCallback((e?: React.MouseEvent<HTMLDivElement>) => {
     if (e) {
       e.stopPropagation();
@@ -772,6 +793,10 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
       }
       // Ensure tooltip closes when pointer leaves chart area
       setHoveredDot(null);
+      if (pinnedRef.current) {
+        pinnedRef.current = false;
+        setPinned(false);
+      }
       isDraggingRef.current = false;
       setIsDragging(false);
     },
@@ -783,6 +808,7 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
       ref={scrollContainerRef}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
+      onPointerMove={handlePointerMoveGeneral}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
       sx={{

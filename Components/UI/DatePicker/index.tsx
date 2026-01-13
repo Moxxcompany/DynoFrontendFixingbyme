@@ -283,8 +283,8 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
     // Initialize with "thisMonth" preset if no value provided
     return getPresetDates("thisMonth", today);
   });
-  const [leftMonth, setLeftMonth] = useState(today);               // Now left = current
-  const [rightMonth, setRightMonth] = useState(addMonths(today, 1)); // Now right = next
+  const [leftMonth, setLeftMonth] = useState<Date>(() => (isMobile ? today : subMonths(today, 1)));
+  const [rightMonth, setRightMonth] = useState<Date>(() => today); // Right is current month
   const [activePreset, setActivePreset] = useState<PresetType | null>(() => {
     if (value && value.startDate && value.endDate) {
       return detectPreset(value, today);
@@ -297,6 +297,11 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
   const isOpen = Boolean(anchorEl);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+    // Reset months on open so desktop shows [lastMonth, currentMonth]
+    // and mobile shows [currentMonth]. This also ensures responsive
+    // behavior when user resizes the viewport while the popover is open.
+    setLeftMonth(isMobile ? today : subMonths(today, 1));
+    setRightMonth(today);
     setAnchorEl(event.currentTarget);
   };
 
@@ -316,9 +321,16 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
       handleClose();
     },
     isOpen: () => {
-      return isOpen;
+      return isOpen;  
     },
   }));
+
+  // Sync months when the viewport breakpoint changes while the popover is open
+  useEffect(() => {
+    if (!isOpen) return;
+    setLeftMonth(isMobile ? today : subMonths(today, 1));
+    setRightMonth(today);
+  }, [isMobile, isOpen, today]);
 
   const formatDateRange = (): string => {
     const { startDate, endDate } = selectedRange;

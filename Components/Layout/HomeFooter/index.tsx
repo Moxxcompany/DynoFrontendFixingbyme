@@ -65,16 +65,18 @@ const HomeFooter = () => {
               display: "flex",
               flexDirection: isMobile ? "column" : "row",
               justifyContent: "space-between",
-              gap: isMobile ? 6 : 0,
+              gap: 6,
             }}
           >
             <Typography
               sx={{
+                minWidth: "316px",
                 color: theme.palette.common.white,
                 opacity: 0.6,
                 fontSize: 14,
                 maxWidth: 420,
                 fontFamily: "OutfitRegular",
+                textWrap: "nowrap",
               }}
             >
               Accept crypto payments in minutes. The modern
@@ -86,7 +88,7 @@ const HomeFooter = () => {
               sx={{
                 display: "flex",
                 flexWrap: "wrap",
-                gap: isMobile ? 2 : 3,
+                gap: { xs: 2, lg: 3 },
                 alignItems: "flex-end",
               }}
             >
