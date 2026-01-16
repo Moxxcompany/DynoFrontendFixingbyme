@@ -11,6 +11,9 @@ export const TransactionsTableContainer = styled(Box)({
   borderRadius: "14px",
   overflow: "hidden",
   minHeight: 0,
+  ["@media (max-width:960px)"]: {
+    height: "auto",
+  },
 });
 
 export const TransactionsTableScrollWrapper = styled(Box)(({ theme }) => ({
@@ -45,7 +48,8 @@ export const TransactionsTableScrollWrapper = styled(Box)(({ theme }) => ({
 export const TransactionsTableHeader = styled(Box)(({ theme }) => ({
   width: "100%",
   display: "grid",
-  gridTemplateColumns: "repeat(6, 1fr)",
+  gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+  gridAutoColumns: "minmax(0, 1fr)",
   alignItems: "center",
   padding: "19px 20px",
   backgroundColor: theme.palette.primary.light,
@@ -147,7 +151,8 @@ export const TransactionsTableBody = styled(Box)(({ theme }) => ({
 export const TransactionsTableRow = styled(Box)(({ theme }) => ({
   width: "100%",
   display: "grid",
-  gridTemplateColumns: "repeat(6, 1fr)",
+  gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+  gridAutoColumns: "minmax(0, 1fr)",
   alignItems: "center",
   padding: "11px 0",
   borderBottom: `1px solid ${theme.palette.divider}`,
@@ -180,6 +185,7 @@ export const TransactionsTableCell = styled(Typography)(({ theme }) => ({
   fontSize: "15px",
   fontWeight: 500,
   maxWidth: "180px",
+  minWidth: 0,
   color: theme.palette.text.primary,
   fontFamily: "UrbanistMedium",
   lineHeight: "18px",
@@ -214,6 +220,8 @@ export const TransactionsTableFooter = styled(Box)(({ theme }) => ({
   minHeight: "max-content",
   [theme.breakpoints.down("md")]: {
     padding: "12px 12px 16px 12px",
+    flexWrap: "wrap",
+    gap: "8px",
   },
 }));
 

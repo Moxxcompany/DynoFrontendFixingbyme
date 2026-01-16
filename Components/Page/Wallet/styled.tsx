@@ -127,5 +127,4 @@ export const SetupWarnnigContainer = styled(Box)(({ theme }) => ({
   alignItems: "center",
   justifyContent: "flex-start",
   gap: theme.spacing(1.5),
-  width: "fit-content"
 }));

@@ -273,7 +273,7 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
   const isMobile = useIsMobile("md");
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const today = startOfDay(new Date());
+  const today = React.useMemo(() => startOfDay(new Date()), []);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [selectedRange, setSelectedRange] = useState<DateRange>(() => {
@@ -321,7 +321,7 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(({
       handleClose();
     },
     isOpen: () => {
-      return isOpen;  
+      return isOpen;
     },
   }));
 

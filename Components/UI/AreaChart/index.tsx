@@ -20,12 +20,9 @@ export interface AreaChartData {
 }
 
 export interface AreaChartProps {
-  // Data
   data: AreaChartData[];
-  dataKey: string; // Key for X-axis (e.g., "date", "label")
-  valueKey: string; // Key for Y-axis values (e.g., "value", "volume")
-
-  // Styling
+  dataKey: string;
+  valueKey: string;
   height?: number;
   width?: string | number;
   strokeColor?: string;
@@ -40,8 +37,6 @@ export interface AreaChartProps {
   showVerticalGrid?: boolean;
   showXAxisLine?: boolean;
   showYAxisLine?: boolean;
-
-  // Axis customization
   showXAxis?: boolean;
   showYAxis?: boolean;
   xAxisLabel?: string;
@@ -51,32 +46,24 @@ export interface AreaChartProps {
   yAxisDomain?: [number | string, number | string];
   yAxisInterval?: number;
   yAxisTickCount?: number;
-
-  // Tooltip
   showTooltip?: boolean;
   tooltipLabelFormatter?: (value: any) => string;
   tooltipValueFormatter?: (value: any, name: string) => [string, string];
   tooltipLabel?: string;
   tooltipValuePrefix?: string;
   tooltipValueSuffix?: string;
-
-  // Area fill
   fillOpacity?: number;
   gradientId?: string;
   gradientStartColor?: string;
   gradientEndColor?: string;
   gradientStartOpacity?: number;
   gradientEndOpacity?: number;
-
-  // Spacing
   margin?: {
     top?: number;
     right?: number;
     bottom?: number;
     left?: number;
   };
-
-  // Additional customization
   curveType?:
   | "monotone"
   | "linear"
@@ -87,25 +74,17 @@ export interface AreaChartProps {
   connectNulls?: boolean;
   isAnimationActive?: boolean;
   animationDuration?: number;
-
-  // Container styling
   containerSx?: any;
   chartSx?: any;
-
-  // Fixed width and scroll
   fixedWidth?: number;
   enableHorizontalScroll?: boolean;
-
-  // Grid cell dimensions (for fixed grid sizing)
-  gridCellWidth?: number; // Width of each grid cell (horizontal spacing between data points)
-  gridCellHeight?: number; // Height of each grid cell (vertical spacing between Y-axis ticks)
-  gridCellWidthMobile?: number; // Mobile grid cell width (default: 70)
-  gridCellHeightMobile?: number; // Mobile grid cell height (default: 70)
-  gridCellWidthDesktop?: number; // Desktop grid cell width (default: 150)
-  gridCellHeightDesktop?: number; // Desktop grid cell height (default: 75)
-
-  // Data visibility
-  hasData?: boolean; // Whether to show the area/line (default: true, calculated from data if not provided)
+  gridCellWidth?: number;
+  gridCellHeight?: number;
+  gridCellWidthMobile?: number;
+  gridCellHeightMobile?: number;
+  gridCellWidthDesktop?: number;
+  gridCellHeightDesktop?: number;
+  hasData?: boolean;
 }
 
 const CustomTooltip = ({
@@ -121,6 +100,13 @@ const CustomTooltip = ({
   chartRef,
 }: any) => {
   const theme = useTheme();
+
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    if (data?.__isEmpty || data?.__isSinglePoint) {
+      return null;
+    }
+  }
 
   if (
     active &&
@@ -140,10 +126,9 @@ const CustomTooltip = ({
 
     const rect = chartRef.current.getBoundingClientRect();
     const left = rect.left + (coordinate?.x ?? rect.width / 2);
-    const offsetY = 12; // distance from the data point to tooltip
+    const offsetY = 12;
     const top = rect.top + (coordinate?.y ?? 0) + offsetY;
 
-    // Clamp tooltip within viewport horizontally and vertically
     const clampedLeft = Math.max(8, Math.min(left, window.innerWidth - 8));
     const clampedTop = Math.max(8, Math.min(top, window.innerHeight - 8));
 
@@ -170,7 +155,6 @@ const CustomTooltip = ({
             position: "relative",
             boxShadow: "0 4px 6.3px 0 rgba(52, 93, 157, 0.09)",
             zIndex: 50,
-            // Arrow pointing up (tooltip shown below the data point)
             "&::before": {
               content: '""',
               position: "absolute",
@@ -234,7 +218,6 @@ interface CustomDotProps extends React.SVGProps<SVGGElement> {
   cy?: number;
   fill?: string;
   r?: number;
-  // per-point handlers passed from the parent element instance
   onDotEnter?: (payload: any, cx: number, cy: number) => void;
   onDotLeave?: () => void;
   onDotClick?: (payload: any, cx: number, cy: number) => void;
@@ -242,20 +225,20 @@ interface CustomDotProps extends React.SVGProps<SVGGElement> {
 }
 
 const CustomDot = ({ cx = 20, cy = 20, fill, r = 5, onDotEnter, onDotLeave, onDotClick, payload, ...props }: CustomDotProps) => {
-  // Slightly expand effective hover radius for better UX while keeping it tight
-  // Target: visible dot radius + ~6-8px. We use hysteresis to avoid flicker.
-  const ENTER_BUFFER = 8; // px beyond visible dot radius to enter
-  const LEAVE_BUFFER = 6; // px beyond visible dot radius to leave (hysteresis)
+
+  const isInsideRef = useRef(false);
+
+  if (payload?.__isEmpty || payload?.__isSinglePoint) {
+    return null;
+  }
+
+  const ENTER_BUFFER = 8;
+  const LEAVE_BUFFER = 6;
   const enterRadius = (r ?? 5) + ENTER_BUFFER;
   const leaveRadius = (r ?? 5) + LEAVE_BUFFER;
   const enterRadiusSq = enterRadius * enterRadius;
   const leaveRadiusSq = leaveRadius * leaveRadius;
 
-  // Track whether the pointer is considered inside the hit zone for this dot
-  const isInsideRef = React.useRef(false);
-
-  // Pointer move handler evaluates distance (squared math for perf) and
-  // only triggers enter/leave on transitions to avoid spamming parent state.
   const handlePointerMove = (e: React.PointerEvent<SVGCircleElement>) => {
     e.stopPropagation();
 
@@ -284,7 +267,6 @@ const CustomDot = ({ cx = 20, cy = 20, fill, r = 5, onDotEnter, onDotLeave, onDo
 
   const handlePointerEnter = (e: React.PointerEvent<SVGCircleElement>) => {
     e.stopPropagation();
-    // Re-evaluate immediately on enter to avoid waiting for move
     handlePointerMove(e);
   };
 
@@ -296,13 +278,11 @@ const CustomDot = ({ cx = 20, cy = 20, fill, r = 5, onDotEnter, onDotLeave, onDo
     }
   };
 
-  // Click handler to pin the tooltip to this dot
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDotClick?.(payload, cx ?? 0, cy ?? 0);
   };
 
-  // Touch fallback: open on touchstart, close on touchend
   const handleTouchStart = (e: React.TouchEvent<SVGCircleElement>) => {
     e.stopPropagation();
     isInsideRef.current = true;
@@ -316,17 +296,8 @@ const CustomDot = ({ cx = 20, cy = 20, fill, r = 5, onDotEnter, onDotLeave, onDo
     }
   };
 
-  /*
-    Implementation detail:
-    - We render the visible circles with pointer-events: none so they don't capture events.
-    - We render an invisible, slightly larger circle (r = enterRadius) which captures pointer events
-      and performs distance-based hit testing. This gives a deterministic "tiny" hit area without
-      visually enlarging the dot.
-    - The invisible circle includes a data attribute so global click handlers can detect dot clicks.
-  */
   return (
     <g {...props} style={{ pointerEvents: "none" }}>
-      {/* Blurred background circle (visual only) */}
       <circle
         cx={cx}
         cy={cy}
@@ -339,10 +310,8 @@ const CustomDot = ({ cx = 20, cy = 20, fill, r = 5, onDotEnter, onDotLeave, onDo
         style={{ pointerEvents: "none" }}
       />
 
-      {/* Sharp foreground circle (visual only) */}
       <circle cx={cx} cy={cy} r={r} strokeWidth={1} fill={fill} style={{ pointerEvents: "none" }} />
 
-      {/* Invisible larger hit target (logic only) */}
       <circle
         cx={cx}
         cy={cy}
@@ -420,7 +389,6 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
   const theme = useTheme();
   const isMobile = useIsMobile("md");
 
-  // Drag scroll refs and state
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const startXRef = useRef(0);
@@ -428,7 +396,6 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const chartInnerRef = useRef<HTMLDivElement>(null);
 
-  // Use theme colors if not provided
   const finalStrokeColor = strokeColor || theme.palette.primary.main;
   const finalFillColor = fillColor || theme.palette.primary.main;
   const finalDotColor = dotColor || theme.palette.primary.main;
@@ -436,45 +403,70 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     gradientStartColor || theme.palette.primary.main;
   const finalGradientEndColor = gradientEndColor || theme.palette.primary.main;
 
-  // Determine if we should show the area/line
+  const normalizedChartData = useMemo(() => {
+    const markedData = data.map((item) => ({
+      ...item,
+      __isOriginalPoint: true,
+    }));
+
+    if (markedData.length === 0) {
+      return [
+        {
+          [dataKey]: "No Data",
+          [valueKey]: 0,
+          __isEmpty: true,
+          __isOriginalPoint: false,
+        },
+      ];
+    }
+
+    if (markedData.length === 1) {
+      const originalPoint = markedData[0];
+      const syntheticPoint = {
+        ...originalPoint,
+        [dataKey]: `${String(originalPoint[dataKey as keyof typeof originalPoint])} +1`,
+        __isSinglePoint: true,
+        __isOriginalPoint: false,
+      };
+      return [originalPoint, syntheticPoint];
+    }
+
+    return markedData;
+  }, [data, dataKey, valueKey]);
+
   const shouldShowArea = useMemo(() => {
     if (hasDataProp !== undefined) return hasDataProp;
-    // Auto-detect: check if there are any non-zero values
-    const values = data
-      .map((item) => Number(item[valueKey]))
-      .filter((v) => !isNaN(v));
-    return values.some((v) => v > 0);
-  }, [hasDataProp, data, valueKey]);
 
-  // Use the provided data directly (it should already be processed with all dates filled)
-  const chartData = data;
+    return normalizedChartData.length > 0;
+  }, [hasDataProp, normalizedChartData.length]);
 
-  // Calculate Y-axis domain if not provided
+  const chartData = normalizedChartData;
+
   const calculatedYAxisDomain = useMemo(() => {
     const values = chartData
-      .map((item) => Number(item[valueKey]))
+      .map((item) => Number((item as AreaChartData)[valueKey]))
       .filter((v) => !isNaN(v));
 
     if (values.length === 0) {
-      // If no data, return default domain or provided domain
-      return yAxisDomain || [0, 16000];
+      const domain = yAxisDomain || [0, 16000];
+      const [minD, maxD] = domain;
+      const minNum = typeof minD === "string" ? parseFloat(minD) : Number(minD);
+      const maxNum = typeof maxD === "string" ? parseFloat(maxD) : Number(maxD);
+      return [minNum, Math.max(maxNum, 1)];
     }
 
     const maxValue = Math.max(...values);
     const minValue = Math.min(...values);
 
     if (yAxisDomain) {
-      // If domain is provided, ensure it accommodates all data points
       const [minDomain, maxDomain] = yAxisDomain;
       const minNum = typeof minDomain === "string" ? parseFloat(minDomain) : Number(minDomain);
       const maxNum = typeof maxDomain === "string" ? parseFloat(maxDomain) : Number(maxDomain);
 
-      // Always ensure the domain can accommodate the max value with padding for curve interpolation
       if (maxValue > maxNum) {
-        // Calculate appropriate rounding based on value magnitude
         let roundedMax;
         if (maxValue >= 100000) {
-          roundedMax = Math.ceil((maxValue * 1.3) / 10000) * 10000; // 30% padding for large values
+          roundedMax = Math.ceil((maxValue * 1.3) / 10000) * 10000;
         } else if (maxValue >= 10000) {
           roundedMax = Math.ceil((maxValue * 1.3) / 5000) * 5000;
         } else if (maxValue >= 1000) {
@@ -484,7 +476,6 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
         }
         return [minNum, roundedMax];
       }
-      // If max value fits, use the provided domain but ensure it's properly rounded
       let roundedMax;
       if (maxNum >= 100000) {
         roundedMax = Math.ceil(maxNum / 10000) * 10000;
@@ -495,33 +486,30 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
       } else {
         roundedMax = Math.ceil(maxNum / 100) * 100;
       }
-      return [minNum, roundedMax];
+      return [minNum, Math.max(roundedMax, 1)];
     }
 
     const valueRange = maxValue - minValue;
     const basePadding = Math.max(
-      valueRange * 0.15, // 15% padding based on range
-      maxValue * 0.1 // Or 10% of max value, whichever is larger
+      valueRange * 0.15,
+      maxValue * 0.1
     );
 
-    // Add extra padding for natural/curved interpolation types
     let curvePadding = 0;
     if (curveType === "natural") {
-      // For natural curves, use aggressive padding for large value jumps
       const hasLargeJump = valueRange > maxValue * 0.5;
       if (hasLargeJump) {
-        curvePadding = maxValue * 0.4; // 40% for large jumps
+        curvePadding = maxValue * 0.4;
       } else {
-        curvePadding = maxValue * 0.25; // 25% for smaller ranges
+        curvePadding = maxValue * 0.25;
       }
     } else if (curveType === "monotone") {
-      curvePadding = maxValue * 0.15; // 15% for monotone
+      curvePadding = maxValue * 0.15;
     }
 
     const padding = basePadding + curvePadding;
     const paddedMax = maxValue + padding;
 
-    // Determine appropriate rounding based on value magnitude
     let roundedMax;
     if (paddedMax >= 100000) {
       roundedMax = Math.ceil((paddedMax + 1000) / 10000) * 10000;
@@ -533,7 +521,6 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
       roundedMax = Math.ceil((paddedMax + 10) / 100) * 100;
     }
 
-    // Final safety check: ensure roundedMax is always significantly greater than maxValue
     if (roundedMax <= maxValue) {
       if (maxValue >= 100000) {
         roundedMax = Math.ceil((maxValue * 1.5) / 10000) * 10000;
@@ -545,13 +532,11 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
         roundedMax = Math.ceil((maxValue * 1.5) / 100) * 100;
       }
     } else {
-      // Add additional safety buffer for curve interpolation
       const safetyBuffer = curveType === "natural"
-        ? roundedMax * 0.15 // 15% extra buffer for natural curves
-        : roundedMax * 0.1; // 10% for others
+        ? roundedMax * 0.15
+        : roundedMax * 0.1;
       roundedMax = roundedMax + safetyBuffer;
 
-      // Re-round after adding buffer
       if (roundedMax >= 100000) {
         roundedMax = Math.ceil(roundedMax / 10000) * 10000;
       } else if (roundedMax >= 10000) {
@@ -562,7 +547,6 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
         roundedMax = Math.ceil(roundedMax / 100) * 100;
       }
 
-      // Final verification: ensure it's at least 20% above maxValue for natural curves
       if (curveType === "natural" && roundedMax < maxValue * 1.2) {
         if (maxValue >= 100000) {
           roundedMax = Math.ceil((maxValue * 1.2) / 10000) * 10000;
@@ -576,12 +560,10 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
       }
     }
 
-    return [0, roundedMax];
+    return [0, Math.max(roundedMax, 1)];
   }, [chartData, valueKey, yAxisDomain, curveType]);
 
-  // Calculate chart dimensions based on grid cell size
   const calculatedChartDimensions = useMemo(() => {
-    // Check if any grid cell props are provided
     const hasGridCellProps =
       gridCellWidth ||
       gridCellHeight ||
@@ -593,8 +575,6 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     if (hasGridCellProps) {
       const dataPoints = chartData.length;
 
-      // Adjust cell width based on data points count
-      // If data points > 10, reduce cell width to make chart more compact
       let baseCellWidth =
         gridCellWidth ||
         (isMobile ? gridCellWidthMobile : gridCellWidthDesktop);
@@ -603,27 +583,22 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
         (isMobile ? gridCellHeightMobile : gridCellHeightDesktop);
 
       if (dataPoints > 10) {
-        // Reduce cell width proportionally for mobile and desktop
         if (isMobile) {
-          // Mobile: reduce more aggressively
-          baseCellWidth = baseCellWidth * (10 / dataPoints) * 0.8; // Scale down more
+          baseCellWidth = baseCellWidth * (10 / dataPoints) * 0.8;
         } else {
-          // Desktop: reduce less aggressively
-          baseCellWidth = baseCellWidth * (10 / dataPoints) * 0.9; // Scale down less
+          baseCellWidth = baseCellWidth * (10 / dataPoints) * 0.9;
         }
       }
 
       const cellWidth = baseCellWidth;
       const cellHeight = baseCellHeight;
 
-      // Calculate width: (number of data points - 1) * cell width + margins
       const calculatedWidth =
         (dataPoints - 1) * cellWidth +
         (margin?.left || 0) +
         (margin?.right || 0) +
-        20; // Minimal padding for Y-axis labels
+        20;
 
-      // Calculate height: number of Y-axis intervals * cell height + margins
       const [minDomain, maxDomain] = calculatedYAxisDomain;
       const minNum =
         typeof minDomain === "string"
@@ -633,12 +608,12 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
         typeof maxDomain === "string"
           ? parseFloat(maxDomain)
           : Number(maxDomain);
-      const yIntervals = 4; // Based on our tick count
+      const yIntervals = 4;
       const calculatedHeight =
         yIntervals * cellHeight +
         (margin?.top || 0) +
         (margin?.bottom || 0) +
-        10; // Minimal padding
+        10;
 
       return { width: calculatedWidth, height: calculatedHeight };
     }
@@ -662,13 +637,8 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     (enableHorizontalScroll ? 800 : undefined);
   const chartHeight = calculatedChartDimensions?.height || height;
 
-  // Enable scroll if: explicitly enabled OR chart width is calculated (grid cells provided)
-  // This ensures scroll works on all screen sizes when grid dimensions are set
   const shouldScroll = enableHorizontalScroll || calculatedChartDimensions?.width !== undefined;
 
-  // Helper to check if an event target is interactive (button/link/tooltip/dot)
-  // Treat chart dots (data-recharts-dot or recharts-dot) as interactive so clicks on them
-  // do not start a drag (which calls preventDefault and cancels the click event).
   const isInteractiveElement = (el: HTMLElement | null) =>
     !!el?.closest?.("button") ||
     !!el?.closest?.("a") ||
@@ -677,19 +647,16 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     !!el?.closest?.(".recharts-dot") ||
     !!el?.closest?.("[data-areachart-tooltip]");
 
-  // Tooltip state (hover + pinned) — pinned true when user clicks a dot
   const [hoveredDot, setHoveredDot] = useState<null | { cx: number; cy: number; payload: any; value: any; label?: string }>(null);
   const [pinned, setPinned] = useState(false);
   const pinnedRef = useRef(false);
 
-  // Keep ref in sync for event handlers (avoid stale closures)
   React.useEffect(() => {
     pinnedRef.current = pinned;
   }, [pinned]);
 
   const handleDotEnter = useCallback(
     (payload: any, cx: number, cy: number) => {
-      // Only update if it's a different payload to avoid re-renders from repeated events
       setHoveredDot((prev) => {
         if (prev && prev.payload === payload) return prev;
         const value = payload?.[valueKey];
@@ -700,13 +667,11 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     [valueKey, dataKey, tooltipLabelFormatter, tooltipLabel]
   );
 
-  // Only clear hover state when not pinned
   const handleDotLeave = useCallback(() => {
-    if (pinnedRef.current) return; // keep tooltip visible if pinned
+    if (pinnedRef.current) return;
     setHoveredDot(null);
   }, []);
 
-  // Click on a dot pins the tooltip (sticky) until user clicks outside
   const handleDotClick = useCallback((payload: any, cx: number, cy: number) => {
     const value = payload?.[valueKey];
     const label = tooltipLabelFormatter ? tooltipLabelFormatter(payload) : payload?.[dataKey] ?? tooltipLabel;
@@ -715,12 +680,10 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     pinnedRef.current = true;
   }, [valueKey, dataKey, tooltipLabelFormatter, tooltipLabel]);
 
-  // Clear pinned tooltip when clicking outside any dot — use document pointerdown
   React.useEffect(() => {
     const handleDocPointerDown = (e: PointerEvent) => {
       const target = e.target as Element | null;
       if (!target) return;
-      // If pointerdown happened inside a dot element or inside our tooltip, ignore
       if (
         target.closest?.("[data-recharts-dot]") ||
         target.closest?.(".recharts-dot") ||
@@ -739,14 +702,11 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     return () => document.removeEventListener("pointerdown", handleDocPointerDown);
   }, []);
 
-  // Drag scroll handlers
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!scrollContainerRef.current || !shouldScroll) return;
-    // Don't start drag if clicking on interactive elements
     if (isInteractiveElement(e.target as HTMLElement)) return;
     e.preventDefault();
     e.stopPropagation();
-    // Hide tooltip on drag start to avoid accidental display
     setHoveredDot(null);
     isDraggingRef.current = true;
     setIsDragging(true);
@@ -759,18 +719,14 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
     e.preventDefault();
     e.stopPropagation();
     const x = e.pageX - (scrollContainerRef.current.offsetLeft || 0);
-    const walk = (x - startXRef.current) * 2; // Scroll speed multiplier
+    const walk = (x - startXRef.current) * 2;
     scrollContainerRef.current.scrollLeft = scrollLeftRef.current - walk;
   }, []);
 
-  // When pointer moves, ensure tooltip is only visible while over interactive elements (dots or tooltip).
-  // Clear hover and pinned state when pointer is elsewhere.
   const handlePointerMoveGeneral = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement | null;
     if (!isInteractiveElement(target)) {
-      // Hide hover state
       setHoveredDot(null);
-      // Unpin and hide tooltip if it was pinned
       if (pinnedRef.current) {
         pinnedRef.current = false;
         setPinned(false);
@@ -791,7 +747,6 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
       if (e) {
         e.stopPropagation();
       }
-      // Ensure tooltip closes when pointer leaves chart area
       setHoveredDot(null);
       if (pinnedRef.current) {
         pinnedRef.current = false;
@@ -855,7 +810,6 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
         "&::-webkit-scrollbar-thumb": {
           display: "none",
         },
-        // For Firefox
         scrollbarWidth: "none",
         ...containerSx,
       }}
@@ -978,7 +932,7 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
                   fontSize: isMobile ? 10 : 12,
                   fill: theme.palette.text.secondary,
                   fontFamily: "UrbanistRegular",
-                  dx: isMobile ? -3 : -6, // Add padding between text and tick line
+                  dx: isMobile ? -3 : -6,
                 }}
                 tickLine={true}
                 axisLine={showYAxisLine}
@@ -993,13 +947,11 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
                   const maxNum =
                     typeof max === "string" ? parseFloat(max) : Number(max);
 
-                  // If domain is default (0, 16000) or max is 16000, use 4000 intervals
                   if ((!yAxisDomain && maxNum === 16000) || (yAxisDomain && maxNum === 16000)) {
                     return [0, 4000, 8000, 12000, 16000];
                   }
 
-                  // Otherwise, calculate equal intervals
-                  const interval = (maxNum - minNum) / 4; // 5 ticks = 4 equal intervals
+                  const interval = (maxNum - minNum) / 4;
                   return [
                     minNum,
                     minNum + interval,
@@ -1014,7 +966,7 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
                     : undefined
                 }
                 padding={{ top: 0, bottom: 0 }}
-                width={40} // Reduced width to minimize extra space
+                width={40}
               />
             )}
 
@@ -1033,7 +985,6 @@ const ReusableAreaChart: React.FC<AreaChartProps> = ({
               />
             )}
 
-            {/* Only render Area if we have actual data, otherwise just show the grid */}
             {shouldShowArea && (
               <Area
                 type={curveType}

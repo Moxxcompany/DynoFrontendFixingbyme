@@ -30,6 +30,7 @@ import AddWalletModal from "@/Components/UI/AddWalletModal";
 import { WarningIconContainer } from "@/Components/UI/AddWalletModal/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
+import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 
 interface WalletData {
   icon: any;
@@ -151,6 +152,12 @@ const Wallet = () => {
         }}
       />
     </Box>;
+  }
+
+  if (walletData.length === 0 && !walletLoading) {
+    return (
+      <EmptyDataModel pageName="wallet" />
+    );
   }
 
   return (

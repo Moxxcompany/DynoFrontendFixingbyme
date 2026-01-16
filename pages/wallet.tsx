@@ -170,7 +170,7 @@ const WalletPage = ({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Box flex={1}>
+      <Box sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
         <Wallet />
         <AddWalletModal
           open={openCreate}

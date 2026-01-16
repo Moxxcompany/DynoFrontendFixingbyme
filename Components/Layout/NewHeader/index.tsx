@@ -41,8 +41,8 @@ const NewHeader = () => {
                 onClick={() => router.push("/")}
                 src={Logo}
                 alt="logo"
-                width={108}
-                height={37}
+                width={114}
+                height={39}
                 draggable={false}
                 className="logo"
               />

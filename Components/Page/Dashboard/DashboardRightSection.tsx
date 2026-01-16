@@ -57,6 +57,7 @@ const DashboardRightSection = () => {
         headerAction={
           <IconButton
             sx={{
+              backgroundColor: "#E9ECF2",
               p: "8px",
               width: isMobile ? 32 : 40,
               height: isMobile ? 32 : 40,

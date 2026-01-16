@@ -6,7 +6,6 @@ import { ArrowOutward, TrendingUp, Add, Remove } from "@mui/icons-material";
 import Image from "next/image";
 import TransactionIcon from "@/assets/Icons/transaction.svg";
 import WalletIcon from "@/assets/Icons/wallet-grey.svg";
-import { theme } from "@/styles/theme";
 import { useTranslation } from "react-i18next";
 import { PercentageChip } from "./styled";
 import ArrowUpSuccessIcon from "@/assets/Icons/up-success.svg";
@@ -17,15 +16,6 @@ import {
   IconChip,
 } from "@/Components/UI/CryptocurrencySelector/styled";
 import useIsMobile from "@/hooks/useIsMobile";
-import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
-import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
-import LitecoinIcon from "@/assets/cryptocurrency/Litecoin-icon.svg";
-import BNBIcon from "@/assets/cryptocurrency/BNB-icon.svg";
-import DogecoinIcon from "@/assets/cryptocurrency/Dogecoin-icon.svg";
-import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
-import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
-import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
-import FeeTierProgress from "./FeeTierProgress";
 import ReusableAreaChart from "@/Components/UI/AreaChart";
 import TimePeriodSelector, {
   TimePeriod,
@@ -206,11 +196,11 @@ const TransactionVolumeChart = ({
   // Scenario 4: Large value fluctuation - tests Y-axis domain
   const rawTransactionData = useMemo(
     () => [
-      { date: "Jan 1", value: 800 },
-      { date: "Jan 2", value: 12000 },
-      { date: "Jan 3", value: 6000 },
-      { date: "Jan 4", value: 114500 },
-      { date: "Jan 5", value: 12000 },
+      { date: "Jan 12", value: 800 },
+      { date: "Jan 13", value: 12000 },
+      { date: "Jan 14", value: 6000 },
+      { date: "Jan 15", value: 114500 },
+      { date: "Jan 16", value: 12000 },
     ],
     []
   );
@@ -275,7 +265,7 @@ const TransactionVolumeChart = ({
         height={320}
         strokeWidth={3}
         dotRadius={5}
-        showDots={hasData}
+        showDots={true}
         showGrid={true}
         gridColor="#D9D9D9"
         gridStrokeDasharray="3 3"

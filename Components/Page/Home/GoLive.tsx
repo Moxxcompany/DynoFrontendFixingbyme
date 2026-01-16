@@ -40,6 +40,8 @@ const GoLiveSection = () => {
     <section
       style={{
         padding: isMobile ? "126px 0" : "96px 0",
+        maxWidth: "1280px",
+        margin: "0 auto",
       }}
     >
       {/* Section Title */}

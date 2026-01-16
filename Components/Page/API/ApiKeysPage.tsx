@@ -43,6 +43,7 @@ import DeleteModel from "@/Components/UI/DeleteModel";
 import UnitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
 import useIsMobile from "@/hooks/useIsMobile";
 import { stringShorten } from "@/helpers";
+import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 
 const companyInitial = {
   company_id: 0,
@@ -433,6 +434,15 @@ const ApiKeysPage = ({
         }}
       />
     </Box>;
+  }
+
+  if (apiState?.apiList?.length === 0 && !apiState?.loading) {
+    return (
+      <>
+        <EmptyDataModel pageName="apiKey" />
+        <CreateApiModel open={openCreate} onClose={handleCreateClose} />
+      </>
+    );
   }
 
   return (

@@ -180,7 +180,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, maxHeight: "fit-content" }}>
       <TransactionsTableContainer>
         <TransactionsTableScrollWrapper>
           <TransactionsTableHeader>
@@ -199,74 +199,81 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             ))}
           </TransactionsTableHeader>
           <TransactionsTableBody>
-            {currentTransactions.map((transaction, index) => (
-              <TransactionsTableRow
-                key={transaction.id}
-                onClick={() => handleRowClick(transaction)}
-                sx={{
-                  cursor: "pointer",
-                  opacity: 0,
-                  transform: "translateY(20px)",
-                  animation: "cardFadeUp 0.5s ease forwards",
-                  animationDelay: `${index * 0.05}s`,
-
-                  "@keyframes cardFadeUp": {
-                    "0%": {
+            {currentTransactions.length > 0 ? (
+              <>
+                {currentTransactions.map((transaction, index) => (
+                  <TransactionsTableRow
+                    key={transaction.id}
+                    onClick={() => handleRowClick(transaction)}
+                    sx={{
+                      cursor: "pointer",
                       opacity: 0,
                       transform: "translateY(20px)",
-                    },
-                    "100%": {
-                      opacity: 1,
-                      transform: "translateY(0)",
-                    },
-                  },
-                }}
-              >
-                <TransactionsTableCell>{transaction.id}</TransactionsTableCell>
-                <TransactionsTableCell>
-                  <CryptoIconChip sx={{ width: "fit-content" }}>
-                    <Image
-                      src={getCryptoIcon(transaction.crypto)}
-                      alt={transaction.crypto}
-                      draggable={false}
-                    />
-                    <Typography
-                      component={"span"}
-                      sx={{
-                        color: theme.palette.text.secondary,
-                      }}
-                    >
-                      {transaction.crypto}
-                    </Typography>
-                  </CryptoIconChip>
-                </TransactionsTableCell>
-                <TransactionsTableCell>
-                  {(() => {
-                    const [value, unit] = transaction.amount.split(" ");
-                    return `${Number(value).toFixed(4)} ${unit}`;
-                  })()}
-                </TransactionsTableCell>
-                <TransactionsTableCell>
-                  {(() => {
-                    const value = transaction.usdValue.replace("$", "");
-                    return `$${Number(value).toFixed(3)}`;
-                  })()}
-                </TransactionsTableCell>
-                <TransactionsTableCell>
-                  {formatDateTime(transaction.dateTime)}
-                </TransactionsTableCell>
-                <TransactionsTableCell>
-                  <StatusBadge status={transaction.status}>
-                    <StatusIconWrapper status={transaction.status}>
-                      {getStatusIcon(transaction.status)}
-                    </StatusIconWrapper>
-                    <StatusText status={transaction.status}>
-                      {tTransactions(transaction.status)}
-                    </StatusText>
-                  </StatusBadge>
-                </TransactionsTableCell>
-              </TransactionsTableRow>
-            ))}
+                      animation: "cardFadeUp 0.5s ease forwards",
+                      animationDelay: `${index * 0.05}s`,
+
+                      "@keyframes cardFadeUp": {
+                        "0%": {
+                          opacity: 0,
+                          transform: "translateY(20px)",
+                        },
+                        "100%": {
+                          opacity: 1,
+                          transform: "translateY(0)",
+                        },
+                      },
+                    }}
+                  >
+                    <TransactionsTableCell>{transaction.id}</TransactionsTableCell>
+                    <TransactionsTableCell>
+                      <CryptoIconChip sx={{ width: "fit-content" }}>
+                        <Image
+                          src={getCryptoIcon(transaction.crypto)}
+                          alt={transaction.crypto}
+                          draggable={false}
+                        />
+                        <Typography
+                          component={"span"}
+                          sx={{
+                            color: theme.palette.text.secondary,
+                          }}
+                        >
+                          {transaction.crypto}
+                        </Typography>
+                      </CryptoIconChip>
+                    </TransactionsTableCell>
+                    <TransactionsTableCell>
+                      {(() => {
+                        const [value, unit] = transaction.amount.split(" ");
+                        return `${Number(value).toFixed(4)} ${unit}`;
+                      })()}
+                    </TransactionsTableCell>
+                    <TransactionsTableCell>
+                      {(() => {
+                        const value = transaction.usdValue.replace("$", "");
+                        return `$${Number(value).toFixed(3)}`;
+                      })()}
+                    </TransactionsTableCell>
+                    <TransactionsTableCell>
+                      {formatDateTime(transaction.dateTime)}
+                    </TransactionsTableCell>
+                    <TransactionsTableCell>
+                      <StatusBadge status={transaction.status}>
+                        <StatusIconWrapper status={transaction.status}>
+                          {getStatusIcon(transaction.status)}
+                        </StatusIconWrapper>
+                        <StatusText status={transaction.status}>
+                          {tTransactions(transaction.status)}
+                        </StatusText>
+                      </StatusBadge>
+                    </TransactionsTableCell>
+                  </TransactionsTableRow>
+                ))}
+              </>
+            ) : (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", mt: 3 }}>{t("transactionsNotAvailable", { ns: "common" })}</Box>
+            )}
+
           </TransactionsTableBody>
         </TransactionsTableScrollWrapper>
         <TransactionsTableFooter>

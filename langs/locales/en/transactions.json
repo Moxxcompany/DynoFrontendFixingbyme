@@ -1,6 +1,6 @@
 {
   "transactionsTitle": "Transactions",
-  "transactionsDescription": "View and manage all crypto payment transactions",
+  "transactionsDescription": "View and manage all your cryptocurrency payment transactions",
   "search": "Search transactions...",
   "selectDateRange": "Select date range",
   "period": "Period",
@@ -39,5 +39,3 @@
   "copy": "Copy",
   "copiedToClipboard": "Copied to Clipboard"
 }
-
-

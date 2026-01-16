@@ -8,6 +8,7 @@ import { TransactionAction } from "@/Redux/Actions";
 import { TRANSACTION_FETCH } from "@/Redux/Actions/TransactionAction";
 import { DateRange } from "@/Components/UI/DatePicker";
 import { isWithinInterval, parseISO, startOfDay, endOfDay } from "date-fns";
+import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 
 const TransactionPage = () => {
   const dispatch = useDispatch();
@@ -126,6 +127,12 @@ const TransactionPage = () => {
     );
   }
 
+  if (transactionState?.customers_transactions?.length === 0 && !transactionState.loading) {
+    return (
+      <EmptyDataModel pageName="transactions" />
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -144,7 +151,7 @@ const TransactionPage = () => {
         onWalletChange={handleWalletChange}
         onExport={handleExport}
       />
-      <TransactionsTable transactions={processedTransactions} rowsPerPage={9} />
+      <TransactionsTable transactions={processedTransactions} rowsPerPage={5} />
     </Box>
   );
 };
