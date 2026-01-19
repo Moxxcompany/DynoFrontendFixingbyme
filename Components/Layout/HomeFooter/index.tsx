@@ -53,7 +53,7 @@ const HomeFooter = () => {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          px: isMobile ? 0 : 2,
+          px: 2,
         }}
       >
         {/* TOP */}
@@ -88,7 +88,7 @@ const HomeFooter = () => {
               sx={{
                 display: "flex",
                 flexWrap: "wrap",
-                gap: { xs: 2, lg: 3 },
+                gap: { xs: "27px", lg: 3 },
                 alignItems: "flex-end",
               }}
             >

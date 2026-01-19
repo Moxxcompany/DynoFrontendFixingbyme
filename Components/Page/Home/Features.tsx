@@ -141,6 +141,8 @@ const FeaturesSection = () => {
                     <Image
                       src={card.image}
                       alt={card.title}
+                      quality={100}
+                      priority={cardData.indexOf(card) < 3}
                       style={{
                         width: isMobile ? "110%" : "100%",
                         height: "100%",
@@ -204,6 +206,8 @@ const FeaturesSection = () => {
                     <Image
                       src={card.image}
                       alt={card.title}
+                      quality={100}
+                      priority={cardData.indexOf(card) < 3}
                       style={{
                         width: "110%",
                         height: "100%",

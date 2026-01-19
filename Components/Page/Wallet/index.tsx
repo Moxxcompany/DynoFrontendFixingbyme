@@ -206,7 +206,7 @@ const Wallet = () => {
               }
               showHeaderBorder={false}
               headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
-              bodyPadding={theme.spacing(3, 2.5, 2.5, 2.5)}
+              bodyPadding={isMobile ? theme.spacing(1.75, 2, 2, 2) : theme.spacing(3, 2.5, 2.5, 2.5)}
               headerAction={
                 <WalletHeaderAction>
                   <Image src={wallet.icon} alt={wallet.name} draggable={false} />
@@ -228,12 +228,12 @@ const Wallet = () => {
                       </WalletLabel>
                     }
                     sx={{
+                      gap: isMobile ? 1 : 1.25,
                       width: "100%",
-                      gap: 1.25,
                     }}
                   />
                   <WalletCopyButton onClick={() => copyAddressToClipboard(wallet.walletAddress)}>
-                    <Image src={CopyIcon} alt="Copy" draggable={false} />
+                    <Image src={CopyIcon} alt="Copy" draggable={false} style={{ height: 13, width: 13 }} />
                   </WalletCopyButton>
                 </WalletCardBodyRow>
                 <WalletCardBodyRow>
@@ -265,38 +265,45 @@ const Wallet = () => {
                   </Box>
                 </WalletCardBodyRow>
 
-                <WalletCardBodyRow>
-                  <CustomButton
-                    label={tWallet("viewTransactions")}
-                    variant="outlined"
-                    endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
-                    sx={{
-                      backgroundColor: theme.palette.common.white,
-                      color: theme.palette.primary.main,
-                      border: `1px solid ${theme.palette.primary.main}`,
-                      borderRadius: "6px",
-                      fontSize: "15px",
-                      fontWeight: 500,
-                      fontFamily: "UrbanistMedium",
-                      lineHeight: "18px",
-                      "&:hover": {
+                <Box sx={{ marginTop: isMobile ? "2px" : "4px" }}>
+                  <WalletCardBodyRow>
+                    <CustomButton
+                      label={tWallet("viewTransactions")}
+                      variant="outlined"
+                      endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
+                      sx={{
                         backgroundColor: theme.palette.common.white,
                         color: theme.palette.primary.main,
                         border: `1px solid ${theme.palette.primary.main}`,
-                      },
-                    }}
-                  />
-
-                  <WalletEditButton onClick={() => handleEdit(wallet)}>
-                    <Image
-                      src={EditIcon.src}
-                      alt="View Transactions"
-                      width={16}
-                      height={16}
-                      draggable={false}
+                        borderRadius: "6px",
+                        fontSize: "15px",
+                        fontWeight: 500,
+                        fontFamily: "UrbanistMedium",
+                        lineHeight: "18px",
+                        px: isMobile ? "14px" : "24px",
+                        py: isMobile ? "8px" : "11px",
+                        height: isMobile ? "32px" : "40px",
+                        gap: isMobile ? "6px" : "10px",
+                        "&:hover": {
+                          backgroundColor: theme.palette.common.white,
+                          color: theme.palette.primary.main,
+                          border: `1px solid ${theme.palette.primary.main}`,
+                        },
+                      }}
                     />
-                  </WalletEditButton>
-                </WalletCardBodyRow>
+
+                    <WalletEditButton onClick={() => handleEdit(wallet)}>
+                      <Image
+                        src={EditIcon.src}
+                        alt="View Transactions"
+                        width={isMobile ? 13 : 16}
+                        height={isMobile ? 14 : 16}
+                        draggable={false}
+                        style={{ filter: "brightness(0) saturate(100%) invert(0%)" }}
+                      />
+                    </WalletEditButton>
+                  </WalletCardBodyRow>
+                </Box>
               </WalletCardBody>
             </PanelCard>
           </Grid>

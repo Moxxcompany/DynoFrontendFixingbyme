@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Box, Button, Divider, IconButton, Drawer } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import DynopayLogo from "@/assets/Images/auth/dynopay-logo.svg";
@@ -13,10 +12,11 @@ import {
   MobileDrawer,
   MobileNavItem,
 } from "./styled";
-import CustomButton from "@/Components/UI/Buttons";
 import { homeTheme } from "@/styles/homeTheme";
 import useIsMobile from "@/hooks/useIsMobile";
 import HomeButton from "../HomeButton";
+import { theme } from "@/styles/theme";
+import { MenuRounded } from "@mui/icons-material";
 
 const HomeHeader = () => {
   const router = useRouter();
@@ -42,10 +42,11 @@ const HomeHeader = () => {
         <Image
           src={DynopayLogo}
           alt="Dynopay"
-          width={120}
-          height={40}
+          width={134}
+          height={45}
           draggable={false}
           className="logo"
+          style={{ width: "134px", height: "45px" }}
           onClick={() => router.push("/")}
         />
 
@@ -58,30 +59,32 @@ const HomeHeader = () => {
           ))}
         </NavLinks>
 
-        {/* Right Actions */}
-        <Actions>
-          <Button className="signin" onClick={() => router.push("/auth/login")}>
-            Sign In
-          </Button>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "11px" }}>
+          {/* Right Actions */}
+          <Actions>
+            <Button className="signin" onClick={() => router.push("/auth/login")}>
+              Sign In
+            </Button>
 
-          <HomeButton
-            variant="primary"
-            label="Get Started"
-            onClick={() => router.push("/auth/register")}
-            showIcon={false}
-            sx={{
-              borderRadius: "8px",
-              padding: "8px 12px",
-              maxWidth: "fit-content",
-            }}
-          />
+            <HomeButton
+              variant="primary"
+              label="Get Started"
+              onClick={() => router.push("/auth/register")}
+              showIcon={false}
+              sx={{
+                borderRadius: "8px !important",
+                padding: "8px 12px !important",
+                minWidth: "98px !important",
+              }}
+            />
+          </Actions>
           {/* Mobile Menu Button */}
           {isMobile && (
             <MobileMenuButton onClick={() => setMobileMenuOpen(true)}>
-              <MenuIcon sx={{ fontSize: 24 }} />
+              <MenuRounded sx={{ color: theme.palette.text.primary, fontSize: 24 }} />
             </MobileMenuButton>
           )}
-        </Actions>
+        </Box>
       </HeaderContainer>
 
       {/* Mobile Drawer */}

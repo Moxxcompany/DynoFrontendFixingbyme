@@ -96,7 +96,25 @@ const WalletPage = ({
             </WarningIconContainer>
             <Box>
               <Typography sx={{ fontFamily: "UrbanistSemibold", fontWeight: "600", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>{t("walletSetUpWarnnigTitle")}</Typography>
-              <Typography sx={{ fontFamily: "UrbanistMedium", fontWeight: "500", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>{t("walletSetUpWarnnigSubtitle")}</Typography>
+              <Typography sx={{ fontFamily: "UrbanistMedium", fontWeight: "500", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>
+                {(() => {
+                  const text = t("walletSetUpWarnnigSubtitle");
+                  const boldText = t("walletSetUpWarnnigSubtitleBold");
+                  const parts = text.split(boldText);
+                  if (parts.length === 2) {
+                    return (
+                      <>
+                        {parts[0]}
+                        <Typography component="span" sx={{ fontFamily: "UrbanistSemibold", fontWeight: "600", fontSize: isMobile ? "10px" : "15px", lineHeight: "130%", letterSpacing: 0 }}>
+                          {boldText}
+                        </Typography>
+                        {parts[1]}
+                      </>
+                    );
+                  }
+                  return text;
+                })()}
+              </Typography>
             </Box>
           </SetupWarnnigContainer>
         )}
