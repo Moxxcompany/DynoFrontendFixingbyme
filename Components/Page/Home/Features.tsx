@@ -75,6 +75,7 @@ const FeaturesSection = () => {
 
   return (
     <section
+      id="features"
       style={{
         padding: isMobile ? "60px 0px" : "83px 0px",
       }}

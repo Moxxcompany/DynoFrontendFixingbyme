@@ -38,6 +38,7 @@ const GoLiveSection = () => {
 
   return (
     <section
+      id="how-it-works"
       style={{
         padding: "96px 0",
         maxWidth: "1280px",

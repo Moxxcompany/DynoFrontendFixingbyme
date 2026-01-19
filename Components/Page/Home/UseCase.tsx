@@ -114,7 +114,7 @@ const UseCaseSection = () => {
   ];
 
   return (
-    <section>
+    <section id="use-cases">
       <Box sx={{ py: "53px" }}>
         <Box
           sx={{

@@ -24,15 +24,44 @@ const HomeHeader = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const HeaderItems = [
-    { label: "How It Works", path: "/" },
-    { label: "Features", path: "/" },
-    { label: "Use Cases", path: "/" },
+    { label: "How It Works", sectionId: "how-it-works", path: "/" },
+    { label: "Features", sectionId: "features", path: "/" },
+    { label: "Use Cases", sectionId: "use-cases", path: "/" },
     { label: "Documentation", path: "/" },
   ];
 
-  const handleNavClick = (path: string) => {
-    router.push(path);
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const headerOffset = 100; // Adjust this value based on your header height
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
     setMobileMenuOpen(false);
+  };
+
+  const handleNavClick = (item: typeof HeaderItems[0]) => {
+    if (item.sectionId) {
+      // If we're not on the home page, navigate first then scroll
+      if (router.pathname !== "/") {
+        router.push("/").then(() => {
+          // Wait for page to load, then scroll
+          setTimeout(() => {
+            scrollToSection(item.sectionId!);
+          }, 100);
+        });
+      } else {
+        scrollToSection(item.sectionId);
+      }
+    } else {
+      router.push(item.path);
+      setMobileMenuOpen(false);
+    }
   };
 
   return (
@@ -53,7 +82,7 @@ const HomeHeader = () => {
         {/* Center Nav - Desktop Only */}
         <NavLinks className="desktop-nav">
           {HeaderItems.map((item) => (
-            <Button key={item.label} onClick={() => handleNavClick(item.path)}>
+            <Button key={item.label} onClick={() => handleNavClick(item)}>
               {item.label}
             </Button>
           ))}
@@ -146,7 +175,7 @@ const HomeHeader = () => {
             {HeaderItems.map((item) => (
               <MobileNavItem
                 key={item.label}
-                onClick={() => handleNavClick(item.path)}
+                onClick={() => handleNavClick(item)}
               >
                 {item.label}
               </MobileNavItem>
