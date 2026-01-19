@@ -83,7 +83,7 @@ const WalletPage = ({
     setPageWarning(
       <>
         {walletWarning && (
-          <SetupWarnnigContainer>
+          <SetupWarnnigContainer >
             <WarningIconContainer>
               <Image
                 src={InfoIcon}

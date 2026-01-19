@@ -167,7 +167,8 @@ const Wallet = () => {
         display: "flex",
         flexDirection: "column",
         gap: "16px",
-        mt: isMobile ? 1 : 0
+        mt: isMobile ? 1 : 0,
+        pb: { xs: "70px", lg: "0" }
       }}
     >
       <Grid container spacing={isMobile ? 2 : 2.5}>

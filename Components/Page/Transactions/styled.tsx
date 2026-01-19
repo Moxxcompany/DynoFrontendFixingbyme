@@ -188,13 +188,13 @@ export const TransactionsTableCell = styled(Typography)(({ theme }) => ({
   minWidth: 0,
   color: theme.palette.text.primary,
   fontFamily: "UrbanistMedium",
-  lineHeight: "18px",
+  lineHeight: "100%",
+  letterSpacing: 0,
   whiteSpace: "nowrap",
   overflow: "hidden",
   textOverflow: "ellipsis",
   [theme.breakpoints.down("md")]: {
     fontSize: "13px",
-    lineHeight: "16px",
   },
   [theme.breakpoints.down("sm")]: {
     maxWidth: "110px",

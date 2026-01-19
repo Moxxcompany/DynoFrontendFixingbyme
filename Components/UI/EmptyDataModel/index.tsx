@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import Image from "next/image";
 import CustomButton from "../Buttons";
-import Transactions from "@/assets/Icons/Vector.svg";
+import Transactions from "@/assets/Icons/Transactions.svg";
 import wallet from "@/assets/Icons/wallet.svg";
 import apiKey from "@/assets/Icons/api-key.svg";
 import useIsMobile from "@/hooks/useIsMobile";

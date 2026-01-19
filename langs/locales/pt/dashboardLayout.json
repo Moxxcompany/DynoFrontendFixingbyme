@@ -8,6 +8,7 @@
   "dash": "Painel",
   "transactions": "Transações",
   "create": "Criar",
+  "payLinks": "Links de pagamento",
   "wallets": "Carteiras",
   "more": "Mais",
   "close": "Fechar",
@@ -22,7 +23,7 @@
   "totalTransactions": "Total de transações",
   "totalVolume": "Volume total",
   "activeWallets": "Carteiras Ativas",
-  "comparedToLastMonth": "Em comparação com o mês passado",
+  "comparedToLastMonth": "Compared to last month",
   "feeTierProgress": "Progresso dos Níveis de Taxas",
   "yourProgressTowardsTheNextFeeTier": "Seu progresso em direção ao próximo nível de taxas",
   "monthlyVolume": "Volume mensal",
@@ -38,5 +39,6 @@
   "last7Days": "Últimos 7 dias",
   "last30Days": "Últimos 30 dias",
   "last90Days": "Últimos 90 dias",
-  "customPeriod": "Período personalizado"
+  "customPeriod": "Período personalizado",
+  "walletSetUpWarnnigTitle": "Configuração completa da carteira"
 }

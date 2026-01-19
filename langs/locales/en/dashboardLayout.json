@@ -9,6 +9,7 @@
   "transactions": "Transactions",
   "create": "Create",
   "wallets": "Wallets",
+  "payLinks": "Payment Links",
   "more": "More",
   "close": "Close",
   "language": "Language",
@@ -18,7 +19,7 @@
   "knowledgeBase": "Knowledge Base",
   "createNewKey": "Create new key",
   "createPaymentLink": "Create payment link",
-  "dashboardDescription": "Overview of your cryptocurrency payment activity",
+  "dashboardDescription": "Overview of your crypto payment activity.",
   "totalTransactions": "Total Transactions",
   "totalVolume": "Total Volume",
   "activeWallets": "Active Wallets",
@@ -38,5 +39,7 @@
   "last7Days": "Last 7 Days",
   "last30Days": "Last 30 Days",
   "last90Days": "Last 90 Days",
-  "customPeriod": "Custom Period"
+  "customPeriod": "Custom Period",
+  "pay-links": "Payment Links",
+  "walletSetUpWarnnigTitle": "Complete wallet setup"
 }

@@ -206,6 +206,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     key={transaction.id}
                     onClick={() => handleRowClick(transaction)}
                     sx={{
+                      paddingY: "10px !important",
                       cursor: "pointer",
                       opacity: 0,
                       transform: "translateY(20px)",
