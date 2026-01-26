@@ -260,7 +260,7 @@ const PaymentLinksTable = ({ paymentLinks, rowsPerPage = 10 }: Props) => {
             />
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <FooterText>
-                Showing {paymentLinks.length > 0 ? start + 1 : 0}-{end} of {total}{" "}
+                Showing {end} of {total}{" "}
                 links
               </FooterText>
               <CustomButton

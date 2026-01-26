@@ -31,6 +31,7 @@ import { WarningIconContainer } from "@/Components/UI/AddWalletModal/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
+import { CopyButton } from "../Transactions/TransactionDetailsModal.styled";
 
 interface WalletData {
   icon: any;
@@ -232,9 +233,17 @@ const Wallet = () => {
                       width: "100%",
                     }}
                   />
-                  <WalletCopyButton onClick={() => copyAddressToClipboard(wallet.walletAddress)}>
-                    <Image src={CopyIcon} alt="Copy" draggable={false} style={{ height: 13, width: 13 }} />
-                  </WalletCopyButton>
+                  <CopyButton
+                    onClick={() => copyAddressToClipboard(wallet.walletAddress)}
+                  >
+                    <Image
+                      src={CopyIcon}
+                      alt="Copy Icon"
+                      width={isMobile ? 12 : 14}
+                      height={isMobile ? 12 : 14}
+                      draggable={false}
+                    />
+                  </CopyButton>
                 </WalletCardBodyRow>
                 <WalletCardBodyRow>
                   <Box

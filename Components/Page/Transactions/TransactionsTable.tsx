@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
@@ -82,6 +82,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
   const currentTransactions = transactions.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [transactions]);
 
   const getCryptoIcon = (crypto: string) => {
     switch (crypto) {
@@ -325,7 +329,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   sx={{ height: "20px", width: "20px" }}
                 />
               }
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || currentTransactions.length === 0}
               onClick={() => setCurrentPage(currentPage - 1)}
             />
             <CustomButton
@@ -358,13 +362,13 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   sx={{ height: "20px", width: "20px" }}
                 />
               }
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || currentTransactions.length === 0}
               onClick={() => setCurrentPage(currentPage + 1)}
             />
 
             <MobileNavigationButtons
               onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || currentTransactions.length === 0}
             >
               <KeyboardArrowLeftRoundedIcon
                 sx={{ height: "16px", width: "16px", color: "inherit" }}
@@ -372,7 +376,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             </MobileNavigationButtons>
             <MobileNavigationButtons
               onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || currentTransactions.length === 0}
             >
               <KeyboardArrowRightRoundedIcon
                 sx={{ height: "16px", width: "16px", color: "inherit" }}
