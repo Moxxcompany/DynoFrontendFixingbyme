@@ -233,8 +233,7 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
           sx={{
             position: "relative",
             width: isMobile ? "fit-content" : "220px",
-            zIndex: 2000,
-            border: "1px solid rgba(233, 236, 242, 1)",
+            zIndex: 1,
           }}
         >
           {/* Trigger */}
@@ -324,7 +323,7 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps> = ({
                       fontSize: isMobile ? "13px" : "15px",
                       fontFamily: "UrbanistMedium",
                       fontWeight: 500,
-                      padding: "3px 10px",
+                      padding: isMobile ? "3px 8px 3px 3px" : "3px 12px 3px 3px",
                       borderRadius: "50px",
                       backgroundColor:
                         selectedWallet === option.value

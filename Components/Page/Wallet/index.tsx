@@ -32,6 +32,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import { CopyButton } from "../Transactions/TransactionDetailsModal.styled";
+import { useRouter } from "next/router";
 
 interface WalletData {
   icon: any;
@@ -53,6 +54,7 @@ const Wallet = () => {
     [t]
   );
 
+  const router = useRouter();
   const [openEditModal, setOpenEditModal] = useState(false);
 
   const { walletLoading, walletData } = useWalletData();
@@ -277,6 +279,9 @@ const Wallet = () => {
                 <Box sx={{ marginTop: isMobile ? "2px" : "4px" }}>
                   <WalletCardBodyRow>
                     <CustomButton
+                      onClick={() => {
+                        router.push("/transactions");
+                      }}
                       label={tWallet("viewTransactions")}
                       variant="outlined"
                       endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
