@@ -1,9 +1,8 @@
 import { styled } from "@mui/material";
 
 export const SidebarWrapper = styled("aside")(({ theme }) => ({
-  width: "100%",
+  width: "324px",
   height: "100%",
-  // minHeight: "65vh",
   background: theme.palette.common.white,
   display: "flex",
   flexDirection: "column",
@@ -12,6 +11,7 @@ export const SidebarWrapper = styled("aside")(({ theme }) => ({
   border: `1px solid ${theme.palette.border.main}`,
   padding: "16px",
   overflow: "auto",
+  scrollbarWidth: "none",
 }));
 
 export const Menu = styled("div")(({ theme }) => ({
@@ -81,7 +81,7 @@ export const SidebarFooter = styled("div")(({ theme }) => ({
   gap: "16px",
 }));
 
-export const KnowledgeBaseBtn = styled("button")(({ theme }) => ({
+export const HelpSupportBtn = styled("button")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
