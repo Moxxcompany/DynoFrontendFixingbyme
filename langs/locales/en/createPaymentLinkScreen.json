@@ -65,5 +65,18 @@
   "taxExamplePortugal": "Customer in Portugal → 23% IVA added",
   "taxExampleGermany": "Customer in Germany → 19% MwSt added",
   "taxExampleUK": "Customer in UK → 20% VAT added",
-  "taxExampleUSA": "Customer in USA → No tax (0%)"
+  "taxExampleUSA": "Customer in USA → No tax (0%)",
+  "currency": "Currency",
+  "of": "of",
+  "currenciesSelected": "currencies selected",
+  "stable": "Stable",
+  "searchCryptocurrencies": "Search cryptocurrencies...",
+  "showAll": "Show All ({{count}} more)",
+  "showLess": "Show Less",
+  "cancel": "Cancel",
+  "back": "Back to List",
+  "saveChanges": "Save Changes",
+  "paidWarning": "This payment has been completed and cannot be edited",
+  "backToPaymentLinks": "Back to Payment Links",
+  "editPaymentLink": "Edit Payment Link"
 }

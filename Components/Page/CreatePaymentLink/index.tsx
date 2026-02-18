@@ -1,46 +1,19 @@
 import PanelCard from "@/Components/UI/PanelCard";
 import {
   Box,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
-  Popover,
-  ListItemButton,
-  ListItemText,
-  Grid,
   useMediaQuery,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
 import { useTranslation } from "react-i18next";
 import {
-  PaymentSettingsLabel,
-  TabContainer,
   TabContentContainer,
-  TabItem,
-  ExpireTrigger,
-  ExpireText,
-  ExpireDropdown,
-  Text,
-  AppSwitch,
 } from "./styled";
-import InputField from "@/Components/UI/AuthLayout/InputFields";
-import Image from "next/image";
-import CustomRadio from "@/Components/UI/RadioGroup";
 import PaymentLinkSuccessModal from "./PaymentLinkSuccessModal";
-
-import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
-import ClientIcon from "@/assets/Icons/Client-icon.svg";
-import CurrencyIcon from "@/assets/Icons/Crypto-select.svg";
-import HourglassIcon from "@/assets/Icons/hourglass-icon.svg";
-import PaymentIcon from "@/assets/Icons/payment-icon.svg";
-import NoteIcon from "@/assets/Icons/note-icon.svg";
-import CustomButton from "@/Components/UI/Buttons";
-import { theme } from "@/styles/theme";
-import useIsMobile from "@/hooks/useIsMobile";
-import CheckIcon from "@/assets/Icons/Check-icon.svg";
-import InfoIcon from "@/assets/Icons/info-icon.svg";
 
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
 import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
@@ -50,11 +23,43 @@ import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
 import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
 import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
 import USDT2Icon from "@/assets/cryptocurrency/USDT2-icon.svg";
+import SolanaIcon from "@/assets/cryptocurrency/Solana-icon.svg";
+import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
+import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
+import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
 
-import TrueIcon from "@/assets/Icons/True.svg";
 import i18n from "@/i18n";
+import { ICryptoItem, PaymentLink } from "@/utils/types/paymentLink";
+import { theme } from "@/styles/theme";
+import useIsMobile from "@/hooks/useIsMobile";
 
-const CreatePaymentLinkPage = () => {
+import {
+  TabNavigation,
+  PaymentLinkHeader,
+  PaymentSettingsBasic,
+  DescriptionSection,
+  CryptoSelection,
+  TaxSection,
+  ActionButtons,
+  PostPaymentSettings,
+} from "@/Components/UI/pay-link";
+import SaveChangeModel from "@/Components/UI/pay-link/SaveChangeModel";
+
+function truncateByWords(text: string, maxLength: number) {
+  if (text.length <= maxLength) return text;
+
+  const trimmed = text.slice(0, maxLength);
+  const words = `${trimmed}...`;
+  return words;
+}
+
+const CreatePaymentLinkPage = ({
+  paymentLinkData,
+  disabled,
+}: {
+  paymentLinkData: PaymentLink | {};
+  disabled: boolean;
+}) => {
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("createPaymentLinkScreen");
   const tPaymentLink = useCallback(
@@ -65,16 +70,32 @@ const CreatePaymentLinkPage = () => {
     [t],
   );
   const currentLng = i18n.language;
+  const hasPaymentLinkData = Object.keys(paymentLinkData).length > 0;
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [cryptoItems, setCryptoItems] = useState<ICryptoItem[]>([]);
+  const [filteredCryptoItems, setFilteredCryptoItems] = useState<ICryptoItem[]>([]);
+  const [showFilteredCryptoItems, setShowFilteredCryptoItems] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState(0);
   const [blockchainFees, setBlockchainFees] = useState("company");
   const expireAnchorEl = useRef<HTMLElement | null>(null);
   const expireTriggerRef = useRef<HTMLDivElement>(null);
-  const [expireOpen, setExpireOpen] = useState(false);
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [expireOpen, setExpireOpen] = useState<boolean>(false);
+  const [successModalOpen, setSuccessModalOpen] = useState<boolean>(false);
+  const [saveChangeModalOpen, setSaveChangeModalOpen] = useState<boolean>(false);
   const [paymentLink, setPaymentLink] = useState("");
   const currencyTriggerRef = useRef<HTMLButtonElement | null>(null);
   const currencyAnchorEl = useRef<HTMLButtonElement | null>(null);
-  const [includeTax, setIncludeTax] = useState<boolean>(false);
+  const [includeTax, setIncludeTax] = useState<boolean>(
+    disabled ? true : false,
+  );
+  const [showAllCoins, setShowAllCoins] = useState(false);
+  const MIN_WIDTH = 390;
+  const MAX_WIDTH = 900;
+  const BASE_COUNT = 15;
+  const STEP = 10;
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [count, setCount] = useState(BASE_COUNT);
 
   const [currencyOpen, setCurrencyOpen] = useState(false);
 
@@ -98,14 +119,27 @@ const CreatePaymentLinkPage = () => {
 
   // Payment Settings (Tab 0) form data
   const [paymentSettings, setPaymentSettings] = useState({
-    value: "",
-    currency: "",
-    clientName: "",
-    expire: "no",
-    description: "",
-    blockchainFees: "company",
-    linkId: "",
-    acceptedCryptoCurrency: [] as string[],
+    value: hasPaymentLinkData
+      ? (paymentLinkData as PaymentLink).amount.toString()
+      : "",
+    cryptoValue: "",
+    currency: hasPaymentLinkData
+      ? (paymentLinkData as PaymentLink).currency
+      : "",
+    clientName: hasPaymentLinkData
+      ? (paymentLinkData as PaymentLink).clientName
+      : "",
+    expire: hasPaymentLinkData ? (paymentLinkData as PaymentLink).expire : "no",
+    description: hasPaymentLinkData
+      ? (paymentLinkData as PaymentLink).description
+      : "",
+    blockchainFees: hasPaymentLinkData
+      ? (paymentLinkData as PaymentLink).blockchainFees
+      : "company",
+    linkId: hasPaymentLinkData ? (paymentLinkData as PaymentLink).link_id : "",
+    acceptedCryptoCurrency: hasPaymentLinkData
+      ? (paymentLinkData as PaymentLink).acceptedCryptoCurrency
+      : [],
   });
 
   // Validation errors for Payment Settings tab
@@ -124,9 +158,15 @@ const CreatePaymentLinkPage = () => {
 
   // Post-Payment Settings (Tab 1) form data
   const [postPaymentSettings, setPostPaymentSettings] = useState({
-    callbackUrl: "",
-    redirectUrl: "",
-    webhookUrl: "",
+    callbackUrl: hasPaymentLinkData
+      ? (paymentLinkData as PaymentLink).payment_url
+      : "",
+    redirectUrl: hasPaymentLinkData
+      ? (paymentLinkData as PaymentLink).redirect_url
+      : "",
+    webhookUrl: hasPaymentLinkData
+      ? (paymentLinkData as PaymentLink).webhook_url
+      : "",
   });
 
   const handleTabChange = (tab: number) => {
@@ -204,10 +244,10 @@ const CreatePaymentLinkPage = () => {
     handleExpireClose();
   };
 
-  const validateCurrency = (value: string) => {
+  const validateCurrency = useCallback((value: string) => {
     if (!value) return tPaymentLink("currencyRequired");
     return "";
-  };
+  }, [tPaymentLink]);
 
   const handleCurrencyBlur = () => {
     setPaymentSettingsTouched((p) => ({ ...p, currency: true }));
@@ -237,6 +277,10 @@ const CreatePaymentLinkPage = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [expireOpen]);
+
+  const handleSaveChanges = () => {
+    setSaveChangeModalOpen(true);
+  };
 
   const handleCreatePaymentLink = () => {
     if (activeTab === 0) {
@@ -308,60 +352,163 @@ const CreatePaymentLinkPage = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [currencyOpen, paymentSettings.currency]);
+  }, [currencyOpen, paymentSettings.currency, validateCurrency]);
 
-  const cryptoItems = [
+  const disable = {
+    pointerEvents: disabled ? "none" : "auto",
+    opacity: disabled ? 0.5 : 1,
+    cursor: disabled ? "not-allowed" : "inherit",
+    filter: disabled ? "grayscale(1)" : "none",
+  };
+
+  const ALL_CRYPTO_ITEMS: ICryptoItem[] = React.useMemo(() => [
     {
       name: "Bitcoin",
       label: "BTC",
       icon: BitcoinIcon,
+      fullOrder: 15,
+      shortOrder: 1,
     },
     {
       name: "Ethereum",
       label: "ETH",
       icon: EthereumIcon,
+      fullOrder: 5,
+      shortOrder: 2,
     },
-    {
-      name: "Tron",
-      label: "TRX",
-      icon: TronIcon,
-    },
+    { name: "Tron", label: "TRX", icon: TronIcon, fullOrder: 4, shortOrder: 3 },
     {
       name: "Litecoin",
       label: "LTC",
       icon: LitecoinIcon,
+      fullOrder: 3,
+      shortOrder: 4,
     },
     {
       name: "Dogecoin",
       label: "DOGE",
       icon: DogecoinIcon,
+      fullOrder: 8,
+      shortOrder: 5,
     },
     {
       name: "Bitcoin Cash",
       label: "BCH",
       icon: BitcoinCashIcon,
+      fullOrder: 1,
+      shortOrder: 6,
     },
     {
       name: "USDT",
       label: "TRC-20",
       icon: USDTIcon,
+      fullOrder: 2,
+      shortOrder: 7,
     },
     {
       name: "USDT",
       label: "ERC-20",
       icon: USDTIcon,
+      fullOrder: 6,
+      shortOrder: 8,
     },
     {
       name: "USDT",
       label: "FRC-20",
       icon: USDT2Icon,
+      fullOrder: 7,
+      shortOrder: 9,
     },
-  ];
+    {
+      name: "Solana",
+      label: "SOL",
+      icon: SolanaIcon,
+      fullOrder: 9,
+      shortOrder: 10,
+    },
+    { name: "XRP", label: "XRP", icon: XRPIcon, fullOrder: 10, shortOrder: 11 },
+    {
+      name: "POLYGON",
+      label: "POLYGON",
+      icon: PolygonIcon,
+      fullOrder: 11,
+      shortOrder: 12,
+    },
+    {
+      name: "POLYGON USDT",
+      label: "ERC-20",
+      icon: PolygonIcon,
+      fullOrder: 12,
+      shortOrder: 13,
+    },
+    {
+      name: "RLUSD",
+      label: "XRP",
+      icon: RLUSDIcon,
+      fullOrder: 13,
+      shortOrder: 14,
+    },
+    {
+      name: "RLUSD",
+      label: "ERC-20",
+      icon: RLUSDIcon,
+      fullOrder: 14,
+      shortOrder: 15,
+    },
+  ], []);
 
-  const isLarge = useMediaQuery("(min-width:850px)");
-  const isSmall = useMediaQuery("(min-width:600px)");
+  const handleSearch = () => {
+    if (searchTerm.trim() !== "") {
+      const filterdData = cryptoItems.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()) || item.label.toLowerCase().includes(searchTerm.toLowerCase()));
+      setFilteredCryptoItems(filterdData);
+    } else {
+      setFilteredCryptoItems([]);
+    }
+    setShowFilteredCryptoItems(true);
+  };
+
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setShowFilteredCryptoItems(false);
+    }
+  }, [searchTerm])
+
+  useEffect(() => {
+    const fullSorted = [...ALL_CRYPTO_ITEMS].sort(
+      (a, b) => a.fullOrder - b.fullOrder,
+    );
+
+    if (!hasPaymentLinkData) {
+      setCryptoItems(
+        fullSorted
+          .filter((item) => item.shortOrder <= 9)
+          .sort((a, b) => a.shortOrder - b.shortOrder),
+      );
+    } else {
+      setCryptoItems(fullSorted);
+    }
+  }, [ALL_CRYPTO_ITEMS, hasPaymentLinkData, showAllCoins]);
+
+  const isLarge = useMediaQuery("(min-width:1000px)");
+  const isSmall = useMediaQuery("(min-width:650px)");
 
   const walletNotSetUp = ["BCH"];
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const clampedWidth = Math.min(Math.max(windowWidth, MIN_WIDTH), MAX_WIDTH);
+
+    const extra = Math.floor((clampedWidth - MIN_WIDTH) / STEP);
+    setCount(BASE_COUNT + extra);
+  }, [windowWidth]);
 
   return (
     <div>
@@ -372,1122 +519,185 @@ const CreatePaymentLinkPage = () => {
         paymentSettings={paymentSettings}
         onCopyLink={handleCopyLink}
       />
+      <SaveChangeModel
+        open={saveChangeModalOpen}
+        onClose={() => setSaveChangeModalOpen(false)}
+        onSave={handleCreatePaymentLink}
+      />
 
       <PanelCard
-        bodyPadding={isMobile ? 2 : 2.5}
+        bodyPadding={
+          isMobile
+            ? 2
+            : hasPaymentLinkData
+              ? theme.spacing("30px", 2.4, "30px", 2.5)
+              : 2.5
+        }
         sx={{
+          mb: hasPaymentLinkData ? 10 : 0,
           maxWidth: { xs: "100%", md: "959px" },
           width: "100%",
           borderRadius: { xs: "8px", md: "14px" },
         }}
       >
-        <Box>
-          <TabContainer>
-            <TabItem
-              onClick={() => handleTabChange(0)}
-              active={activeTab === 0}
-            >
-              <p>{tPaymentLink("paymentSettings")}</p>
-            </TabItem>
-            <TabItem
-              onClick={() => handleTabChange(1)}
-              active={activeTab === 1}
-            >
-              <p>{tPaymentLink("postPaymentSettings")}</p>
-            </TabItem>
-          </TabContainer>
-        </Box>
+        <TabNavigation
+          activeTab={activeTab}
+          onChange={handleTabChange}
+          tPaymentLink={tPaymentLink}
+          hasPaymentLinkData={hasPaymentLinkData}
+        />
+
         {activeTab === 0 && (
-          <TabContentContainer>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                gap: { xs: 2, md: 3 },
-              }}
-            >
+          <TabContentContainer
+            sx={{ padding: hasPaymentLinkData ? "0 !important" : "" }}
+          >
+            {hasPaymentLinkData && (
+              <PaymentLinkHeader
+                tPaymentLink={tPaymentLink}
+                paymentLinkData={paymentLinkData as PaymentLink}
+                disabled={disabled}
+                isMobile={isMobile}
+                count={count}
+                truncateByWords={truncateByWords}
+              />
+            )}
+
+            <TabContentContainer sx={{ ...disable }}>
               <Box
                 sx={{
-                  flex: 1,
                   display: "flex",
-                  flexDirection: "column",
-                  gap: { xs: 1.5, md: 2 },
+                  flexDirection: { xs: "column", md: "row" },
+                  gap: { xs: 2, md: 3 },
                 }}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: isMobile ? "column" : "row",
-                    gap: "16px",
-                  }}
-                >
-                  <InputField
-                    label={
-                      <PaymentSettingsLabel>
-                        <Image
-                          src={RoundedStackIcon}
-                          alt="value"
-                          draggable={false}
-                          style={{
-                            filter: `brightness(0) saturate(100%) invert(15%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(95%) contrast(100%)`,
-                          }}
-                        />
-                        <span>{tPaymentLink("value")}</span>
-                      </PaymentSettingsLabel>
-                    }
-                    value={paymentSettings.value}
-                    onChange={(e) =>
-                      handlePaymentSettingsChange("value", e.target.value)
-                    }
-                    onBlur={() => handlePaymentSettingsBlur("value")}
-                    type="number"
-                    inputMode="decimal"
-                    error={
-                      paymentSettingsTouched.value &&
-                      Boolean(paymentSettingsErrors.value)
-                    }
-                    helperText={
-                      paymentSettingsTouched.value &&
-                      paymentSettingsErrors.value
-                        ? paymentSettingsErrors.value
-                        : undefined
-                    }
-                    sx={{
-                      width: "100%",
-                    }}
-                  />
-
-                  <Box
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "6px",
-                    }}
-                  >
-                    <PaymentSettingsLabel>
-                      <Image
-                        src={CurrencyIcon}
-                        alt="currency"
-                        draggable={false}
-                      />
-                      <span>{tPaymentLink("currency")}</span>
-                    </PaymentSettingsLabel>
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        width: "100%",
-                      }}
-                    >
-                      <ExpireTrigger
-                        ref={currencyTriggerRef}
-                        onClick={(e) =>
-                          handleCurrencyOpen(
-                            e as unknown as React.MouseEvent<HTMLButtonElement>,
-                          )
-                        }
-                        fullWidth
-                        isOpen={currencyOpen}
-                        isMobile={isMobile}
-                        sx={{
-                          borderColor:
-                            paymentSettingsTouched.currency &&
-                            paymentSettingsErrors.currency
-                              ? theme.palette.error.main
-                              : theme.palette.border.main,
-
-                          "&:hover": {
-                            borderColor:
-                              paymentSettingsTouched.currency &&
-                              paymentSettingsErrors.currency
-                                ? theme.palette.error.main
-                                : theme.palette.border.focus,
-                          },
-
-                          "&:focus, &:focus-visible, &:active": {
-                            borderColor:
-                              paymentSettingsTouched.currency &&
-                              paymentSettingsErrors.currency
-                                ? theme.palette.error.main
-                                : theme.palette.border.focus,
-                          },
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            flex: 1,
-                          }}
-                        >
-                          <ExpireText
-                            isMobile={isMobile}
-                            style={{
-                              color: paymentSettings.currency
-                                ? theme.palette.text.primary
-                                : theme.palette.text.disabled,
-                            }}
-                          >
-                            {paymentSettings.currency ||
-                              tPaymentLink("selectCurrency")}
-                          </ExpireText>
-                        </Box>
-
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          {currencyOpen ? (
-                            <ExpandLessIcon
-                              sx={{
-                                color: theme.palette.text.secondary,
-                                fontSize: isMobile ? "18px" : "20px",
-                              }}
-                            />
-                          ) : (
-                            <ExpandMoreIcon
-                              sx={{
-                                color: theme.palette.text.secondary,
-                                fontSize: isMobile ? "18px" : "20px",
-                              }}
-                            />
-                          )}
-                        </Box>
-                      </ExpireTrigger>
-
-                      <Popover
-                        anchorEl={currencyAnchorEl.current}
-                        open={currencyOpen}
-                        onClose={handleCurrencyClose}
-                        anchorOrigin={{
-                          vertical: "bottom",
-                          horizontal: "left",
-                        }}
-                        transformOrigin={{
-                          vertical: "top",
-                          horizontal: "left",
-                        }}
-                        PaperProps={{
-                          sx: {
-                            mt: "-1px",
-                            borderRadius: "6px",
-                            overflow: "hidden",
-                            width:
-                              currencyTriggerRef.current?.offsetWidth || "auto",
-                            border: `1px solid ${theme.palette.border.main}`,
-                            borderTop: "none",
-                            maxHeight: "240px",
-                            backgroundColor: theme.palette.common.white,
-                          },
-                        }}
-                      >
-                        <ExpireDropdown>
-                          {currencies.map((currency) => (
-                            <ListItemButton
-                              key={currency}
-                              onClick={() => handleCurrencySelect(currency)}
-                              selected={paymentSettings.currency === currency}
-                              sx={{
-                                borderRadius: "8px",
-                                p: 1,
-                                maxHeight: "40px",
-                                background:
-                                  paymentSettings.currency === currency
-                                    ? theme.palette.primary.light
-                                    : "transparent",
-                                "&:hover": {
-                                  background: theme.palette.primary.light,
-                                },
-                                "&.Mui-selected": {
-                                  background: theme.palette.primary.light,
-                                  "&:hover": {
-                                    background: theme.palette.primary.light,
-                                  },
-                                },
-                              }}
-                            >
-                              <ListItemText
-                                primary={currency}
-                                primaryTypographyProps={{
-                                  sx: {
-                                    fontFamily: "UrbanistMedium",
-                                    fontWeight: 500,
-                                    fontSize: isMobile ? "10px" : "13px",
-                                    color: theme.palette.text.primary,
-                                    lineHeight: "1",
-                                  },
-                                }}
-                              />
-                            </ListItemButton>
-                          ))}
-                        </ExpireDropdown>
-                      </Popover>
-
-                      {paymentSettingsTouched.currency &&
-                        paymentSettingsErrors.currency && (
-                          <Text
-                            sx={{
-                              mt: "4px",
-                              fontSize: isMobile ? "10px" : "13px",
-                              color: theme.palette.error.main,
-                              textAlign: "start",
-                            }}
-                          >
-                            {paymentSettingsErrors.currency}
-                          </Text>
-                        )}
-                    </Box>
-                  </Box>
-                </Box>
-
-                <InputField
-                  label={
-                    <PaymentSettingsLabel>
-                      <Image
-                        src={ClientIcon}
-                        alt="clientName"
-                        draggable={false}
-                        style={{
-                          filter: `brightness(0) saturate(100%) invert(15%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(95%) contrast(100%)`,
-                        }}
-                      />
-                      <span>{tPaymentLink("clientName")}</span>
-                    </PaymentSettingsLabel>
-                  }
-                  value={paymentSettings.clientName}
-                  onChange={(e) =>
-                    setPaymentSettings({
-                      ...paymentSettings,
-                      clientName: e.target.value,
-                    })
-                  }
-                  type="text"
-                  inputMode="text"
-                  sx={{
-                    width: "100%",
-                  }}
+                <PaymentSettingsBasic
+                  isMobile={isMobile}
+                  tPaymentLink={tPaymentLink}
+                  paymentSettings={paymentSettings}
+                  paymentSettingsTouched={paymentSettingsTouched}
+                  paymentSettingsErrors={paymentSettingsErrors}
+                  currencyOpen={currencyOpen}
+                  currencies={currencies}
+                  expireOpen={expireOpen}
+                  blockchainFees={blockchainFees}
+                  disable={disable}
+                  handlePaymentSettingsChange={handlePaymentSettingsChange}
+                  handlePaymentSettingsBlur={handlePaymentSettingsBlur}
+                  handleCurrencyOpen={handleCurrencyOpen}
+                  handleCurrencyClose={handleCurrencyClose}
+                  handleCurrencySelect={handleCurrencySelect}
+                  handleExpireOpen={handleExpireOpen}
+                  handleExpireClose={handleExpireClose}
+                  handleExpireSelect={handleExpireSelect}
+                  handleBlockchainFeesChange={handleBlockchainFeesChange}
+                  currencyAnchorEl={currencyAnchorEl}
+                  currencyTriggerRef={currencyTriggerRef}
+                  expireAnchorEl={expireAnchorEl}
+                  expireTriggerRef={expireTriggerRef}
                 />
-
-                <Box
-                  sx={{
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "6px",
-                  }}
-                >
-                  <PaymentSettingsLabel>
-                    <Image src={HourglassIcon} alt="expire" draggable={false} />
-                    <span>{tPaymentLink("expire")}</span>
-                  </PaymentSettingsLabel>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      width: "100%",
-                    }}
-                  >
-                    <ExpireTrigger
-                      ref={expireTriggerRef}
-                      onClick={handleExpireOpen}
-                      fullWidth={true}
-                      isOpen={expireOpen}
-                      isMobile={isMobile}
-                      sx={{
-                        borderColor: theme.palette.border.main,
-                        "&:hover": {
-                          borderColor: theme.palette.border.focus,
-                        },
-                        "&:focus": {
-                          borderColor: theme.palette.border.focus,
-                        },
-                        "&:focus-visible": {
-                          borderColor: theme.palette.border.focus,
-                        },
-                        "&:active": {
-                          borderColor: theme.palette.border.focus,
-                        },
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          flex: 1,
-                        }}
-                      >
-                        <ExpireText isMobile={isMobile}>
-                          {paymentSettings.expire === "no"
-                            ? tPaymentLink("no")
-                            : paymentSettings.expire === "yes"
-                              ? tPaymentLink("yes")
-                              : tPaymentLink("no")}
-                        </ExpireText>
-                      </Box>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        {expireOpen ? (
-                          <ExpandLessIcon
-                            sx={{
-                              color: theme.palette.text.secondary,
-                              fontSize: isMobile ? "18px" : "20px",
-                            }}
-                          />
-                        ) : (
-                          <ExpandMoreIcon
-                            sx={{
-                              color: theme.palette.text.secondary,
-                              fontSize: isMobile ? "18px" : "20px",
-                            }}
-                          />
-                        )}
-                      </Box>
-                    </ExpireTrigger>
-
-                    <Popover
-                      anchorEl={expireAnchorEl.current}
-                      open={expireOpen}
-                      onClose={handleExpireClose}
-                      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                      transformOrigin={{ vertical: "top", horizontal: "left" }}
-                      PaperProps={{
-                        sx: {
-                          mt: "-1px",
-                          borderRadius: "6px",
-                          overflow: "hidden",
-                          width:
-                            expireTriggerRef.current?.offsetWidth || "auto",
-                          border: `1px solid ${theme.palette.border.main}`,
-                          borderTop: "none",
-                          maxHeight: "200px",
-                          backgroundColor: theme.palette.common.white,
-                        },
-                      }}
-                    >
-                      <ExpireDropdown>
-                        {["no", "yes"].map((option) => (
-                          <ListItemButton
-                            key={option}
-                            onClick={() => handleExpireSelect(option)}
-                            selected={paymentSettings.expire === option}
-                            sx={{
-                              borderRadius: "8px",
-                              p: 1,
-                              minHeight: "40px",
-                              background:
-                                paymentSettings.expire === option
-                                  ? theme.palette.primary.light
-                                  : "transparent",
-                              "&:hover": {
-                                background: theme.palette.primary.light,
-                              },
-                              "&.Mui-selected": {
-                                background: theme.palette.primary.light,
-                                "&:hover": {
-                                  background: theme.palette.primary.light,
-                                },
-                              },
-                            }}
-                          >
-                            <ListItemText
-                              primary={
-                                option === "no"
-                                  ? tPaymentLink("no")
-                                  : option === "yes"
-                                    ? tPaymentLink("yes")
-                                    : option.charAt(0).toUpperCase() +
-                                      option.slice(1)
-                              }
-                              primaryTypographyProps={{
-                                sx: {
-                                  fontFamily: "UrbanistMedium",
-                                  fontWeight: 500,
-                                  fontSize: isMobile ? "13px" : "15px",
-                                  color: theme.palette.text.primary,
-                                  lineHeight: "1",
-                                  textTransform: "capitalize",
-                                },
-                              }}
-                            />
-                          </ListItemButton>
-                        ))}
-                      </ExpireDropdown>
-                    </Popover>
-                  </Box>
-                </Box>
-
-                <Box>
-                  <PaymentSettingsLabel>
-                    <Image
-                      src={PaymentIcon}
-                      alt="blockchain fees"
-                      draggable={false}
-                    />
-                    <span>{tPaymentLink("blockchainFeesPaidBy")}</span>
-                  </PaymentSettingsLabel>
-                  <Box sx={{ marginTop: { xs: "8px", md: "16px" } }}>
-                    <FormControl component="fieldset">
-                      <RadioGroup
-                        value={blockchainFees}
-                        onChange={(e) =>
-                          handleBlockchainFeesChange(e.target.value)
-                        }
-                        sx={{
-                          "& .MuiFormControlLabel-label": {
-                            fontSize: { xs: "13px", md: "15px" },
-                            fontFamily: "UrbanistRegular",
-                            color: theme.palette.text.primary,
-                            paddingLeft: "8px",
-                            lineHeight: 1.2,
-                          },
-                          gap: { xs: "6px", md: "8px" },
-                        }}
-                      >
-                        <FormControlLabel
-                          value="customer"
-                          control={<CustomRadio />}
-                          label={tPaymentLink("customerFeesAdded")}
-                          sx={{ margin: "0px" }}
-                        />
-                        <FormControlLabel
-                          value="company"
-                          control={<CustomRadio />}
-                          label={tPaymentLink("companyPaysFees")}
-                          sx={{ margin: "0px" }}
-                        />
-                      </RadioGroup>
-                    </FormControl>
-                  </Box>
+                <Box sx={{ flex: 1 }}>
+                  <DescriptionSection
+                    isMobile={isMobile}
+                    tPaymentLink={tPaymentLink}
+                    paymentSettings={paymentSettings}
+                    paymentSettingsTouched={paymentSettingsTouched}
+                    paymentSettingsErrors={paymentSettingsErrors}
+                    handlePaymentSettingsChange={handlePaymentSettingsChange}
+                    handlePaymentSettingsBlur={handlePaymentSettingsBlur}
+                  />
                 </Box>
               </Box>
+
               <Box
                 sx={{
-                  flex: 1,
+                  height: "1px",
+                  backgroundColor: theme.palette.border.main,
                 }}
-              >
-                <InputField
-                  label={
-                    <PaymentSettingsLabel>
-                      <Image src={NoteIcon} alt="note" draggable={false} />
-                      <span>{tPaymentLink("description")}</span>
-                    </PaymentSettingsLabel>
-                  }
-                  value={paymentSettings.description}
-                  onChange={(e) =>
-                    handlePaymentSettingsChange("description", e.target.value)
-                  }
-                  onBlur={() => handlePaymentSettingsBlur("description")}
-                  error={
-                    paymentSettingsTouched.description &&
-                    Boolean(paymentSettingsErrors.description)
-                  }
-                  helperText={
-                    paymentSettingsTouched.description &&
-                    paymentSettingsErrors.description
-                      ? paymentSettingsErrors.description
-                      : undefined
-                  }
-                  maxLength={500}
-                  sx={{
-                    width: "100%",
-                  }}
-                  multiline={true}
-                  minRows={isMobile ? 4 : 9}
+              />
+
+              <CryptoSelection
+                isMobile={isMobile}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                handleSearch={handleSearch}
+                cryptoItems={cryptoItems}
+                filteredCryptoItems={filteredCryptoItems}
+                showFilteredCryptoItems={showFilteredCryptoItems}
+                showAllCoins={showAllCoins}
+                setShowAllCoins={setShowAllCoins}
+                hasPaymentLinkData={hasPaymentLinkData}
+                isLarge={isLarge}
+                isSmall={isSmall}
+                walletNotSetUp={walletNotSetUp}
+                paymentSettings={paymentSettings}
+                setPaymentSettings={setPaymentSettings}
+              />
+
+              <Box
+                sx={{
+                  height: "1px",
+                  backgroundColor: theme.palette.border.main,
+                }}
+              />
+
+              <TaxSection
+                isMobile={isMobile}
+                tPaymentLink={tPaymentLink}
+                includeTax={includeTax}
+                setIncludeTax={setIncludeTax}
+                currentLng={currentLng}
+              />
+
+              <Box
+                sx={{
+                  height: "1px",
+                  backgroundColor: theme.palette.border.main,
+                }}
+              />
+
+              {hasPaymentLinkData && (
+                <PostPaymentSettings
+                  hasPaymentLinkData={hasPaymentLinkData}
+                  isMobile={isMobile}
+                  tPaymentLink={tPaymentLink}
+                  postPaymentSettings={postPaymentSettings}
+                  handleChange={handlePostPaymentSettingsChange}
                 />
-              </Box>
-            </Box>
-
-            <Box
-              sx={{ height: "1px", backgroundColor: theme.palette.border.main }}
-            />
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: isMobile ? "column" : "row",
-                  justifyContent: "space-between",
-                  gap: "4px",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: isMobile ? "4px" : "8px",
-                  }}
-                >
-                  <Text
-                    sx={{
-                      fontSize: isMobile ? "15px" : "20px",
-                      color: theme.palette.text.primary,
-                    }}
-                  >
-                    {tPaymentLink("acceptedCryptocurrencies")}
-                  </Text>
-                  <Text
-                    sx={{
-                      fontSize: isMobile ? "12px" : "15px",
-                      color: theme.palette.text.secondary,
-                    }}
-                  >
-                    {tPaymentLink("whichCryptoCanCustomersUseToPay")}
-                  </Text>
-                </Box>
-                <Text
-                  sx={{
-                    alignSelf: isMobile ? "flex-start" : "flex-end",
-                    fontSize: isMobile ? "12px" : "15px",
-                    color: theme.palette.text.secondary,
-                  }}
-                >
-                  {tPaymentLink("atLeastOneCurrencyMustBeSelected")}
-                </Text>
-              </Box>
-
-              <Grid container columnSpacing={"10px"} rowSpacing={"10px"}>
-                {cryptoItems.map((item) => (
-                  <Grid
-                    key={item.label}
-                    item
-                    xs={isLarge ? 4 : isSmall ? 6 : 12}
-                  >
-                    <Box
-                      onClick={() => {
-                        if (walletNotSetUp.includes(item.label)) return;
-                        setPaymentSettings((prev) => {
-                          const exists = (
-                            prev.acceptedCryptoCurrency as string[]
-                          ).includes(item.label);
-
-                          return {
-                            ...prev,
-                            acceptedCryptoCurrency: exists
-                              ? prev.acceptedCryptoCurrency.filter(
-                                  (currency) => currency !== item.label,
-                                )
-                              : [...prev.acceptedCryptoCurrency, item.label],
-                          };
-                        });
-                      }}
-                      sx={{
-                        cursor: "pointer",
-                        height: isMobile ? "50px" : "60px",
-                        maxWidth: "100%",
-                        border: `1px solid ${paymentSettings.acceptedCryptoCurrency.includes(item.label) ? theme.palette.border.success : walletNotSetUp.includes(item.label) ? theme.palette.border.main : theme.palette.text.secondary}`,
-                        borderRadius: "14px",
-                        padding: isMobile ? "10px 6px" : "15px 10px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        position: "relative",
-                        userSelect: "none",
-                        WebkitUserSelect: "none",
-                        MozUserSelect: "none",
-                        msUserSelect: "none",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            height: "30px",
-                            width: "30px",
-                            border: `0.48px solid ${theme.palette.border.main}`,
-                            borderRadius: "50%",
-                            backgroundColor: theme.palette.secondary.light,
-                            padding: "6.5px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            overflow: "hidden",
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              position: "relative",
-                              width: "100%",
-                              height: "100%",
-                            }}
-                          >
-                            <Image
-                              src={item.icon}
-                              alt={item.label}
-                              fill
-                              draggable={false}
-                              style={{
-                                objectFit: "contain",
-                              }}
-                            />
-                          </Box>
-                        </Box>
-
-                        <Text
-                          sx={{
-                            fontSize: "15px",
-                            color: theme.palette.text.primary,
-                          }}
-                        >
-                          {item.name}
-                        </Text>
-
-                        <Box
-                          sx={{
-                            height: "30px",
-                            width: "fit-content",
-                            border: `0.48px solid ${theme.palette.border.main}`,
-                            borderRadius: "100px",
-                            backgroundColor: theme.palette.secondary.light,
-                            padding: "6px 13px",
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Text
-                            sx={{
-                              fontSize: "13px",
-                              color: theme.palette.text.primary,
-                            }}
-                          >
-                            {item.label}
-                          </Text>
-                        </Box>
-                      </Box>
-
-                      <Box
-                        sx={{
-                          height: isMobile ? "18px" : "24px",
-                          width: isMobile ? "18px" : "24px",
-                          backgroundColor:
-                            paymentSettings.acceptedCryptoCurrency.includes(
-                              item.label,
-                            )
-                              ? theme.palette.success.main
-                              : "",
-                          border: `1px solid ${paymentSettings.acceptedCryptoCurrency.includes(item.label) ? theme.palette.border.success : theme.palette.text.secondary}`,
-                          borderRadius: "4px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          marginTop: isMobile ? "6px" : "3px",
-                          marginBottom: isMobile ? "6px" : "3px",
-                          marginRight: isMobile ? "4px" : "10px",
-                        }}
-                      >
-                        {paymentSettings.acceptedCryptoCurrency.includes(
-                          item.label,
-                        ) && (
-                          <Image
-                            height={isMobile ? 6.75 : 9}
-                            width={isMobile ? 9.75 : 13}
-                            src={CheckIcon}
-                            alt={item.label}
-                            draggable={false}
-                            style={{
-                              objectFit: "contain",
-                            }}
-                          />
-                        )}
-                      </Box>
-                      {walletNotSetUp.includes(item.label) && (
-                        <Text
-                          sx={{
-                            position: "absolute",
-                            bottom: isMobile ? "2px" : "3px",
-                            right: isMobile ? "5px" : "7px",
-                            cursor: "pointer",
-                            textDecoration: "underline",
-                            fontSize: isMobile ? "10px" : "12px",
-                            color: "#98989D",
-                          }}
-                        >
-                          {tPaymentLink("setUpWalletFirst")}
-                        </Text>
-                      )}
-                    </Box>
-                  </Grid>
-                ))}
-              </Grid>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: isMobile ? "column" : "row",
-                  alignItems: isMobile ? "flex-start" : "center",
-                  justifyContent: "space-between",
-                  gap: isMobile ? "10px" : "",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    gap: isMobile ? "8px" : "12px",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      height: isMobile ? "18px" : "24px",
-                      width: isMobile ? "18px" : "24px",
-                      backgroundColor:
-                        paymentSettings.acceptedCryptoCurrency.length > 0
-                          ? theme.palette.success.main
-                          : "",
-                      border: `1px solid ${paymentSettings.acceptedCryptoCurrency.length > 0 ? theme.palette.border.success : theme.palette.text.secondary}`,
-                      borderRadius: "4px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {paymentSettings.acceptedCryptoCurrency.length > 0 && (
-                      <Image
-                        height={isMobile ? 6.75 : 9}
-                        width={isMobile ? 9.75 : 13}
-                        src={CheckIcon}
-                        alt="checkIcon"
-                        draggable={false}
-                        style={{
-                          objectFit: "contain",
-                        }}
-                      />
-                    )}
-                  </Box>
-
-                  <Text
-                    sx={{
-                      fontSize: isMobile ? "12px" : "15px",
-                      color: theme.palette.text.primary,
-                    }}
-                  >{`${paymentSettings.acceptedCryptoCurrency.length} ${tPaymentLink("selectedCurrency")}`}</Text>
-                </Box>
-                <Box sx={{ display: "flex", gap: "16px" }}>
-                  {[tPaymentLink("selectAll"), tPaymentLink("clearAll")].map(
-                    (item) => {
-                      const first = item === tPaymentLink("selectAll");
-                      return (
-                        <Box
-                          onClick={() => {
-                            if (item === tPaymentLink("selectAll")) {
-                              setPaymentSettings((prev) => ({
-                                ...prev,
-                                acceptedCryptoCurrency: cryptoItems
-                                  .map((item) => {
-                                    if (!walletNotSetUp.includes(item.label))
-                                      return item.label;
-                                    return null;
-                                  })
-                                  .filter((item) => item !== null) as string[],
-                              }));
-                            } else {
-                              setPaymentSettings((prev) => ({
-                                ...prev,
-                                acceptedCryptoCurrency: [],
-                              }));
-                            }
-                          }}
-                          key={item}
-                          sx={{
-                            width: isMobile ? "155px" : "190px",
-                            height: isMobile ? "32px" : "40px",
-                            cursor:
-                              paymentSettings.acceptedCryptoCurrency.length ===
-                                0 && !first
-                                ? "not-allowed"
-                                : "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            borderRadius: "6px",
-                            border: first
-                              ? `1px solid ${theme.palette.primary.main}`
-                              : paymentSettings.acceptedCryptoCurrency.length >
-                                  0
-                                ? `1px solid ${theme.palette.text.secondary}`
-                                : `1px solid ${theme.palette.border.main}`,
-                            color: first
-                              ? theme.palette.primary.main
-                              : paymentSettings.acceptedCryptoCurrency.length >
-                                  0
-                                ? theme.palette.text.primary
-                                : theme.palette.text.secondary,
-                          }}
-                        >
-                          <Text
-                            sx={{
-                              fontSize: isMobile ? "13px" : "15px",
-                              fontWeight: 500,
-                            }}
-                          >
-                            {item}
-                          </Text>
-                        </Box>
-                      );
-                    },
-                  )}
-                </Box>
-              </Box>
-            </Box>
-
-            <Box
-              sx={{ height: "1px", backgroundColor: theme.palette.border.main }}
-            />
-
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: isMobile ? "12px" : "16px",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: isMobile ? "4px" : "8px",
-                }}
-              >
-                <Text
-                  sx={{
-                    fontSize: isMobile ? "15px" : "20px",
-                    color: theme.palette.text.primary,
-                  }}
-                >
-                  {tPaymentLink("tax")}
-                </Text>
-                <Text
-                  sx={{
-                    fontSize: isMobile ? "12px" : "15px",
-                    color: theme.palette.text.secondary,
-                  }}
-                >
-                  {tPaymentLink("taxDescription")}
-                </Text>
-              </Box>
-
-              <Box
-                sx={{
-                  width: isMobile ? "324px" : "300px",
-                  height: "49px",
-                  border: `1px solid ${theme.palette.border.main}`,
-                  borderRadius: "6px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "0 8px 0 14px",
-                }}
-              >
-                <Text
-                  sx={{ fontSize: "13px", color: theme.palette.text.primary }}
-                >
-                  {tPaymentLink("includeTax")}
-                </Text>
-                <Box
-                  sx={{ display: "flex", gap: "12px", alignItems: "center" }}
-                >
-                  <AppSwitch
-                    checked={includeTax}
-                    onChange={(e) => setIncludeTax(e.target.checked)}
-                  />
-                  <Text
-                    sx={{
-                      width: currentLng === "en" ? "23px" : "59px",
-                      fontSize: "13px",
-                      color: theme.palette.text.primary,
-                    }}
-                  >
-                    {includeTax ? tPaymentLink("on") : tPaymentLink("off")}
-                  </Text>
-                </Box>
-              </Box>
-
-              {includeTax ? (
-                <Box
-                  display={{
-                    width: "fit-content",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "12px",
-                    padding: "20px 24px",
-                    border: `1px solid ${theme.palette.border.success}`,
-                    borderRadius: "14px",
-                  }}
-                >
-                  <Box
-                    sx={{ display: "flex", alignItems: "center", gap: "12px" }}
-                  >
-                    <Image
-                      src={TrueIcon}
-                      alt="true icon"
-                      width={14}
-                      height={14}
-                      draggable={false}
-                    />
-                    <Text
-                      sx={{
-                        fontSize: isMobile ? "13px" : "15px",
-                        fontWeight: 700,
-                        fontFamily: "UrbanistBold",
-                        color: theme.palette.border.success,
-                      }}
-                    >
-                      {tPaymentLink("taxEnabled")}
-                    </Text>
-                  </Box>
-
-                  <Text
-                    sx={{
-                      fontSize: isMobile ? "12px" : "15px",
-                      color: theme.palette.border.success,
-                      whiteSpace: "pre-line",
-                    }}
-                  >
-                    {tPaymentLink("taxWillBeCalculatedAtCheckout")}
-                  </Text>
-
-                  <Box>
-                    <Text
-                      sx={{
-                        fontSize: isMobile ? "12px" : "15px",
-                        color: theme.palette.text.primary,
-                      }}
-                    >
-                      {tPaymentLink("taxExamples")}
-                    </Text>
-                    <Text
-                      sx={{
-                        fontSize: isMobile ? "12px" : "15px",
-                        color: theme.palette.text.primary,
-                        paddingLeft: "25px",
-                      }}
-                    >
-                      <li>{tPaymentLink("taxExamplePortugal")}</li>
-                      <li>{tPaymentLink("taxExampleGermany")}</li>
-                      <li>{tPaymentLink("taxExampleUK")}</li>
-                      <li>{tPaymentLink("taxExampleUSA")}</li>
-                    </Text>
-                  </Box>
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    width: "fit-content",
-                    border: `1px solid ${theme.palette.border.main}`,
-                    borderRadius: "7px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: isMobile ? "8px" : "12px",
-                    padding: "12px 14px 12px 18px",
-                    backgroundColor: theme.palette.primary.light,
-                  }}
-                >
-                  <Image
-                    src={InfoIcon}
-                    alt="info icon"
-                    width={16}
-                    height={16}
-                    draggable={false}
-                    style={{ filter: "brightness(0)" }}
-                  />
-                  <Text
-                    sx={{
-                      fontSize: isMobile ? "10px" : "13px",
-                      fontWeight: 600,
-                      fontFamily: "UrbanistSemibold",
-                      color: theme.palette.text.primary,
-                      whiteSpace: "wrap",
-                    }}
-                  >
-                    {tPaymentLink("taxInfo")}
-                  </Text>
-                </Box>
               )}
-            </Box>
+            </TabContentContainer>
 
-            <Box>
-              <CustomButton
-                label={tPaymentLink("continue")}
-                variant="primary"
-                size="medium"
-                fullWidth={true}
-                onClick={handleCreatePaymentLink}
-                disabled={
-                  Boolean(paymentSettingsErrors.value) ||
-                  Boolean(paymentSettingsErrors.currency) ||
-                  Boolean(paymentSettingsErrors.description) ||
-                  !paymentSettings.value ||
-                  paymentSettings.value.trim() === "" ||
-                  !paymentSettings.currency
-                }
-                sx={{
-                  [theme.breakpoints.down("md")]: {
-                    height: "32px",
-                    fontSize: "13px",
-                  },
-                }}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: isMobile ? "column" : "row",
+                gap: isMobile ? "14px" : "24px",
+              }}
+            >
+              <ActionButtons
+                isMobile={isMobile}
+                hasPaymentLinkData={hasPaymentLinkData}
+                disabled={disabled}
+                tPaymentLink={tPaymentLink}
+                handleCreatePaymentLink={hasPaymentLinkData ? handleSaveChanges : handleCreatePaymentLink}
+                paymentSettingsErrors={paymentSettingsErrors}
+                paymentSettings={paymentSettings}
               />
             </Box>
           </TabContentContainer>
         )}
+
         {activeTab === 1 && (
           <TabContentContainer>
-            <InputField
-              label={tPaymentLink("callbackUrl")}
-              placeholder={tPaymentLink("callbackUrlPlaceholder")}
-              value={postPaymentSettings.callbackUrl}
-              onChange={(e) =>
-                handlePostPaymentSettingsChange("callbackUrl", e.target.value)
-              }
-              helperText={tPaymentLink("callbackUrlHelper")}
-              type="url"
-              sx={{
-                width: "100%",
-              }}
+            <PostPaymentSettings
+              hasPaymentLinkData={hasPaymentLinkData}
+              isMobile={isMobile}
+              tPaymentLink={tPaymentLink}
+              postPaymentSettings={postPaymentSettings}
+              handleChange={handlePostPaymentSettingsChange}
+              showHelpers={true}
+              showCreateButton={true}
+              onCreate={handleCreatePaymentLink}
             />
-            <InputField
-              label={tPaymentLink("redirectUrl")}
-              placeholder={tPaymentLink("redirectUrlPlaceholder")}
-              value={postPaymentSettings.redirectUrl}
-              onChange={(e) =>
-                handlePostPaymentSettingsChange("redirectUrl", e.target.value)
-              }
-              helperText={tPaymentLink("redirectUrlHelper")}
-              type="url"
-              sx={{
-                width: "100%",
-              }}
-            />
-            <InputField
-              label={tPaymentLink("webhookUrl")}
-              placeholder={tPaymentLink("webhookUrlPlaceholder")}
-              value={postPaymentSettings.webhookUrl}
-              onChange={(e) =>
-                handlePostPaymentSettingsChange("webhookUrl", e.target.value)
-              }
-              helperText={tPaymentLink("webhookUrlHelper")}
-              type="url"
-              sx={{
-                width: "100%",
-              }}
-            />
-            <Box>
-              <CustomButton
-                label={tPaymentLink("createPayment")}
-                variant="primary"
-                size="medium"
-                fullWidth={true}
-                onClick={handleCreatePaymentLink}
-                sx={{
-                  [theme.breakpoints.down("md")]: {
-                    height: "32px",
-                    fontSize: "13px",
-                  },
-                }}
-              />
-            </Box>
           </TabContentContainer>
         )}
       </PanelCard>
