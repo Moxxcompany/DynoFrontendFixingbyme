@@ -20,6 +20,7 @@ import CustomButton from "../Buttons";
 import { useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
 import { useCompanyDialog } from "@/Components/UI/CompanyDialog/context";
+import { useCompanySettingsDialog } from "@/Components/UI/CompanySettingsDialog/context";
 import useIsMobile from "@/hooks/useIsMobile";
 import { set } from "date-fns";
 
@@ -29,6 +30,7 @@ export default function CompanySelector() {
   const isMobile = useIsMobile("md");
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const { openAddCompany, openEditCompany } = useCompanyDialog();
+  const { openCompanySettings } = useCompanySettingsDialog();
   const companyState = useSelector(
     (state: rootReducer) => state.companyReducer
   );
@@ -217,7 +219,7 @@ export default function CompanySelector() {
                   onClick={(e: any) => {
                     e.stopPropagation();
                     handleClose();
-                    openEditCompany(c);
+                    openCompanySettings(c);
                   }}
                 >
                   <Image

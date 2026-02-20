@@ -12,6 +12,7 @@ import {
   PageHeaderTitle,
 } from "./styled";
 import { CompanyDialogProvider } from "@/Components/UI/CompanyDialog/context";
+import { CompanySettingsDialogProvider } from "@/Components/UI/CompanySettingsDialog/context";
 import useIsMobile from "@/hooks/useIsMobile";
 
 const ClientLayout = ({
@@ -27,6 +28,7 @@ const ClientLayout = ({
   const isMobile = useIsMobile("md");
   return (
     <CompanyDialogProvider>
+      <CompanySettingsDialogProvider>
       <Box
         sx={{
           height: "100dvh",
@@ -160,6 +162,7 @@ const ClientLayout = ({
           <MobileNavigationBar />
         </Box>
       </Box>
+      </CompanySettingsDialogProvider>
     </CompanyDialogProvider>
   );
 };
