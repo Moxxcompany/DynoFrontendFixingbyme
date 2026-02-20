@@ -1,10 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Popover,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   useTheme,
   SxProps,
   Theme,
@@ -12,10 +7,8 @@ import {
 } from "@mui/material";
 import {
   LangFlag,
-  LangTrigger,
   LangText,
   CheckIconStyled,
-  VerticalLine,
 } from "./styled";
 
 import portugalFlag from "@/assets/Images/Icons/flags/portugal-flag.png";
@@ -35,12 +28,9 @@ const languages = [
   // { code: "es", label: "Español", flag: spainFlag },
 ];
 
-export default function LanguageSwitcher({ sx }: { sx?: SxProps<Theme> }) {
+export default function LanguageSwitcher({ sx, mobileBreakpoint, onLanguageChange }: { sx?: SxProps<Theme>, mobileBreakpoint?: "xs" | "sm" | "md" | "lg" | "xl", onLanguageChange?: () => void }) {
   const current = i18n.language || "en";
-  const theme = useTheme();
-  const isMobile = useIsMobile("md");
-
-
+  const isMobile = useIsMobile(mobileBreakpoint || "md");
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -52,6 +42,7 @@ export default function LanguageSwitcher({ sx }: { sx?: SxProps<Theme> }) {
   const changeLang = (lng: string) => {
     i18n.changeLanguage(lng);
     localStorage.setItem("lang", lng);
+    onLanguageChange?.();
     handleClose();
   };
 
@@ -90,6 +81,7 @@ export default function LanguageSwitcher({ sx }: { sx?: SxProps<Theme> }) {
           borderRadius: "6px",
           cursor: "pointer",
           background: "#fff",
+          ...sx,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>

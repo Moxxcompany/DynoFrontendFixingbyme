@@ -25,6 +25,11 @@ i18n.use(initReactI18next).init({
       createPaymentLinkScreen: require("./langs/locales/en/createPaymentLinkScreen.json"),
       paymentLinks: require("./langs/locales/en/paymentLinks.json"),
       helpAndSupport: require("./langs/locales/en/helpAndSupport.json"),
+      landing: require("./langs/locales/en/landing.json"),
+      apiStatus: require("./langs/locales/en/apiStatus.json"),
+      termsConditions: require("./langs/locales/en/termsConditions.json"),
+      privacyPolicy: require("./langs/locales/en/privacyPolicy.json"),
+      amlPolicy: require("./langs/locales/en/amlPolicy.json"),
     },
     pt: {
       common: require("./langs/locales/pt/common.json"),
@@ -39,6 +44,11 @@ i18n.use(initReactI18next).init({
       createPaymentLinkScreen: require("./langs/locales/pt/createPaymentLinkScreen.json"),
       paymentLinks: require("./langs/locales/pt/paymentLinks.json"),
       helpAndSupport: require("./langs/locales/pt/helpAndSupport.json"),
+      landing: require("./langs/locales/pt/landing.json"),
+      apiStatus: require("./langs/locales/pt/apiStatus.json"),
+      termsConditions: require("./langs/locales/pt/termsConditions.json"),
+      privacyPolicy: require("./langs/locales/pt/privacyPolicy.json"),
+      amlPolicy: require("./langs/locales/pt/amlPolicy.json"),
     },
     fr: {
       common: require("./langs/locales/fr/common.json"),
