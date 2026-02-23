@@ -82,7 +82,7 @@ export default function CryptoConversionSection({
           >
             <FormControlLabel
               value="yes"
-              control={<CustomRadio />}
+              control={<CustomRadio sx={{mr: 1}} />}
               label={tSettings("cryptoConversionYes")}
               sx={{
                 "& .MuiFormControlLabel-label": {
@@ -94,7 +94,7 @@ export default function CryptoConversionSection({
             />
             <FormControlLabel
               value="no"
-              control={<CustomRadio />}
+              control={<CustomRadio sx={{mr: 1}}/>}
               label={tSettings("cryptoConversionNo")}
               sx={{
                 "& .MuiFormControlLabel-label": {
@@ -143,7 +143,7 @@ export default function CryptoConversionSection({
           >
             <FormControlLabel
               value="usdt_trc20"
-              control={<CustomRadio />}
+              control={<CustomRadio sx={{mr: 1}} />}
               label={tSettings("cryptoConversionUsdtTrc20")}
               sx={{
                 "& .MuiFormControlLabel-label": {
@@ -155,7 +155,7 @@ export default function CryptoConversionSection({
             />
             <FormControlLabel
               value="usdt_erc20"
-              control={<CustomRadio />}
+              control={<CustomRadio sx={{mr: 1}} />}
               label={tSettings("cryptoConversionUsdtErc20")}
               sx={{
                 "& .MuiFormControlLabel-label": {
@@ -167,7 +167,7 @@ export default function CryptoConversionSection({
             />
             <FormControlLabel
               value="usdc_erc20"
-              control={<CustomRadio />}
+              control={<CustomRadio sx={{mr: 1}} />}
               label={tSettings("cryptoConversionUsdcErc20")}
               sx={{
                 "& .MuiFormControlLabel-label": {

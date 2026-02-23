@@ -10,13 +10,11 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import ContentCopy from "@mui/icons-material/ContentCopy";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import RefreshIcon from "@/assets/Icons/refresh-icon.svg";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import CloseIcon from "@mui/icons-material/Close";
+import InfoIcon from "@/assets/Icons/info-icon.svg";
 import { useTranslation } from "react-i18next";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import SettingsAccordion from "@/Components/UI/SettingsAccordion";
@@ -234,7 +232,13 @@ export default function WebhookNotificationsSection({
                   },
                 }}
               >
-                <AutorenewIcon sx={{ fontSize: 20 ,rotate: "90deg" }} />
+                <Image
+                  src={RefreshIcon}
+                  alt="Refresh Icon"
+                  width={isMobile ? 12 : 22}
+                  height={isMobile ? 12 : 16}
+                  draggable={false}
+                />
               </IconButton>
             </Tooltip>
           </Box>
@@ -270,13 +274,13 @@ export default function WebhookNotificationsSection({
       <Dialog
         open={regenerateConfirmOpen}
         onClose={handleRegenerateCancel}
-        maxWidth="xs"
+        maxWidth="sm"
         fullWidth
         PaperProps={{
           sx: {
             borderRadius: 2,
             p: 0,
-            maxWidth: 400,
+            maxWidth: 576,
           },
         }}
       >
@@ -291,7 +295,13 @@ export default function WebhookNotificationsSection({
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <InfoOutlinedIcon sx={{ fontSize: 22, color: "text.primary" }} />
+            <Image
+              src={InfoIcon}
+              alt="Info Icon"
+              width={isMobile ? 12 : 22}
+              height={isMobile ? 12 : 16}
+              draggable={false}
+            />
             <Typography
               sx={{
                 fontWeight: 600,
@@ -314,7 +324,13 @@ export default function WebhookNotificationsSection({
               "&:hover": { bgcolor: "action.selected" },
             }}
           >
-            <CloseIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+            <Image
+              src={RefreshIcon}
+              alt="Close Icon"
+              width={isMobile ? 12 : 22}
+              height={isMobile ? 12 : 16}
+              draggable={false}
+            />
           </IconButton>
         </DialogTitle>
         <DialogContent sx={{ px: 2.5, pt: 1.5, pb: 0 }}>
@@ -342,14 +358,14 @@ export default function WebhookNotificationsSection({
             variant="outlined"
             size="medium"
             onClick={handleRegenerateCancel}
-            sx={{ fontSize: isMobile ? "13px" : "14px" }}
+            sx={{ fontSize: isMobile ? "13px" : "14px", width: "100%"}}
           />
           <CustomButton
             label={tSettings("webhookRegenerateConfirmButton")}
             variant="danger"
             size="medium"
             onClick={handleRegenerateConfirm}
-            sx={{ fontSize: isMobile ? "13px" : "14px" }}
+            sx={{ fontSize: isMobile ? "13px" : "14px", width: "100%" }}
           />
         </DialogActions>
       </Dialog>
