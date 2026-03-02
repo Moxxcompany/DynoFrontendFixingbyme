@@ -14,7 +14,6 @@ import { rootReducer } from "@/utils/types";
 import {
   Address,
   AddWalletModalProps,
-  WalletError,
 } from "@/utils/types/wallet";
 import { Box, Typography } from "@mui/material";
 import Image from "next/image";
@@ -49,7 +48,13 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   const [walletName, setWalletName] = useState("");
   const [cryptocurrency, setCryptocurrency] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
-  const [errors, setErrors] = useState<WalletError>({});
+  const [xrpTag, setXrpTag] = useState("");
+  const [errors, setErrors] = useState<{
+    walletName?: string;
+    cryptocurrency?: string;
+    walletAddress?: string;
+    xrpTag?: string;
+  }>({});
   const [popupLoading, setPopupLoading] = useState(false);
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
@@ -382,15 +387,15 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
           <InputField
             label={tWallet("XRPTag")}
             placeholder={tWallet("XRPTagPlaceholder")}
-            value={walletAddress}
+            value={xrpTag}
             onChange={(e) => {
-              setWalletAddress(e.target.value);
-              if (errors.walletAddress) {
-                setErrors({ ...errors, walletAddress: undefined });
+              setXrpTag(e.target.value);
+              if (errors.xrpTag) {
+                setErrors({ ...errors, xrpTag: undefined });
               }
             }}
-            error={!!errors.walletAddress}
-            helperText={errors.walletAddress}
+            error={!!errors.xrpTag}
+            helperText={errors.xrpTag}
           />
 
           <WarningContainer>
