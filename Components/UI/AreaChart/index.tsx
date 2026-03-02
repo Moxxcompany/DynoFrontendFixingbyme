@@ -337,7 +337,7 @@ const Chart = ({ data }: { data: ChartData[] }) => {
         {containerSize.width > 0 && containerSize.height > 0 && (
           <ResponsiveContainer
             width="100%"
-            height="100%"
+            height={isMobile ? 260 : 320}
             style={{ outline: "none" }}
           >
             <AreaChart
