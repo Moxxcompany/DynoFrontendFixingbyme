@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 
 class DynoPayAPITester:
-    def __init__(self, base_url="https://baad62c9-bb66-495f-a4a5-1ec8144086ed.preview.emergentagent.com"):
+    def __init__(self, base_url="https://config-deployment.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.tests_run = 0
