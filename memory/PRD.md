@@ -11,18 +11,22 @@ Analyze and set up `.env` file for the DynoPay Next.js application, then analyze
 - **API**: External backend at `https://api.dynopay.com/`
 - **Encryption**: CryptoJS AES with cypher key
 
-## What's Been Implemented (2026-03-04)
+## What's Been Implemented
+
+### Session 1 (2026-03-04)
 - Created `/app/.env` with all 8 required environment variables
 - Set `NEXTAUTH_URL` and `NEXT_PUBLIC_SERVER_URL` to pod URL
-- **Full API integration analysis**: Compared 224 API endpoints vs codebase
-- Analysis saved at `/app/docs/API_INTEGRATION_ANALYSIS.md`
 
-## API Integration Status
-- **~74 endpoints integrated** (~33%)
-- **~150 endpoints NOT integrated** (~67%)
-- **4 endpoint path mismatches** found (potential bugs)
-- Dashboard: 100% complete
-- KYC, 2FA, Invoices, Subscriptions, Webhooks Config: 0% complete
+### Session 2 (2026-03-04)
+- Full API integration analysis: 224 endpoints vs codebase → `/app/docs/API_INTEGRATION_ANALYSIS.md`
+- ~74 integrated (~33%), ~150 NOT integrated (~67%)
+
+### Session 3 (2026-03-04) - Bug Fixes
+Fixed 4 endpoint path mismatches (all verified by testing agent):
+1. `wallet/verifyCode` → `wallet/verifyOtp` (WalletSaga.ts)
+2. `userApi/regenerateApi/{id}` → `userApi/regenerateKey/{id}` (ApiSaga.ts)
+3. `wallet/updateWallet/{id}` → `wallet/address/{id}` (WalletSaga.ts)
+4. `wallet/deleteWallet/{id}` DELETE → `wallet/wallet/delete/verify` POST (WalletSaga.ts)
 
 ## Prioritized Backlog
 ### P0 - Critical
@@ -30,7 +34,6 @@ Analyze and set up `.env` file for the DynoPay Next.js application, then analyze
 - Security/2FA (12 endpoints)
 - Invoices (4 endpoints)
 - Webhook Configuration (6 endpoints)
-- Fix endpoint path mismatches (4 bugs)
 
 ### P1 - High
 - Subscriptions (5 endpoints)
@@ -44,7 +47,3 @@ Analyze and set up `.env` file for the DynoPay Next.js application, then analyze
 - Payment Processing `/api/pay/*` (13 endpoints)
 - Tax System (4 endpoints)
 - Real-Time Events/SSE (6 endpoints)
-
-### P3 - Low
-- Phone registration, Facebook signin, Delete account
-- Email unsubscribe endpoints
