@@ -1,4 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
+import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import ErrorIcon from "@mui/icons-material/Error";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -15,6 +16,8 @@ import unitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png
 import Link from "next/link";
 
 import LanguageSwitcherModal from "@/Components/UI/MobileLanguageSwitcher";
+import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
+import axiosBaseApi from "@/axiosConfig";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import { useTranslation } from "react-i18next";
 import {
@@ -38,6 +41,38 @@ const MobileNavigationBar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [openLang, setOpenLang] = useState(false);
   const navBarRef = useRef<HTMLDivElement>(null);
+  const [kycRequired, setKycRequired] = useState(false);
+  const [kycLoading, setKycLoading] = useState(false);
+
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) return;
+    axiosBaseApi
+      .get("/user/onboarding-status")
+      .then((res: any) => {
+        const data = res?.data?.data;
+        if (data?.kyc_required || data?.kycRequired) {
+          setKycRequired(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleKycClick = async () => {
+    if (kycLoading) return;
+    setKycLoading(true);
+    try {
+      const res = await axiosBaseApi.post("/kyc/submit");
+      const url = res?.data?.data?.verification_url || res?.data?.data?.url;
+      if (url) {
+        window.open(url, "_blank");
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setKycLoading(false);
+    }
+  };
 
   const languages = [
     { code: "pt", label: "Português", flag: portugalFlag },
@@ -79,7 +114,7 @@ const MobileNavigationBar = () => {
       path: "/pay-links",
       id: "pay-links",
     },
-    { label: t("api"), icon: "api", path: "/apis", id: "api" },
+    { label: t("api"), icon: "api", path: "/developer-keys", id: "api" },
     {
       label: t("notifications"),
       icon: "notifications",
@@ -255,19 +290,25 @@ const MobileNavigationBar = () => {
             )}
           </MainNavRow>
 
-          {/* <ExpandedContent isExpanding={isExpanded}>
-            <AlertBanner>
-              <ErrorIcon
-                sx={{ color: theme.palette.error.main, fontSize: "20px" }}
-              />
-              <AlertText>{t("requiredKYC")}</AlertText>
+          {kycRequired && (
+            <ExpandedContent isExpanding={isExpanded}>
+              <AlertBanner
+                onClick={handleKycClick}
+                sx={{ cursor: kycLoading ? "wait" : "pointer" }}
+                data-testid="kyc-required-banner-mobile"
+              >
+                <ErrorIcon
+                  sx={{ color: theme.palette.error.main, fontSize: "20px" }}
+                />
+                <AlertText>{t("requiredKYC")}</AlertText>
 
-              <HeaderDivider />
-              <ArrowOutwardIcon
-                sx={{ color: theme.palette.text.secondary, fontSize: "16px" }}
-              />
-            </AlertBanner>
-          </ExpandedContent> */}
+                <HeaderDivider />
+                <ArrowOutwardIcon
+                  sx={{ color: theme.palette.text.secondary, fontSize: "16px" }}
+                />
+              </AlertBanner>
+            </ExpandedContent>
+          )}
 
           <ExpandedContent isExpanding={isExpanded}>
             <Link href="/wallet" onClick={() => setIsExpanded(false)}>

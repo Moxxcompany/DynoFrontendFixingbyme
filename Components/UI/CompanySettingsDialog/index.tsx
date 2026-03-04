@@ -115,6 +115,12 @@ export default function CompanySettingsDialog({
         webhook_secret_key:
           (companyAny.webhook_secret_key as string | undefined) ??
           initialFormValues.webhook_secret_key,
+        auto_convert_volatile_crypto:
+          (companyAny.auto_convert_volatile_crypto as string | undefined) ??
+          initialFormValues.auto_convert_volatile_crypto,
+        convert_to_stablecoin:
+          (companyAny.convert_to_stablecoin as string | undefined) ??
+          initialFormValues.convert_to_stablecoin,
       };
     }
     return { ...initialFormValues };

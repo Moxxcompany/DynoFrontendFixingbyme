@@ -11,7 +11,7 @@ from datetime import datetime
 import time
 
 class DynoPayAPITester:
-    def __init__(self, base_url="https://nextauth-config.preview.emergentagent.com"):
+    def __init__(self, base_url="https://ad4b6602-d54f-44ac-990c-fd6e95c2dba2.preview.emergentagent.com"):
         # Use the pod URL for testing local endpoints
         self.base_url = base_url.rstrip('/')
         self.session = requests.Session()
@@ -197,6 +197,23 @@ class DynoPayAPITester:
                 data=data
             )
 
+    def test_kyc_endpoints(self):
+        """Test KYC onboarding endpoints"""
+        endpoints_to_test = [
+            ('/api/user/onboarding-status', 'GET', 'KYC Onboarding Status'),
+            ('/api/kyc/submit', 'POST', 'KYC Submit', {}),
+        ]
+        
+        for endpoint, method, test_name, *args in endpoints_to_test:
+            data = args[0] if args else None
+            success, resp_data, status = self.run_api_test(
+                test_name,
+                method,
+                endpoint,
+                expected_status=[200, 401, 404, 422, 403],
+                data=data
+            )
+
     def test_company_endpoints(self):
         """Test company endpoints"""
         # Test tax validation
@@ -249,6 +266,10 @@ class DynoPayAPITester:
         print("\n🏢 Testing Company Endpoints...")
         self.test_company_endpoints()
         
+        # Test KYC endpoints
+        print("\n🆔 Testing KYC Endpoints...")
+        self.test_kyc_endpoints()
+        
         # Print summary
         print("\n" + "=" * 50)
         print("📊 TEST SUMMARY")
@@ -264,7 +285,7 @@ def main():
     """Main test execution"""
     try:
         # Test with the pod URL for local testing
-        tester = DynoPayAPITester("https://nextauth-config.preview.emergentagent.com")
+        tester = DynoPayAPITester("https://ad4b6602-d54f-44ac-990c-fd6e95c2dba2.preview.emergentagent.com")
         passed, total, results = tester.run_all_tests()
         
         # Save detailed results

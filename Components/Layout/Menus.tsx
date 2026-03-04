@@ -55,7 +55,7 @@ const navItems = [
   {
     icon: <ApiRounded color="inherit" />,
     name: "API",
-    link: "/apis",
+    link: "/developer-keys",
   },
   {
     icon: <ReceiptLongRounded color="inherit" />,

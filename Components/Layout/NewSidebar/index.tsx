@@ -33,7 +33,7 @@ const NewSidebar = () => {
       plus: true,
     },
     { label: t("wallets"), icon: "wallets", path: "/wallet" },
-    { label: t("api"), icon: "api", path: "/apis" },
+    { label: t("api"), icon: "api", path: "/developer-keys" },
     {
       label: t("notifications"),
       icon: "notifications",
