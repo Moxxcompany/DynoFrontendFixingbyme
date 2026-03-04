@@ -18,6 +18,7 @@
     "@types/payment": "^2.1.7",
     "@types/react-datepicker": "^6.2.0",
     "axios": "^1.7.2",
+    "canvas-confetti": "^1.9.4",
     "country-state-city": "^3.2.1",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
@@ -44,6 +45,7 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
     "@types/crypto-js": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^18",

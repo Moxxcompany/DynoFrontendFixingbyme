@@ -12,16 +12,19 @@ import {
 } from "@mui/material";
 import {
   CheckCircleRounded,
-  RadioButtonUncheckedRounded,
   ArrowForwardRounded,
   BusinessRounded,
   AccountBalanceWalletRounded,
   LinkRounded,
+  CelebrationRounded,
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useIsMobile from "@/hooks/useIsMobile";
+import confetti from "canvas-confetti";
+
+const CELEBRATION_DURATION = 5000;
 
 const OnboardingChecklist = () => {
   const theme = useTheme();
@@ -30,6 +33,8 @@ const OnboardingChecklist = () => {
   const isMobile = useIsMobile("md");
   const [dismissed, setDismissed] = useState(false);
   const [fetched, setFetched] = useState(false);
+  const [celebrating, setCelebrating] = useState(false);
+  const prevSetupDone = useRef(false);
 
   const companyState = useSelector(
     (state: rootReducer) => state.companyReducer,
@@ -44,6 +49,59 @@ const OnboardingChecklist = () => {
 
   const hasCompany = companyState.companyList?.length > 0;
   const hasWallet = walletState.walletList?.length > 0;
+  const allPrerequisitesDone = hasCompany && hasWallet;
+
+  const fireConfetti = useCallback(() => {
+    const duration = 2500;
+    const end = Date.now() + duration;
+
+    const burst = () => {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.65 },
+        colors: ["#0004FF", "#1C993D", "#E5EDFF", "#47B464", "#FFD700"],
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.65 },
+        colors: ["#0004FF", "#1C993D", "#E5EDFF", "#47B464", "#FFD700"],
+      });
+      if (Date.now() < end) requestAnimationFrame(burst);
+    };
+
+    // Initial big burst
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ["#0004FF", "#1C993D", "#E5EDFF", "#47B464", "#FFD700"],
+    });
+
+    burst();
+  }, []);
+
+  // Detect transition from incomplete -> complete
+  useEffect(() => {
+    if (fetched && allPrerequisitesDone && !prevSetupDone.current) {
+      // Only celebrate if we had previously loaded incomplete state
+      if (prevSetupDone.current === false && fetched) {
+        setCelebrating(true);
+        fireConfetti();
+
+        const timer = setTimeout(() => {
+          setCelebrating(false);
+          setDismissed(true);
+        }, CELEBRATION_DURATION);
+
+        return () => clearTimeout(timer);
+      }
+    }
+    prevSetupDone.current = allPrerequisitesDone;
+  }, [allPrerequisitesDone, fetched, fireConfetti]);
 
   const steps = useMemo(
     () => [
@@ -80,8 +138,83 @@ const OnboardingChecklist = () => {
   );
 
   const completedCount = steps.filter((s) => s.done).length;
-  const allPrerequisitesDone = hasCompany && hasWallet;
   const progress = (completedCount / steps.length) * 100;
+
+  // Show celebration state
+  if (celebrating) {
+    return (
+      <Box
+        data-testid="onboarding-celebration"
+        sx={{
+          mb: { xs: 2, md: 2.5 },
+          mx: { xs: "16px", md: 0 },
+          borderRadius: "14px",
+          border: `1px solid ${theme.palette.border.success}`,
+          backgroundColor: theme.palette.success.main,
+          overflow: "hidden",
+          p: isMobile ? 3 : 4,
+          textAlign: "center",
+          animation: "celebrationPulse 0.6s ease-out",
+          "@keyframes celebrationPulse": {
+            "0%": { transform: "scale(0.95)", opacity: 0.7 },
+            "50%": { transform: "scale(1.02)" },
+            "100%": { transform: "scale(1)", opacity: 1 },
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: isMobile ? 56 : 72,
+            height: isMobile ? 56 : 72,
+            borderRadius: "50%",
+            backgroundColor: theme.palette.success.light,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mx: "auto",
+            mb: 2,
+            animation: "celebrationBounce 0.8s ease-out",
+            "@keyframes celebrationBounce": {
+              "0%": { transform: "scale(0) rotate(-180deg)" },
+              "60%": { transform: "scale(1.2) rotate(10deg)" },
+              "100%": { transform: "scale(1) rotate(0deg)" },
+            },
+          }}
+        >
+          <CelebrationRounded
+            sx={{
+              fontSize: isMobile ? 28 : 36,
+              color: theme.palette.border.success,
+            }}
+          />
+        </Box>
+        <Typography
+          data-testid="celebration-title"
+          sx={{
+            fontSize: isMobile ? "20px" : "26px",
+            fontFamily: "UrbanistSemibold",
+            fontWeight: 700,
+            color: theme.palette.text.primary,
+            lineHeight: 1.3,
+            mb: 0.5,
+          }}
+        >
+          You're all set!
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: isMobile ? "13px" : "15px",
+            fontFamily: "UrbanistMedium",
+            fontWeight: 500,
+            color: theme.palette.text.secondary,
+            lineHeight: 1.5,
+          }}
+        >
+          Your account is fully configured. Start creating payment links now!
+        </Typography>
+      </Box>
+    );
+  }
 
   // Don't show if everything is done or dismissed, or still loading
   if (dismissed || (allPrerequisitesDone && fetched)) return null;
