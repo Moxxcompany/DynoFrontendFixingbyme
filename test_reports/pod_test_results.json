@@ -1,0 +1,41 @@
+{
+  "summary": {
+    "total_tests": 5,
+    "passed_tests": 5,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "test_timestamp": "2026-03-04T12:25:03.687131"
+  },
+  "detailed_results": [
+    {
+      "test": "Homepage Load (HTTP 200)",
+      "success": true,
+      "details": "Status: 200, Contains DynoPay branding",
+      "timestamp": "2026-03-04T12:25:03.126360"
+    },
+    {
+      "test": "Backend Health Check (/api/)",
+      "success": true,
+      "details": "Status: 200, Service OK",
+      "timestamp": "2026-03-04T12:25:03.277821"
+    },
+    {
+      "test": "Auth Login Page Load",
+      "success": true,
+      "details": "Status: 200, Contains login content",
+      "timestamp": "2026-03-04T12:25:03.419531"
+    },
+    {
+      "test": "Auth Register Page Load",
+      "success": true,
+      "details": "Status: 200, Contains register content",
+      "timestamp": "2026-03-04T12:25:03.531658"
+    },
+    {
+      "test": "NextAuth Providers Endpoint",
+      "success": true,
+      "details": "Status: 200, Google OAuth configured, Providers: ['google']",
+      "timestamp": "2026-03-04T12:25:03.686217"
+    }
+  ]
+}

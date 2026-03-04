@@ -11,8 +11,8 @@ from datetime import datetime
 import time
 
 class DynoPayAPITester:
-    def __init__(self, base_url="https://api.dynopay.com"):
-        # Use the configured backend URL
+    def __init__(self, base_url="https://7ea2dfbe-72b8-41b4-97b4-0a9a63464626.preview.emergentagent.com"):
+        # Use the pod URL for testing local endpoints
         self.base_url = base_url.rstrip('/')
         self.session = requests.Session()
         self.session.headers.update({
@@ -64,8 +64,11 @@ class DynoPayAPITester:
             else:
                 raise ValueError(f"Unsupported HTTP method: {method}")
 
-            # Check status code
-            success = response.status_code == expected_status
+            # Check if we expect a list of status codes
+            if isinstance(expected_status, list):
+                success = response.status_code in expected_status
+            else:
+                success = response.status_code == expected_status
             
             try:
                 response_data = response.json()
@@ -260,8 +263,8 @@ class DynoPayAPITester:
 def main():
     """Main test execution"""
     try:
-        # Test with the configured API URL
-        tester = DynoPayAPITester("https://api.dynopay.com")
+        # Test with the pod URL for local testing
+        tester = DynoPayAPITester("https://7ea2dfbe-72b8-41b4-97b4-0a9a63464626.preview.emergentagent.com")
         passed, total, results = tester.run_all_tests()
         
         # Save detailed results

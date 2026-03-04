@@ -1,137 +1,119 @@
 {
   "summary": {
-    "total_tests": 21,
+    "total_tests": 18,
     "passed_tests": 0,
-    "failed_tests": 21,
+    "failed_tests": 18,
     "success_rate": 0.0,
-    "test_timestamp": "2026-03-04T11:24:55.485504"
+    "test_timestamp": "2026-03-04T12:24:30.134388"
   },
   "detailed_results": [
     {
       "test": "Health Check (/health)",
       "success": false,
-      "details": "Status: 200, Expected: [200, 404, 301, 302], Response: {'status': 'healthy', 'service': 'Dynopay Backend', 'timestamp': '2026-03-04T11:24:52.451Z', 'uptime': 259110.529226534, 'database': 'connected', 'redis': 'connected', 'tatum_api': {'operational': True, 'circuit_state': 'CLOSED', 'failures': 0}, 'binance_websocket': {'connected': True, 'geo_blocked': False, 'cached_prices': 10, 'cached_klines': 10, 'last_message_age_ms': 32, 'rest_fallback_failures': 0}}",
-      "timestamp": "2026-03-04T11:24:52.790369"
+      "details": "Status: 404, Expected: [200, 404, 301, 302], Response: {'text': '<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><link rel=\"preload\" href=\"/_next/static/css/34'}",
+      "timestamp": "2026-03-04T12:24:29.266787"
     },
     {
       "test": "Health Check (/api/health)",
       "success": false,
-      "details": "Status: 404, Expected: [200, 404, 301, 302], Response: {'text': '<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n<meta charset=\"utf-8\">\\n<title>Error</title>\\n</head>\\n<body>\\n<pre>Cannot GET /api/health</pre>\\n</body>\\n</html>\\n'}",
-      "timestamp": "2026-03-04T11:24:52.906272"
+      "details": "Status: 200, Expected: [200, 404, 301, 302], Response: {'status': 'ok', 'service': 'dynopay-proxy'}",
+      "timestamp": "2026-03-04T12:24:29.319047"
     },
     {
       "test": "Health Check (/status)",
       "success": false,
-      "details": "Status: 404, Expected: [200, 404, 301, 302], Response: {'text': '<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n<meta charset=\"utf-8\">\\n<title>Error</title>\\n</head>\\n<body>\\n<pre>Cannot GET /status</pre>\\n</body>\\n</html>\\n'}",
-      "timestamp": "2026-03-04T11:24:53.162176"
+      "details": "Status: 200, Expected: [200, 404, 301, 302], Response: {'text': 'OK'}",
+      "timestamp": "2026-03-04T12:24:29.341713"
     },
     {
       "test": "Health Check (/)",
       "success": false,
-      "details": "Status: 200, Expected: [200, 404, 301, 302], Response: {'message': 'Dynopay Backend API', 'version': '1.0.0', 'status': 'running', 'transaction_fee': 1.5, 'blockchain_fee': '0'}",
-      "timestamp": "2026-03-04T11:24:53.478095"
+      "details": "Status: 200, Expected: [200, 404, 301, 302], Response: {'text': '<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><link rel=\"preload\" href=\"/_next/static/media/dynopay-logo.2228b546.svg\" as=\"image\" fetc'}",
+      "timestamp": "2026-03-04T12:24:29.407641"
     },
     {
       "test": "Auth Login Test (/api/auth/login)",
       "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 422, 400], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:53.597370"
-    },
-    {
-      "test": "Auth Login Test (/auth/login)",
-      "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 422, 400], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:53.715500"
-    },
-    {
-      "test": "Auth Login Test (/login)",
-      "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 422, 400], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:53.836087"
-    },
-    {
-      "test": "Auth Login Test (/api/login)",
-      "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 422, 400], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:53.954713"
+      "details": "Status: 400, Expected: [200, 401, 404, 422, 400], Response: {'text': 'Error: This action with HTTP POST is not supported by NextAuth.js'}",
+      "timestamp": "2026-03-04T12:24:29.477383"
     },
     {
       "test": "API Keys Fetch",
       "success": false,
-      "details": "Status: 401, Expected: [200, 401, 404, 403, 422], Response: {'success': False, 'message': 'Authentication required. Please provide a valid token.', 'statusCode': 401}",
-      "timestamp": "2026-03-04T11:24:54.072629"
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:29.525205"
     },
     {
       "test": "API Keys Fetch Alt",
       "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'text': '<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n<meta charset=\"utf-8\">\\n<title>Error</title>\\n</head>\\n<body>\\n<pre>Cannot GET /userApi/getApi</pre>\\n</body>\\n</html>\\n'}",
-      "timestamp": "2026-03-04T11:24:54.191349"
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'text': '<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><link rel=\"preload\" href=\"/_next/static/css/34'}",
+      "timestamp": "2026-03-04T12:24:29.588111"
     },
     {
       "test": "API Keys List",
       "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'text': '<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n<meta charset=\"utf-8\">\\n<title>Error</title>\\n</head>\\n<body>\\n<pre>Cannot GET /api/keys</pre>\\n</body>\\n</html>\\n'}",
-      "timestamp": "2026-03-04T11:24:54.309145"
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:29.633455"
     },
     {
       "test": "API Regenerate",
       "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 403, 422], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:54.428184"
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:29.713932"
     },
     {
       "test": "API Toggle Status",
       "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 403, 422], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:54.547294"
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:29.765254"
     },
     {
       "test": "Payment Links Fetch",
       "success": false,
-      "details": "Status: 401, Expected: [200, 401, 404, 422, 403], Response: {'success': False, 'message': 'Authentication required. Please provide a valid token.', 'statusCode': 401}",
-      "timestamp": "2026-03-04T11:24:54.665556"
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:29.810814"
     },
     {
       "test": "Fee Preview",
       "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 422, 403], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:54.784207"
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:29.855426"
     },
     {
       "test": "Create Payment Link",
       "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 422, 403], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:54.905597"
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:29.901898"
     },
     {
       "test": "Transactions Fetch",
       "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 422, 403], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:55.023763"
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:29.945924"
     },
     {
       "test": "Transaction Detail Fetch",
       "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'text': '<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n<meta charset=\"utf-8\">\\n<title>Error</title>\\n</head>\\n<body>\\n<pre>Cannot GET /api/transaction/123</pre>\\n</body>\\n</html>\\n'}",
-      "timestamp": "2026-03-04T11:24:55.142660"
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:29.992292"
     },
     {
       "test": "Transaction Export",
       "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 422, 403], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:55.257090"
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:30.037203"
     },
     {
       "test": "Company Fetch",
       "success": false,
-      "details": "Status: 401, Expected: [200, 401, 404, 422, 403], Response: {'success': False, 'message': 'Authentication required. Please provide a valid token.', 'statusCode': 401}",
-      "timestamp": "2026-03-04T11:24:55.371175"
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:30.088426"
     },
     {
       "test": "Company Tax Validation",
       "success": false,
-      "details": "Status: 403, Expected: [200, 401, 404, 422, 403], Response: {'error': 'CSRF token validation failed'}",
-      "timestamp": "2026-03-04T11:24:55.485334"
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
+      "timestamp": "2026-03-04T12:24:30.134216"
     }
   ]
 }
