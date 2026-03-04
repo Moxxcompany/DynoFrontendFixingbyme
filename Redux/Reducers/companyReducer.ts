@@ -7,11 +7,13 @@ import {
   COMPANY_INIT,
   COMPANY_INSERT,
   COMPANY_UPDATE,
+  COMPANY_VALIDATE_TAX,
 } from "../Actions/CompanyAction";
 
 const companyInitialState: ICompanyReducer = {
   companyList: [],
   loading: false,
+  taxValidation: null,
 };
 
 const companyReducer = (state = companyInitialState, action: ReducerAction) => {
@@ -83,6 +85,14 @@ const companyReducer = (state = companyInitialState, action: ReducerAction) => {
         ...state,
         loading: false,
       };
+
+    case COMPANY_VALIDATE_TAX:
+      return {
+        ...state,
+        loading: false,
+        taxValidation: payload,
+      };
+
     default:
       return {
         ...state,

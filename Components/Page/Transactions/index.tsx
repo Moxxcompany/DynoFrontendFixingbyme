@@ -1,6 +1,6 @@
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import { TransactionAction } from "@/Redux/Actions";
-import { TRANSACTION_FETCH } from "@/Redux/Actions/TransactionAction";
+import { TRANSACTION_FETCH, TRANSACTION_EXPORT } from "@/Redux/Actions/TransactionAction";
 import { ICustomerTransactions, rootReducer } from "@/utils/types";
 import { DateRange } from "@/utils/types/dashboard";
 import { ExtendedTransaction } from "@/utils/types/transaction";
@@ -146,7 +146,12 @@ const TransactionPage = () => {
   };
 
   const handleExport = () => {
-    console.log("Export triggered");
+    dispatch(TransactionAction(TRANSACTION_EXPORT, {
+      wallet: selectedWallet !== "all" ? walletMapping[selectedWallet] : undefined,
+      startDate: dateRange.startDate?.toISOString(),
+      endDate: dateRange.endDate?.toISOString(),
+      search: searchTerm || undefined,
+    }));
   };
 
   if (transactionState.loading) {

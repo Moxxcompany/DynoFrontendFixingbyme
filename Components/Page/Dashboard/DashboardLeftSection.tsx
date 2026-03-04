@@ -282,10 +282,10 @@ const DashboardLeftSection = () => {
     }
   }, [selectedPeriod, customDateRange, fetchChartData]);
 
-  const totalTransactions = stats.totalTransactions || 4;
-  const totalVolume = stats.totalVolume || 6479.25;
-  const transactionChange = stats.transactionChange || 12;
-  const volumeChange = stats.volumeChange || 8.5;
+  const totalTransactions = stats.totalTransactions || 0;
+  const totalVolume = stats.totalVolume || 0;
+  const transactionChange = stats.transactionChange || 0;
+  const volumeChange = stats.volumeChange || 0;
 
   const maxWalletsToShow = isMobile ? 2 : 3;
   const walletsToDisplay = showAllWallets

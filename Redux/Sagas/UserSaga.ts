@@ -5,6 +5,7 @@ import {
   USER_API_ERROR,
   USER_CONFIRM_CODE,
   USER_LOGIN,
+  USER_PROFILE_FETCH,
   USER_REGISTER,
   USER_RESET_PASSWORD,
   USER_SEND_OTP,
@@ -46,6 +47,9 @@ export function* UserSaga(action: IUserAction): unknown {
       break;
     case USER_RESET_PASSWORD:
       yield resetPassword(action.payload);
+      break;
+    case USER_PROFILE_FETCH:
+      yield fetchProfile();
       break;
     default:
       yield put({ type: USER_API_ERROR });
@@ -442,6 +446,39 @@ function* changePassword(payload: any): unknown {
       payload: {
         message: message,
         actionType: USER_UPDATE_PASSWORD,
+      },
+    });
+  }
+}
+
+
+function* fetchProfile(): unknown {
+  try {
+    const response = yield call(axios.get, "user/profile");
+    const responseData = response?.data;
+
+    if (!responseData) {
+      throw new Error("Invalid response from server");
+    }
+
+    if (responseData.success === false) {
+      throw new Error(responseData.message || "Failed to fetch profile");
+    }
+
+    const profileData = responseData.data || responseData;
+
+    yield put({
+      type: USER_PROFILE_FETCH,
+      payload: profileData,
+    });
+  } catch (e: any) {
+    const message = e.response?.data?.message ?? e.message ?? "Failed to fetch profile";
+    console.error("fetchProfile error:", message);
+    yield put({
+      type: USER_API_ERROR,
+      payload: {
+        message: message,
+        actionType: USER_PROFILE_FETCH,
       },
     });
   }

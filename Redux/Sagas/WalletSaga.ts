@@ -2,7 +2,7 @@ import { call, put } from "redux-saga/effects";
 
 import axios from "@/axiosConfig";
 import { TOAST_SHOW } from "../Actions/ToastAction";
-import { WALLET_API_ERROR, WALLET_FETCH, WALLET_ADD_ADDRESS, VERIFY_OTP } from "../Actions/WalletAction";
+import { WALLET_API_ERROR, WALLET_FETCH, WALLET_ADD_ADDRESS, WALLET_UPDATE, WALLET_DELETE, VERIFY_OTP } from "../Actions/WalletAction";
 interface IWalletAction {
   crudType: string;
   payload: any;
@@ -16,6 +16,14 @@ export function* WalletSaga(action: IWalletAction): unknown {
 
     case WALLET_ADD_ADDRESS:
       yield validateWalletAddress(action.payload);
+      break;
+
+    case WALLET_UPDATE:
+      yield updateWallet(action.payload);
+      break;
+
+    case WALLET_DELETE:
+      yield deleteWallet(action.payload);
       break;
 
     default:
@@ -86,6 +94,70 @@ export function* validateWalletAddress(payload: any): unknown {
     });
   }
 }
+
+export function* updateWallet(payload: any): unknown {
+  try {
+    const { id, otp, ...updateData } = payload;
+    const response = yield call(axios.put, `wallet/updateWallet/${id}`, {
+      ...updateData,
+      otp,
+    });
+    const responseData = response?.data;
+
+    if (responseData?.success === false) {
+      throw new Error(responseData.message || "Failed to update wallet");
+    }
+
+    yield put({
+      type: TOAST_SHOW,
+      payload: { message: responseData?.message || "Wallet updated successfully" },
+    });
+    yield put({
+      type: WALLET_UPDATE,
+      payload: responseData?.data || responseData,
+    });
+    // Re-fetch wallets to ensure sync
+    yield getWallet();
+  } catch (e: any) {
+    const message = e?.response?.data?.message ?? e?.message ?? "Failed to update wallet";
+    yield put({
+      type: TOAST_SHOW,
+      payload: { message, severity: "error" },
+    });
+    yield put({ type: WALLET_API_ERROR });
+  }
+}
+
+export function* deleteWallet(payload: any): unknown {
+  try {
+    const { id, otp } = payload;
+    const response = yield call(axios.delete, `wallet/deleteWallet/${id}`, {
+      data: { otp },
+    });
+    const responseData = response?.data;
+
+    if (responseData?.success === false) {
+      throw new Error(responseData.message || "Failed to delete wallet");
+    }
+
+    yield put({
+      type: TOAST_SHOW,
+      payload: { message: responseData?.message || "Wallet deleted successfully" },
+    });
+    yield put({
+      type: WALLET_DELETE,
+      payload: { id },
+    });
+  } catch (e: any) {
+    const message = e?.response?.data?.message ?? e?.message ?? "Failed to delete wallet";
+    yield put({
+      type: TOAST_SHOW,
+      payload: { message, severity: "error" },
+    });
+    yield put({ type: WALLET_API_ERROR });
+  }
+}
+
 
 export async function verifyOtp(payload: any): Promise<{ status: boolean; message: string }> {
   try {

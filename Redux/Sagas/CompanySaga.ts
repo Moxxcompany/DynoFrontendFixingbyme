@@ -8,6 +8,7 @@ import {
   COMPANY_FETCH,
   COMPANY_INSERT,
   COMPANY_UPDATE,
+  COMPANY_VALIDATE_TAX,
 } from "../Actions/CompanyAction";
 
 interface ICompanyAction {
@@ -31,6 +32,10 @@ export function* CompanySaga(action: ICompanyAction): unknown {
 
     case COMPANY_UPDATE:
       yield updateCompany(action.payload);
+      break;
+
+    case COMPANY_VALIDATE_TAX:
+      yield validateTax(action.payload);
       break;
 
     default:
@@ -159,5 +164,37 @@ export function* deleteCompany(payload: any): unknown {
     yield put({
       type: COMPANY_API_ERROR,
     });
+  }
+}
+
+export function* validateTax(payload: any): unknown {
+  try {
+    const { companyId, taxId, country } = payload;
+    const response = yield call(axios.post, "company/validateTax", {
+      companyId,
+      taxId,
+      country,
+    });
+    const responseData = response?.data;
+
+    if (responseData?.success === false) {
+      throw new Error(responseData.message || "Tax validation failed");
+    }
+
+    yield put({
+      type: TOAST_SHOW,
+      payload: { message: responseData?.message || "Tax ID validated successfully" },
+    });
+    yield put({
+      type: COMPANY_VALIDATE_TAX,
+      payload: responseData?.data || { valid: true, taxId, country },
+    });
+  } catch (e: any) {
+    const message = e?.response?.data?.message ?? e?.message ?? "Tax validation failed";
+    yield put({
+      type: TOAST_SHOW,
+      payload: { message, severity: "error" },
+    });
+    yield put({ type: COMPANY_API_ERROR });
   }
 }

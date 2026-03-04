@@ -23,7 +23,7 @@ import BgMobileImage from "@/assets/Images/premium-card-bg.png";
 import { PremiumTierCard } from "./styled";
 
 const DEFAULT_MONTHLY_LIMIT = 50000;
-const DEFAULT_USED_AMOUNT = 6479.25;
+const DEFAULT_USED_AMOUNT = 0;
 const CURRENT_TIER = "Standard";
 
 const DashboardRightSection = () => {
@@ -161,7 +161,7 @@ const DashboardRightSection = () => {
           <FeeTierProgress
             monthlyLimit={monthlyLimit}
             usedAmount={usedAmount}
-            currentTier={CURRENT_TIER}
+            currentTier={currentTier}
           />
 
           {/* Current Tier Badge */}

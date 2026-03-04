@@ -5,12 +5,17 @@ import {
   TRANSACTION_ERROR,
   TRANSACTION_FETCH,
   TRANSACTION_INIT,
+  TRANSACTION_DETAIL_FETCH,
+  TRANSACTION_EXPORT,
 } from "../Actions/TransactionAction";
 
 const transactionInitialState: ITransactionReducer = {
   customers_transactions: [],
   self_transactions: [],
   loading: false,
+  transactionDetail: null,
+  detailLoading: false,
+  exportLoading: false,
 };
 
 const transactionReducer = (
@@ -23,7 +28,9 @@ const transactionReducer = (
     case TRANSACTION_INIT:
       return {
         ...state,
-        loading: true,
+        ...(action.crudType === TRANSACTION_DETAIL_FETCH && { detailLoading: true }),
+        ...(action.crudType === TRANSACTION_EXPORT && { exportLoading: true }),
+        ...(action.crudType === TRANSACTION_FETCH && { loading: true }),
       };
 
     case TRANSACTION_FETCH:
@@ -33,10 +40,26 @@ const transactionReducer = (
         customers_transactions: payload.customers_transactions,
         self_transactions: payload.self_transactions,
       };
+
+    case TRANSACTION_DETAIL_FETCH:
+      return {
+        ...state,
+        detailLoading: false,
+        transactionDetail: payload,
+      };
+
+    case TRANSACTION_EXPORT:
+      return {
+        ...state,
+        exportLoading: false,
+      };
+
     case TRANSACTION_ERROR:
       return {
         ...state,
         loading: false,
+        detailLoading: false,
+        exportLoading: false,
       };
 
     default:

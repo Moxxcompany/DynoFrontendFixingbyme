@@ -6,6 +6,7 @@ import {
   PAYLINK_DELETE,
   PAYLINK_ERROR,
   PAYLINK_INIT,
+  PAYLINK_FEE_PREVIEW,
 } from "../Actions/PaymentLinkAction";
 
 export interface PaymentLinkState {
@@ -13,6 +14,7 @@ export interface PaymentLinkState {
   selectedLink: any | null;
   loading: boolean;
   createLoading: boolean;
+  feePreview: any | null;
 }
 
 const paymentLinkInitialState: PaymentLinkState = {
@@ -20,6 +22,7 @@ const paymentLinkInitialState: PaymentLinkState = {
   selectedLink: null,
   loading: false,
   createLoading: false,
+  feePreview: null,
 };
 
 const paymentLinkReducer = (
@@ -72,6 +75,12 @@ const paymentLinkReducer = (
         ...state,
         loading: false,
         createLoading: false,
+      };
+
+    case PAYLINK_FEE_PREVIEW:
+      return {
+        ...state,
+        feePreview: payload.feePreview,
       };
 
     default:

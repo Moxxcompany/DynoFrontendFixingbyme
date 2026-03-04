@@ -27,11 +27,14 @@ export interface userReducer {
   photo: string;
   telegram_id: string;
   error: { message: string; actionType: string } | null;
+  profile?: any;
+  profileLoading?: boolean;
 }
 
 export interface companyReducer {
   companyList: ICompany[];
   loading: boolean;
+  taxValidation?: any;
 }
 
 export interface apiReducer {
@@ -43,6 +46,9 @@ export interface transactionReducer {
   customers_transactions: ICustomerTransactions[];
   self_transactions: ICustomerTransactions[];
   loading: boolean;
+  transactionDetail?: any;
+  detailLoading?: boolean;
+  exportLoading?: boolean;
 }
 
 export interface walletReducer {

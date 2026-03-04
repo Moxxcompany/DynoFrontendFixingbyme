@@ -6,6 +6,7 @@ import {
   PAYLINK_UPDATE,
   PAYLINK_DELETE,
   PAYLINK_ERROR,
+  PAYLINK_FEE_PREVIEW,
 } from "../Actions/PaymentLinkAction";
 import { TOAST_SHOW } from "../Actions/ToastAction";
 
@@ -115,6 +116,28 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
             type: TOAST_SHOW,
             payload: {
               message: response?.data?.message || "Failed to delete payment link",
+              severity: "error",
+            },
+          });
+        }
+        break;
+      }
+
+      case PAYLINK_FEE_PREVIEW: {
+        const response = yield call(axiosBaseApi.post, "/pay/feePreview", payload);
+        if (response?.data?.status) {
+          yield put({
+            type: PAYLINK_FEE_PREVIEW,
+            payload: {
+              feePreview: response.data.data,
+            },
+          });
+        } else {
+          yield put({ type: PAYLINK_ERROR });
+          yield put({
+            type: TOAST_SHOW,
+            payload: {
+              message: response?.data?.message || "Failed to fetch fee preview",
               severity: "error",
             },
           });

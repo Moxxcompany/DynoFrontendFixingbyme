@@ -4,6 +4,7 @@ import {
   USER_EMAIL_CHECK,
   USER_INIT,
   USER_LOGIN,
+  USER_PROFILE_FETCH,
   USER_REGISTER,
   USER_RESET_PASSWORD,
   USER_SEND_OTP,
@@ -17,6 +18,8 @@ const userInitialState = {
   mobile: "",
   loading: false,
   error: null as { message: string; actionType: string } | null,
+  profile: null as any,
+  profileLoading: false,
 };
 
 const userReducer = (state = userInitialState, action: ReducerAction) => {
@@ -26,7 +29,8 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
     case USER_INIT:
       return {
         ...state,
-        ...(action.crudType !== USER_SEND_OTP && { loading: true }),
+        ...(action.crudType !== USER_SEND_OTP && action.crudType !== USER_PROFILE_FETCH && { loading: true }),
+        ...(action.crudType === USER_PROFILE_FETCH && { profileLoading: true }),
       };
 
     case USER_LOGIN:
@@ -51,6 +55,13 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
       localStorage.setItem("token", payload.accessToken);
       return { ...state };
 
+    case USER_PROFILE_FETCH:
+      return {
+        ...state,
+        profileLoading: false,
+        profile: payload,
+      };
+
     case USER_EMAIL_CHECK:
       return {
         ...state,
@@ -63,6 +74,7 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
       return {
         ...state,
         loading: false,
+        profileLoading: false,
         error: action.payload || null,
       };
     case USER_SEND_RESET_LINK:

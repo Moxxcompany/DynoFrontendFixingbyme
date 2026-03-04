@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
   monthlyLimit = 50000,
-  usedAmount = 6479.25,
+  usedAmount = 0,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
