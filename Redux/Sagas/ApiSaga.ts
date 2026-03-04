@@ -153,7 +153,7 @@ export function* updateApi(payload: any): unknown {
 export function* regenerateApi(payload: any): unknown {
   try {
     const { id } = payload;
-    const response = yield call(axios.post, `userApi/regenerateApi/${id}`);
+    const response = yield call(axios.post, `userApi/regenerateKey/${id}`);
     const responseData = response?.data;
 
     if (responseData?.success === false) {

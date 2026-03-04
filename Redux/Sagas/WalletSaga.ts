@@ -114,7 +114,7 @@ export function* validateWalletAddress(payload: any): unknown {
 export function* updateWallet(payload: any): unknown {
   try {
     const { id, otp, ...updateData } = payload;
-    const response = yield call(axios.put, `wallet/updateWallet/${id}`, {
+    const response = yield call(axios.put, `wallet/address/${id}`, {
       ...updateData,
       otp,
     });
@@ -147,8 +147,9 @@ export function* updateWallet(payload: any): unknown {
 export function* deleteWallet(payload: any): unknown {
   try {
     const { id, otp } = payload;
-    const response = yield call(axios.delete, `wallet/deleteWallet/${id}`, {
-      data: { otp },
+    const response = yield call(axios.post, `wallet/wallet/delete/verify`, {
+      wallet_id: id,
+      otp,
     });
     const responseData = response?.data;
 
@@ -181,7 +182,7 @@ export async function verifyOtp(payload: any): Promise<{ status: boolean; messag
     console.log("Verifying OTP with payload:", payload);
 
     const response = await axios.post(
-      "/wallet/verifyCode",
+      "/wallet/verifyOtp",
       payload,
       {
         headers: {
