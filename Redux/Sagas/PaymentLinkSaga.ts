@@ -23,11 +23,12 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
     switch (crudType) {
       case PAYLINK_FETCH: {
         const response = yield call(axiosBaseApi.get, "/pay/getPaymentLinks");
-        if (response?.data?.status) {
+        const apiData = response?.data?.data;
+        if (apiData !== undefined) {
           yield put({
             type: PAYLINK_FETCH,
             payload: {
-              paymentLinks: response.data.data?.paymentLinks || response.data.data || [],
+              paymentLinks: Array.isArray(apiData) ? apiData : apiData?.paymentLinks || [],
             },
           });
         } else {
@@ -38,17 +39,18 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
 
       case PAYLINK_CREATE: {
         const response = yield call(axiosBaseApi.post, "/pay/createPaymentLink", payload);
-        if (response?.data?.status) {
+        const apiData = response?.data?.data;
+        if (apiData) {
           yield put({
             type: PAYLINK_CREATE,
             payload: {
-              paymentLink: response.data.data,
+              paymentLink: apiData,
             },
           });
           yield put({
             type: TOAST_SHOW,
             payload: {
-              message: "Payment link created successfully",
+              message: response?.data?.message || "Payment link created successfully",
               severity: "success",
             },
           });
@@ -68,17 +70,18 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
       case PAYLINK_UPDATE: {
         const { id, ...updateData } = payload;
         const response = yield call(axiosBaseApi.put, `/pay/links/${id}`, updateData);
-        if (response?.data?.status) {
+        const apiData = response?.data?.data;
+        if (apiData) {
           yield put({
             type: PAYLINK_UPDATE,
             payload: {
-              paymentLink: response.data.data,
+              paymentLink: apiData,
             },
           });
           yield put({
             type: TOAST_SHOW,
             payload: {
-              message: "Payment link updated successfully",
+              message: response?.data?.message || "Payment link updated successfully",
               severity: "success",
             },
           });
@@ -98,7 +101,7 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
       case PAYLINK_DELETE: {
         const { id } = payload;
         const response = yield call(axiosBaseApi.delete, `/pay/deletePaymentLink/${id}`);
-        if (response?.data?.status) {
+        if (response?.data) {
           yield put({
             type: PAYLINK_DELETE,
             payload: { id },
@@ -106,7 +109,7 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
           yield put({
             type: TOAST_SHOW,
             payload: {
-              message: "Payment link deleted successfully",
+              message: response?.data?.message || "Payment link deleted successfully",
               severity: "success",
             },
           });
@@ -124,12 +127,13 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
       }
 
       case PAYLINK_FEE_PREVIEW: {
-        const response = yield call(axiosBaseApi.post, "/pay/feePreview", payload);
-        if (response?.data?.status) {
+        const response = yield call(axiosBaseApi.get, "/pay/fee-preview");
+        const apiData = response?.data?.data;
+        if (apiData) {
           yield put({
             type: PAYLINK_FEE_PREVIEW,
             payload: {
-              feePreview: response.data.data,
+              feePreview: apiData,
             },
           });
         } else {
@@ -148,8 +152,13 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
       default:
         break;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("PaymentLinkSaga error:", error);
+    const message = error?.response?.data?.message ?? error?.message ?? "Payment link operation failed";
     yield put({ type: PAYLINK_ERROR });
+    yield put({
+      type: TOAST_SHOW,
+      payload: { message, severity: "error" },
+    });
   }
 }

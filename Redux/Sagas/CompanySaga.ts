@@ -170,7 +170,7 @@ export function* deleteCompany(payload: any): unknown {
 export function* validateTax(payload: any): unknown {
   try {
     const { companyId, taxId, country } = payload;
-    const response = yield call(axios.post, "company/validateTax", {
+    const response = yield call(axios.post, "company/validateTaxId", {
       companyId,
       taxId,
       country,

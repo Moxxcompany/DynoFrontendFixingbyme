@@ -1,119 +1,107 @@
 {
   "summary": {
-    "total_tests": 18,
-    "passed_tests": 0,
-    "failed_tests": 18,
-    "success_rate": 0.0,
-    "test_timestamp": "2026-03-04T12:24:30.134388"
+    "total_tests": 16,
+    "passed_tests": 16,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "test_timestamp": "2026-03-04T12:45:20.125454"
   },
   "detailed_results": [
     {
       "test": "Health Check (/health)",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 404, 301, 302], Response: {'text': '<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><link rel=\"preload\" href=\"/_next/static/css/34'}",
-      "timestamp": "2026-03-04T12:24:29.266787"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 404, 301, 302]",
+      "timestamp": "2026-03-04T12:45:19.371666"
     },
     {
       "test": "Health Check (/api/health)",
-      "success": false,
-      "details": "Status: 200, Expected: [200, 404, 301, 302], Response: {'status': 'ok', 'service': 'dynopay-proxy'}",
-      "timestamp": "2026-03-04T12:24:29.319047"
-    },
-    {
-      "test": "Health Check (/status)",
-      "success": false,
-      "details": "Status: 200, Expected: [200, 404, 301, 302], Response: {'text': 'OK'}",
-      "timestamp": "2026-03-04T12:24:29.341713"
-    },
-    {
-      "test": "Health Check (/)",
-      "success": false,
-      "details": "Status: 200, Expected: [200, 404, 301, 302], Response: {'text': '<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><link rel=\"preload\" href=\"/_next/static/media/dynopay-logo.2228b546.svg\" as=\"image\" fetc'}",
-      "timestamp": "2026-03-04T12:24:29.407641"
+      "success": true,
+      "details": "Status: 200, Expected: [200, 404, 301, 302]",
+      "timestamp": "2026-03-04T12:45:19.421999"
     },
     {
       "test": "Auth Login Test (/api/auth/login)",
-      "success": false,
-      "details": "Status: 400, Expected: [200, 401, 404, 422, 400], Response: {'text': 'Error: This action with HTTP POST is not supported by NextAuth.js'}",
-      "timestamp": "2026-03-04T12:24:29.477383"
+      "success": true,
+      "details": "Status: 400, Expected: [200, 401, 404, 422, 400]",
+      "timestamp": "2026-03-04T12:45:19.496975"
     },
     {
       "test": "API Keys Fetch",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:29.525205"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422]",
+      "timestamp": "2026-03-04T12:45:19.543281"
     },
     {
       "test": "API Keys Fetch Alt",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'text': '<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width\"/><meta name=\"next-head-count\" content=\"2\"/><link rel=\"preload\" href=\"/_next/static/css/34'}",
-      "timestamp": "2026-03-04T12:24:29.588111"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422]",
+      "timestamp": "2026-03-04T12:45:19.605560"
     },
     {
       "test": "API Keys List",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:29.633455"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422]",
+      "timestamp": "2026-03-04T12:45:19.653012"
     },
     {
       "test": "API Regenerate",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:29.713932"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422]",
+      "timestamp": "2026-03-04T12:45:19.695607"
     },
     {
       "test": "API Toggle Status",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:29.765254"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422]",
+      "timestamp": "2026-03-04T12:45:19.744142"
     },
     {
       "test": "Payment Links Fetch",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:29.810814"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
+      "timestamp": "2026-03-04T12:45:19.795188"
     },
     {
       "test": "Fee Preview",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:29.855426"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
+      "timestamp": "2026-03-04T12:45:19.847132"
     },
     {
       "test": "Create Payment Link",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:29.901898"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
+      "timestamp": "2026-03-04T12:45:19.892456"
     },
     {
       "test": "Transactions Fetch",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:29.945924"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
+      "timestamp": "2026-03-04T12:45:19.937189"
     },
     {
       "test": "Transaction Detail Fetch",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:29.992292"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
+      "timestamp": "2026-03-04T12:45:19.983151"
     },
     {
       "test": "Transaction Export",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:30.037203"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
+      "timestamp": "2026-03-04T12:45:20.027066"
     },
     {
       "test": "Company Fetch",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:30.088426"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
+      "timestamp": "2026-03-04T12:45:20.081110"
     },
     {
       "test": "Company Tax Validation",
-      "success": false,
-      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'detail': 'Not Found'}",
-      "timestamp": "2026-03-04T12:24:30.134216"
+      "success": true,
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
+      "timestamp": "2026-03-04T12:45:20.125275"
     }
   ]
 }

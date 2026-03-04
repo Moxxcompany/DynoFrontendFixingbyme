@@ -21,16 +21,21 @@ export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void
     switch (crudType) {
       case DASHBOARD_FETCH: {
         const response = yield call(axiosBaseApi.get, "/dashboard");
-        if (response?.data?.status) {
+        const apiData = response?.data?.data;
+        if (apiData) {
           yield put({
             type: DASHBOARD_FETCH,
             payload: {
               stats: {
-                totalTransactions: response.data.data?.totalTransactions ?? 0,
-                totalVolume: response.data.data?.totalVolume ?? 0,
-                activeWallets: response.data.data?.activeWallets ?? 0,
-                transactionChange: response.data.data?.transactionChange ?? 0,
-                volumeChange: response.data.data?.volumeChange ?? 0,
+                totalTransactions: apiData.total_transactions?.count ?? 0,
+                totalVolume: apiData.total_volume?.amount ?? 0,
+                activeWallets: apiData.active_wallets?.count ?? 0,
+                transactionChange: apiData.total_transactions?.change_percent ?? 0,
+                volumeChange: apiData.total_volume?.change_percent ?? 0,
+                pendingTransactions: apiData.pending_transactions?.count ?? 0,
+                totalVolumeFormatted: apiData.total_volume?.amount_formatted ?? "$0.00 USD",
+                activeWalletsList: apiData.active_wallets?.wallets ?? [],
+                feeTier: apiData.fee_tier ?? null,
               },
             },
           });
@@ -47,11 +52,16 @@ export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void
         if (payload?.endDate) params.endDate = payload.endDate;
 
         const response = yield call(axiosBaseApi.get, "/dashboard/chart", { params });
-        if (response?.data?.status) {
+        const apiData = response?.data?.data;
+        if (apiData) {
           yield put({
             type: DASHBOARD_CHART_FETCH,
             payload: {
-              chartData: response.data.data?.chartData || [],
+              chartData: (apiData.chart_data || []).map((item: any) => ({
+                date: item.date,
+                value: item.volume ?? 0,
+                transactionCount: item.transaction_count ?? 0,
+              })),
             },
           });
         } else {
@@ -62,14 +72,22 @@ export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void
 
       case DASHBOARD_FEE_TIERS_FETCH: {
         const response = yield call(axiosBaseApi.get, "/dashboard/fee-tiers");
-        if (response?.data?.status) {
+        const apiData = response?.data?.data;
+        if (apiData) {
+          const userTier = apiData.user_tier || {};
           yield put({
             type: DASHBOARD_FEE_TIERS_FETCH,
             payload: {
               feeTiers: {
-                monthlyLimit: response.data.data?.monthlyLimit ?? 50000,
-                usedAmount: response.data.data?.usedAmount ?? 0,
-                currentTier: response.data.data?.currentTier ?? "Standard",
+                monthlyLimit: userTier.amount_to_next_tier
+                  ? userTier.monthly_volume + userTier.amount_to_next_tier
+                  : 50000,
+                usedAmount: userTier.monthly_volume ?? 0,
+                currentTier: userTier.current_tier ?? "Standard",
+                tiers: apiData.tiers || [],
+                percentToNextTier: userTier.percent_to_next_tier ?? 0,
+                amountToNextTier: userTier.amount_to_next_tier ?? 0,
+                nextTier: userTier.next_tier ?? "",
               },
             },
           });
@@ -81,11 +99,12 @@ export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void
 
       case DASHBOARD_RECENT_TX_FETCH: {
         const response = yield call(axiosBaseApi.get, "/dashboard/recent-transactions");
-        if (response?.data?.status) {
+        const apiData = response?.data?.data;
+        if (apiData) {
           yield put({
             type: DASHBOARD_RECENT_TX_FETCH,
             payload: {
-              recentTransactions: response.data.data?.transactions || [],
+              recentTransactions: apiData.transactions || [],
             },
           });
         } else {

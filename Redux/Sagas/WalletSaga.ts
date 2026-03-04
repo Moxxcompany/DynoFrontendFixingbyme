@@ -34,13 +34,29 @@ export function* WalletSaga(action: IWalletAction): unknown {
 
 export function* getWallet(): unknown {
   try {
-    const {
-      data: { data, message },
-    } = yield call(axios.get, "wallet/getWallet");
+    const response = yield call(axios.get, "wallet/getWallet");
+    const apiData = response?.data?.data;
+
+    // API returns company-grouped data: [{company_id, wallets: [...]}]
+    // Flatten to a single wallet list for the reducer
+    let flatWallets: any[] = [];
+    if (Array.isArray(apiData)) {
+      for (const companyGroup of apiData) {
+        if (Array.isArray(companyGroup.wallets)) {
+          flatWallets = flatWallets.concat(
+            companyGroup.wallets.map((w: any) => ({
+              ...w,
+              company_name: companyGroup.company_name,
+              id: w.wallet_id,
+            }))
+          );
+        }
+      }
+    }
 
     yield put({
       type: WALLET_FETCH,
-      payload: data,
+      payload: flatWallets,
     });
   } catch (e: any) {
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to fetch wallets";

@@ -36,14 +36,21 @@ export function* TransactionSaga(action: ITransactionAction): unknown {
 
 export function* getAllTransactions(): unknown {
   try {
-    const {
-      data: { data, message },
-    } = yield call(axios.post, "wallet/getAllTransactions");
+    const response = yield call(axios.post, "wallet/getAllTransactions");
+    const apiData = response?.data?.data;
 
-    yield put({
-      type: TRANSACTION_FETCH,
-      payload: data,
-    });
+    if (apiData) {
+      yield put({
+        type: TRANSACTION_FETCH,
+        payload: {
+          customers_transactions: apiData.customers_transactions || [],
+          self_transactions: apiData.self_transactions || [],
+          pagination: apiData.pagination || null,
+        },
+      });
+    } else {
+      yield put({ type: TRANSACTION_ERROR });
+    }
   } catch (e: any) {
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to fetch transactions";
     yield put({
@@ -62,16 +69,16 @@ export function* getAllTransactions(): unknown {
 export function* getTransactionDetail(payload: any): unknown {
   try {
     const { id } = payload;
-    const response = yield call(axios.get, `transaction/${id}`);
-    const responseData = response?.data;
+    const response = yield call(axios.get, `wallet/transaction/${id}`);
+    const apiData = response?.data?.data;
 
-    if (responseData?.status || responseData?.success !== false) {
+    if (apiData) {
       yield put({
         type: TRANSACTION_DETAIL_FETCH,
-        payload: responseData?.data || responseData,
+        payload: apiData,
       });
     } else {
-      throw new Error(responseData?.message || "Failed to fetch transaction detail");
+      throw new Error(response?.data?.message || "Failed to fetch transaction detail");
     }
   } catch (e: any) {
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to fetch transaction detail";
@@ -90,7 +97,7 @@ export function* getTransactionDetail(payload: any): unknown {
 
 export function* exportTransactions(payload: any): unknown {
   try {
-    const response = yield call(axios.post, "transactions/export", payload || {}, {
+    const response = yield call(axios.post, "wallet/transactions/export", payload || {}, {
       responseType: "blob",
     });
 

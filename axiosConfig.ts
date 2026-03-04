@@ -35,14 +35,26 @@ axiosBaseApi.interceptors.response.use(
     console.error("API Response error:", error.response ?? error.message);
 
     if (error.response?.status === 401) {
-      // Remove token from browser storage
-      localStorage.removeItem("token");
+      // Skip redirect for auth-related endpoints (login, register, etc.)
+      const requestUrl = error.config?.url || "";
+      const isAuthRequest = requestUrl.includes("user/login") ||
+        requestUrl.includes("user/register") ||
+        requestUrl.includes("user/checkEmail") ||
+        requestUrl.includes("user/forgot") ||
+        requestUrl.includes("user/reset") ||
+        requestUrl.includes("user/confirmOTP") ||
+        requestUrl.includes("user/generateOTP");
 
-      // Remove axios default header
-      delete axiosBaseApi.defaults.headers.common.Authorization;
+      if (!isAuthRequest) {
+        // Remove token from browser storage
+        localStorage.removeItem("token");
 
-      // Optional: redirect to login
-      window.location.href = "/auth/login";
+        // Remove axios default header
+        delete axiosBaseApi.defaults.headers.common.Authorization;
+
+        // Redirect to login
+        window.location.href = "/auth/login";
+      }
     }
 
     // Handle 403 (Unauthorized/Login Expired) - redirect to login
