@@ -1,99 +1,57 @@
-# DynoPay - PRD & Progress Tracker
+# DynoPay Frontend — PRD & Project Memory
 
 ## Original Problem Statement
-User provided DynoPay Next.js app credentials and asked to:
-1. Analyze and set up the app with environment variables
-2. Configure pod URL for NEXTAUTH_URL and NEXT_PUBLIC_SERVER_URL
-3. Analyze implemented vs missing API endpoints
-4. Create implementation plan and execute Phase 1
+Set up and configure `.env` file for the DynoPay Next.js application. Use the pod preview URL for `NEXTAUTH_URL` and `NEXT_PUBLIC_SERVER_URL`. Create a README documenting the setup for future agents.
 
 ## Architecture
-- **Framework**: Next.js 14.2.4 (Pages Router)
-- **Auth**: NextAuth v4 with Google OAuth
-- **State Management**: Redux Toolkit + Redux Saga
-- **UI**: MUI v5 + Custom Urbanist/Outfit fonts
-- **API Client**: Axios (connecting to external API at https://api.dynopay.com/api/)
-- **Backend Proxy**: FastAPI on port 8001 proxying /api/auth/* to Next.js on port 3000
-- **i18n**: react-i18next with multiple language support
+- **Framework**: Next.js 14 (Pages Router) + TypeScript
+- **UI**: Material UI v5
+- **State**: Redux Toolkit + Redux-Saga
+- **Auth**: NextAuth.js v4 (Google OAuth)
+- **API**: Remote backend at `https://api.dynopay.com/api/` via axios
+- **Hosting**: Emergent pod (supervisor-managed)
 
-## Environment Configuration
-- `.env.local` in `/app` root with all credentials
-- `NEXTAUTH_URL` and `NEXT_PUBLIC_SERVER_URL` = pod URL
-- `NEXT_PUBLIC_BASE_URL` = https://api.dynopay.com/api/
+## What's Been Implemented (2026-03-04)
+- [x] Created `/app/.env` with all 8 required environment variables
+- [x] Set `NEXTAUTH_URL` and `NEXT_PUBLIC_SERVER_URL` to pod preview URL
+- [x] Installed Node.js dependencies at `/app` via `yarn install`
+- [x] Fixed TypeScript build error in `Components/UI/AuthLayout/InputFields/index.tsx` (onBeforeInput type)
+- [x] Built Next.js production app (`next build`)
+- [x] Frontend service running and accessible (HTTP 200)
+- [x] Created comprehensive `/app/README.md` with full setup guide for future agents
 
-## What's Been Implemented
+## Testing Status
+- All 15 tests passed (100% backend, frontend, configuration)
+- Homepage loads with DynoPay content
+- Auth flow accessible, Google OAuth configured
+- All env vars loaded correctly
 
-### Session 1 — Setup (2026-03-04)
-- [x] Analyzed existing Next.js DynoPay codebase
-- [x] Created `.env.local` with all provided credentials
-- [x] Configured NEXTAUTH_URL and NEXT_PUBLIC_SERVER_URL to pod URL
-- [x] Installed all Node.js dependencies and built production app
-- [x] Created frontend wrapper for supervisor
-- [x] Created FastAPI backend proxy for NextAuth routes
+## Prioritized Backlog (from IMPLEMENTATION_PLAN.md)
+### P0 — Core Pages (Static → Live API)
+- [ ] Dashboard stats & chart (wire to live API)
+- [ ] Payment links CRUD
+- [ ] Notification preferences
+- [ ] User profile
 
-### Session 2 — API Analysis & Phase 1 (2026-03-04)
-- [x] Full API analysis: 45 endpoints implemented, ~155 not implemented
-- [x] Created comprehensive implementation plan at `/app/docs/IMPLEMENTATION_PLAN.md`
-- [x] **Phase 1.1 — Dashboard**: Wired stats (Total Transactions, Volume, Active Wallets) + chart + fee tier progress to live API via new Redux DashboardAction/Reducer/Saga + useDashboardData hook. Graceful fallback to static data when API returns empty.
-- [x] **Phase 1.2 — Payment Links**: Wired payment links list to API via new Redux PaymentLinkAction/Reducer/Saga. CRUD operations (create, update, delete) dispatched through Redux. Fallback to hardcoded sample data. Search filtering added.
-- [x] **Phase 1.3 — Notifications**: Created useNotificationPreferences hook with GET/PUT to /notifications/preferences API. Toggle states loaded from API, save button calls API. Toast feedback for success/error.
-- [x] **Phase 1.4 — Create Payment Link**: Wired handleCreatePaymentLink to dispatch PAYLINK_CREATE/PAYLINK_UPDATE through Redux Saga → API
+### P1 — Complete Existing Pages
+- [ ] Transaction details & export
+- [ ] Wallet OTP-based flows
+- [ ] API key management
+- [ ] Company details & tax validation
 
-### New Files Created
-- `Redux/Actions/DashboardAction.ts`
-- `Redux/Reducers/dashboardReducer.ts`
-- `Redux/Sagas/DashboardSaga.ts`
-- `Redux/Actions/PaymentLinkAction.ts`
-- `Redux/Reducers/paymentLinkReducer.ts`
-- `Redux/Sagas/PaymentLinkSaga.ts`
-- `hooks/useDashboardData.ts`
-- `hooks/useNotificationPreferences.ts`
-- `docs/IMPLEMENTATION_PLAN.md`
+### P2 — New Feature Areas
+- [ ] KYC verification flow
+- [ ] 2FA security settings
+- [ ] Session management & login history
+- [ ] Currency exchange
 
-### Modified Files
-- `Redux/Reducers/index.ts` — Added dashboardReducer, paymentLinkReducer
-- `Redux/Actions/index.ts` — Added DashboardAction, PaymentLinkAction
-- `Redux/Sagas/RootSaga.ts` — Added Dashboard + PaymentLink saga watchers
-- `utils/types.ts` — Added dashboardReducer + paymentLinkReducer to rootReducer type
-- `Components/Page/Dashboard/DashboardLeftSection.tsx` — API-connected stats + chart
-- `Components/Page/Dashboard/DashboardRightSection.tsx` — API-connected fee tiers
-- `Components/Page/Payment-link/index.tsx` — Redux-connected payment links list
-- `Components/Page/CreatePaymentLink/index.tsx` — API-connected create/update
-- `Components/Page/Notification/NotificationPage.tsx` — API-connected preferences
-
-## Test Results
-- Session 1: Backend 100%, Frontend 95% (all core tests passed)
-- Session 2: Backend 100%, Frontend 100% (13/13 tests passed)
-
-## Prioritized Backlog
-
-### P0 — Phase 2 (Complete Existing Pages)
-- Transaction details view (GET /transaction/{id})
-- Transaction export (POST /transactions/export)
-- Wallet OTP-based update/delete flows
-- API key management (update, regenerate, toggle status)
-- Company details & tax validation
-- Payment link fee preview
-
-### P1 — Phase 3 (New Feature Areas)
-- KYC verification flow (5 endpoints)
-- 2FA security settings (5 endpoints)
-- Session management & login history
-- Currency exchange
-- User onboarding status
-- User profile full data (GET /user/profile)
-
-### P2 — Phase 4 (Advanced Features)
-- Subscriptions & Invoices management
-- Webhook management UI
-- Auto-stablecoin conversion
-- Real-time SSE events
-- System status page
-- Knowledge Base (dynamic from API)
-- Advanced admin analytics
-- Referral program
+### P3 — Advanced Features
+- [ ] Subscriptions, Invoices, Referral program
+- [ ] Webhook management UI
+- [ ] Auto-stablecoin conversion
+- [ ] Real-time SSE events
 
 ## Next Tasks
-1. Phase 2: Wire transaction details, wallet OTP flows, API key management
-2. Add Google OAuth redirect URI for pod URL in Google Console
-3. Test authenticated flows with real DynoPay user credentials
+1. Wire dashboard page to live API endpoints
+2. Implement payment links CRUD with live backend
+3. Connect notification preferences to API
