@@ -18,9 +18,11 @@ import { City, Country, State } from "country-state-city";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
 
 import DownloadIcon from "@/assets/Icons/download-icon.svg";
 import { Text } from "@/Components/Page/CreatePaymentLink/styled";
+import CustomButton from "@/Components/UI/Buttons";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import {
@@ -29,6 +31,9 @@ import {
   CryptocurrencyTrigger,
 } from "@/Components/UI/CryptocurrencySelector/styled";
 import SettingsAccordion from "@/Components/UI/SettingsAccordion";
+import { CompanyAction } from "@/Redux/Actions";
+import { COMPANY_VALIDATE_TAX } from "@/Redux/Actions/CompanyAction";
+import { rootReducer } from "@/utils/types";
 
 const useLocationData = (
   formValues: { country?: string; state?: string },
@@ -181,8 +186,11 @@ export default function CompanyDetailsSection({
   onAccordionChange,
 }: CompanyDetailsSectionProps) {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const { t } = useTranslation("companyDialog");
   const { t: tSettings } = useTranslation("companySettings");
+  const companyState = useSelector((state: rootReducer) => state.companyReducer);
+  const taxValidation = companyState.taxValidation;
 
   const triggerRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<HTMLDivElement>(null);
@@ -1013,37 +1021,57 @@ export default function CompanyDetailsSection({
                     inputHeight={isMobile ? "32px" : "38px"}
                   />
                 </Grid>
+                <Grid item xs={12} md={12}>
+                  <CustomButton
+                    data-testid="validate-tax-btn"
+                    label={companyState.loading ? "Validating..." : t("validateTax", { defaultValue: "Validate Tax ID" })}
+                    variant="secondary"
+                    size="small"
+                    disabled={!values.VAT_number || companyState.loading}
+                    onClick={() => {
+                      dispatch(
+                        CompanyAction(COMPANY_VALIDATE_TAX, {
+                          taxId: values.VAT_number,
+                          country: vatValue.code,
+                        })
+                      );
+                    }}
+                    sx={{ height: 32, fontSize: 12, mt: 0.5 }}
+                  />
+                </Grid>
               </Grid>
             </Box>
+            {taxValidation && (
             <Box
               sx={{
                 mt: "8px",
                 display: "flex",
                 justifyContent: "space-between",
                 padding: "8px 12px",
-                backgroundColor: "#DDF5DC",
+                backgroundColor: taxValidation.valid !== false ? "#DDF5DC" : "#FDE8E8",
                 borderRadius: "7px",
               }}
             >
               <Box sx={{ display: "flex", gap: "5px", alignItems: "center" }}>
                 <CheckIcon
-                  sx={{ width: "16px", height: "16px", color: "#1B902B" }}
+                  sx={{ width: "16px", height: "16px", color: taxValidation.valid !== false ? "#1B902B" : "#E84848" }}
                 />
                 <Typography
                   sx={{
                     fontSize: "12px",
-                    color: "#1B902B",
+                    color: taxValidation.valid !== false ? "#1B902B" : "#E84848",
                     fontWeight: 500,
                     fontFamily: "UrbanistMedium",
                     lineHeight: "100%",
                     letterSpacing: 0,
                   }}
                 >
-                  {t("vatVerify")}
+                  {taxValidation.valid !== false ? t("vatVerify") : (taxValidation.message || "Tax ID validation failed")}
                 </Typography>
               </Box>
               <CloseIcon sx={{ width: "16px", height: "16px" }} />
             </Box>
+            )}
           </Grid>
 
           {/* Brand Logo / Profile Image */}

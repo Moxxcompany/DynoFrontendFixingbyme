@@ -9,7 +9,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 
 import { ApiAction, CompanyAction } from "@/Redux/Actions";
-import { API_DELETE, API_FETCH } from "@/Redux/Actions/ApiAction";
+import { API_DELETE, API_FETCH, API_REGENERATE, API_TOGGLE_STATUS } from "@/Redux/Actions/ApiAction";
 import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
@@ -140,7 +140,7 @@ const ApiDocumentationCard = ({ docsUrl }: { docsUrl: string }) => {
   );
 };
 
-const ApiKeyCard = ({ title, apiRow, onCopy, onDelete }: ApiKeyCardProps) => {
+const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleStatus }: ApiKeyCardProps & { onRegenerate?: (id: string | number) => void; onToggleStatus?: (id: string | number, status: string) => void }) => {
   const { t } = useTranslation("apiScreen");
   const [showApiKey, setShowApiKey] = useState(false);
   const [showAdminToken, setShowAdminToken] = useState(false);
@@ -286,6 +286,37 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete }: ApiKeyCardProps) => {
             />
           </ApiKeyDeleteButton>
 
+          {onRegenerate && (
+            <CustomButton
+              data-testid="api-regenerate-btn"
+              label={t("actions.regenerate", { defaultValue: "Regenerate" })}
+              variant="secondary"
+              size="small"
+              onClick={() => onRegenerate(apiRow?.api_id || apiRow?.id || 0)}
+              sx={{ ml: 1, height: 28, fontSize: 12 }}
+            />
+          )}
+
+          {onToggleStatus && (
+            <CustomButton
+              data-testid="api-toggle-status-btn"
+              label={
+                apiRow?.status === "active"
+                  ? t("actions.disable", { defaultValue: "Disable" })
+                  : t("actions.enable", { defaultValue: "Enable" })
+              }
+              variant="secondary"
+              size="small"
+              onClick={() =>
+                onToggleStatus(
+                  apiRow?.api_id || apiRow?.id || 0,
+                  apiRow?.status === "active" ? "inactive" : "active"
+                )
+              }
+              sx={{ ml: 1, height: 28, fontSize: 12 }}
+            />
+          )}
+
           <ApiKeyCreatedText>
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <AccessTimeFilledIcon sx={{ fontSize: 15 }} />
@@ -356,6 +387,16 @@ const ApiKeysPage = ({
     dispatch(ApiAction(API_DELETE, { id: deleteId }));
     setConfirmDeleteOpen(false);
     setDeleteId(0);
+  };
+
+  const handleRegenerate = (apiId: string | number) => {
+    if (!apiId) return;
+    dispatch(ApiAction(API_REGENERATE, { id: apiId }));
+  };
+
+  const handleToggleStatus = (apiId: string | number, status: string) => {
+    if (!apiId) return;
+    dispatch(ApiAction(API_TOGGLE_STATUS, { id: apiId, status }));
   };
 
   const docsUrl =
@@ -473,6 +514,8 @@ const ApiKeysPage = ({
                 apiRow={api}
                 onCopy={handleCopy}
                 onDelete={requestDelete}
+                onRegenerate={handleRegenerate}
+                onToggleStatus={handleToggleStatus}
               />
             </Grid>
           ))}

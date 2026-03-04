@@ -111,19 +111,12 @@ const TransactionPage = () => {
             : item.status === "failed"
               ? "failed"
               : "pending",
-        fees: "0",
-        confirmations: "0/0",
-        incomingTransactionId:
-          "3a7b9c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
-        outgoingTransactionId:
-          "9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a",
-        callbackUrl: "https://api.example.com/callback",
-        webhookResponse: {
-          status: "done",
-          txid: "3a7b9c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b",
-          amount: 0.0245,
-          confirmations: 6,
-        },
+        fees: (item as any).fees || (item as any).fee || "0",
+        confirmations: (item as any).confirmations || "0/0",
+        incomingTransactionId: (item as any).incoming_txid || (item as any).incomingTransactionId || "",
+        outgoingTransactionId: (item as any).outgoing_txid || (item as any).outgoingTransactionId || "",
+        callbackUrl: (item as any).callback_url || (item as any).callbackUrl || "",
+        webhookResponse: (item as any).webhook_response || (item as any).webhookResponse || null,
       }));
   }, [
     transactionState.customers_transactions,

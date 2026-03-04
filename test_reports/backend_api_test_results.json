@@ -1,0 +1,137 @@
+{
+  "summary": {
+    "total_tests": 21,
+    "passed_tests": 0,
+    "failed_tests": 21,
+    "success_rate": 0.0,
+    "test_timestamp": "2026-03-04T11:24:55.485504"
+  },
+  "detailed_results": [
+    {
+      "test": "Health Check (/health)",
+      "success": false,
+      "details": "Status: 200, Expected: [200, 404, 301, 302], Response: {'status': 'healthy', 'service': 'Dynopay Backend', 'timestamp': '2026-03-04T11:24:52.451Z', 'uptime': 259110.529226534, 'database': 'connected', 'redis': 'connected', 'tatum_api': {'operational': True, 'circuit_state': 'CLOSED', 'failures': 0}, 'binance_websocket': {'connected': True, 'geo_blocked': False, 'cached_prices': 10, 'cached_klines': 10, 'last_message_age_ms': 32, 'rest_fallback_failures': 0}}",
+      "timestamp": "2026-03-04T11:24:52.790369"
+    },
+    {
+      "test": "Health Check (/api/health)",
+      "success": false,
+      "details": "Status: 404, Expected: [200, 404, 301, 302], Response: {'text': '<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n<meta charset=\"utf-8\">\\n<title>Error</title>\\n</head>\\n<body>\\n<pre>Cannot GET /api/health</pre>\\n</body>\\n</html>\\n'}",
+      "timestamp": "2026-03-04T11:24:52.906272"
+    },
+    {
+      "test": "Health Check (/status)",
+      "success": false,
+      "details": "Status: 404, Expected: [200, 404, 301, 302], Response: {'text': '<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n<meta charset=\"utf-8\">\\n<title>Error</title>\\n</head>\\n<body>\\n<pre>Cannot GET /status</pre>\\n</body>\\n</html>\\n'}",
+      "timestamp": "2026-03-04T11:24:53.162176"
+    },
+    {
+      "test": "Health Check (/)",
+      "success": false,
+      "details": "Status: 200, Expected: [200, 404, 301, 302], Response: {'message': 'Dynopay Backend API', 'version': '1.0.0', 'status': 'running', 'transaction_fee': 1.5, 'blockchain_fee': '0'}",
+      "timestamp": "2026-03-04T11:24:53.478095"
+    },
+    {
+      "test": "Auth Login Test (/api/auth/login)",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 422, 400], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:53.597370"
+    },
+    {
+      "test": "Auth Login Test (/auth/login)",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 422, 400], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:53.715500"
+    },
+    {
+      "test": "Auth Login Test (/login)",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 422, 400], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:53.836087"
+    },
+    {
+      "test": "Auth Login Test (/api/login)",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 422, 400], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:53.954713"
+    },
+    {
+      "test": "API Keys Fetch",
+      "success": false,
+      "details": "Status: 401, Expected: [200, 401, 404, 403, 422], Response: {'success': False, 'message': 'Authentication required. Please provide a valid token.', 'statusCode': 401}",
+      "timestamp": "2026-03-04T11:24:54.072629"
+    },
+    {
+      "test": "API Keys Fetch Alt",
+      "success": false,
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'text': '<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n<meta charset=\"utf-8\">\\n<title>Error</title>\\n</head>\\n<body>\\n<pre>Cannot GET /userApi/getApi</pre>\\n</body>\\n</html>\\n'}",
+      "timestamp": "2026-03-04T11:24:54.191349"
+    },
+    {
+      "test": "API Keys List",
+      "success": false,
+      "details": "Status: 404, Expected: [200, 401, 404, 403, 422], Response: {'text': '<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n<meta charset=\"utf-8\">\\n<title>Error</title>\\n</head>\\n<body>\\n<pre>Cannot GET /api/keys</pre>\\n</body>\\n</html>\\n'}",
+      "timestamp": "2026-03-04T11:24:54.309145"
+    },
+    {
+      "test": "API Regenerate",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 403, 422], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:54.428184"
+    },
+    {
+      "test": "API Toggle Status",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 403, 422], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:54.547294"
+    },
+    {
+      "test": "Payment Links Fetch",
+      "success": false,
+      "details": "Status: 401, Expected: [200, 401, 404, 422, 403], Response: {'success': False, 'message': 'Authentication required. Please provide a valid token.', 'statusCode': 401}",
+      "timestamp": "2026-03-04T11:24:54.665556"
+    },
+    {
+      "test": "Fee Preview",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 422, 403], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:54.784207"
+    },
+    {
+      "test": "Create Payment Link",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 422, 403], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:54.905597"
+    },
+    {
+      "test": "Transactions Fetch",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 422, 403], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:55.023763"
+    },
+    {
+      "test": "Transaction Detail Fetch",
+      "success": false,
+      "details": "Status: 404, Expected: [200, 401, 404, 422, 403], Response: {'text': '<!DOCTYPE html>\\n<html lang=\"en\">\\n<head>\\n<meta charset=\"utf-8\">\\n<title>Error</title>\\n</head>\\n<body>\\n<pre>Cannot GET /api/transaction/123</pre>\\n</body>\\n</html>\\n'}",
+      "timestamp": "2026-03-04T11:24:55.142660"
+    },
+    {
+      "test": "Transaction Export",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 422, 403], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:55.257090"
+    },
+    {
+      "test": "Company Fetch",
+      "success": false,
+      "details": "Status: 401, Expected: [200, 401, 404, 422, 403], Response: {'success': False, 'message': 'Authentication required. Please provide a valid token.', 'statusCode': 401}",
+      "timestamp": "2026-03-04T11:24:55.371175"
+    },
+    {
+      "test": "Company Tax Validation",
+      "success": false,
+      "details": "Status: 403, Expected: [200, 401, 404, 422, 403], Response: {'error': 'CSRF token validation failed'}",
+      "timestamp": "2026-03-04T11:24:55.485334"
+    }
+  ]
+}

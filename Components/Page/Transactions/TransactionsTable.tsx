@@ -33,6 +33,9 @@ import {
   ExtendedTransaction,
   TransactionsTableProps,
 } from "@/utils/types/transaction";
+import { TransactionAction } from "@/Redux/Actions";
+import { TRANSACTION_DETAIL_FETCH } from "@/Redux/Actions/TransactionAction";
+import { useDispatch } from "react-redux";
 import { Text } from "../CreatePaymentLink/styled";
 import {
   CryptoIconChip,
@@ -55,6 +58,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   rowsPerPage: initialRowsPerPage = 10,
 }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const { t } = useTranslation("transactions");
   const tTransactions = useCallback(
     (key: string, options?: any): string => {
@@ -122,6 +126,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const handleRowClick = (transaction: ExtendedTransaction) => {
     setSelectedTransaction(transaction);
     setModalOpen(true);
+    // Fetch full transaction detail from API
+    if (transaction.id) {
+      dispatch(TransactionAction(TRANSACTION_DETAIL_FETCH, { id: transaction.id }));
+    }
   };
 
   const handleCloseModal = () => {

@@ -1,10 +1,10 @@
 import PanelCard from "@/Components/UI/PanelCard";
-import { Box, useMediaQuery } from "@mui/material";
+import { Box, Typography, useMediaQuery } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { PaymentLinkAction } from "@/Redux/Actions";
-import { PAYLINK_CREATE, PAYLINK_UPDATE } from "@/Redux/Actions/PaymentLinkAction";
+import { PAYLINK_CREATE, PAYLINK_UPDATE, PAYLINK_FEE_PREVIEW } from "@/Redux/Actions/PaymentLinkAction";
 import PaymentLinkSuccessModal from "./PaymentLinkSuccessModal";
 import { TabContentContainer } from "./styled";
 
@@ -57,6 +57,8 @@ const CreatePaymentLinkPage = ({
   const isMobile = useIsMobile("md");
   const dispatch = useDispatch();
   const { t } = useTranslation("createPaymentLinkScreen");
+  const paymentLinkState = useSelector((state: any) => state.paymentLinkReducer);
+  const feePreview = paymentLinkState?.feePreview;
   const tPaymentLink = useCallback(
     (key: string): string => {
       const result = t(key, { ns: "createPaymentLinkScreen" });
@@ -273,6 +275,22 @@ const CreatePaymentLinkPage = ({
   const handleSaveChanges = () => {
     setSaveChangeModalOpen(true);
   };
+
+  // Fetch fee preview when amount or currency changes
+  useEffect(() => {
+    const amount = parseFloat(paymentSettings.value);
+    if (amount > 0 && paymentSettings.currency) {
+      const timer = setTimeout(() => {
+        dispatch(
+          PaymentLinkAction(PAYLINK_FEE_PREVIEW, {
+            amount,
+            currency: paymentSettings.currency,
+          })
+        );
+      }, 500); // debounce
+      return () => clearTimeout(timer);
+    }
+  }, [paymentSettings.value, paymentSettings.currency, dispatch]);
 
   const handleCreatePaymentLink = () => {
     if (activeTab === 0) {
@@ -714,6 +732,29 @@ const CreatePaymentLinkPage = ({
                 />
               )}
             </TabContentContainer>
+
+            {feePreview && (
+              <Box
+                data-testid="fee-preview-display"
+                sx={{
+                  p: isMobile ? "10px 14px" : "12px 16px",
+                  backgroundColor: theme.palette.primary.light,
+                  borderRadius: "8px",
+                  border: `1px solid ${theme.palette.border.main}`,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 1,
+                }}
+              >
+                <Typography sx={{ fontSize: 13, fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
+                  Estimated Fee
+                </Typography>
+                <Typography sx={{ fontSize: 14, fontFamily: "UrbanistSemiBold", color: theme.palette.text.primary }}>
+                  {feePreview.fee != null ? `${feePreview.fee} ${feePreview.currency || paymentSettings.currency}` : "—"}
+                </Typography>
+              </Box>
+            )}
 
             <Box
               sx={{
