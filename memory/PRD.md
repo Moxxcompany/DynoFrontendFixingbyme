@@ -1,42 +1,37 @@
-# DynoPay Frontend - PRD
+# DynoPay - PRD & Implementation Log
 
 ## Original Problem Statement
-Set up DynoPay Next.js frontend, fix API endpoint integration so existing user data displays correctly. Dashboard total transactions/volume were showing 0 despite user having 640 transactions.
+Analyze and set up `.env` file for the DynoPay Next.js application. Use the pod URL for `NEXTAUTH_URL` and `NEXT_PUBLIC_SERVER_URL`.
 
 ## Architecture
 - **Framework**: Next.js 14.2.4 (Pages Router)
-- **Language**: TypeScript
-- **State**: Redux Toolkit + Redux-Saga
-- **Backend**: Remote API at `https://api.dynopay.com/api/`
+- **UI**: MUI (Material UI), custom components
+- **State**: Redux + Redux Saga
+- **Auth**: NextAuth (Google OAuth)
+- **API**: External backend at `https://api.dynopay.com/`
+- **Encryption**: CryptoJS AES with cypher key
 
-## What's Been Implemented
+## What's Been Implemented (2026-03-04)
+- Created `/app/.env` with all 8 required environment variables
+- Set `NEXTAUTH_URL` and `NEXT_PUBLIC_SERVER_URL` to pod URL
+- Installed Next.js dependencies (`yarn install`)
+- Built Next.js production bundle (`next build`)
+- Frontend running via supervisor on port 3000
+- All tests passed (100% backend + frontend)
 
-### Session 1: Initial Setup + Redux Saga Fixes
-- Created .env, installed deps, built Next.js
-- Fixed all Redux sagas (Dashboard, PaymentLink, Transaction, Wallet, Company) — response structure mismatches
-- Fixed axiosConfig — skip auth header/redirect for login endpoints
-
-### Session 2: API Endpoint Integration (no new pages)
-- **Pay Links Edit** → `GET /pay/links/{id}` replaces hardcoded data
-- **Referral Code** → `GET /referral/my-code` replaces hardcoded "DYNO2024XYZ"
-- **Notifications Inbox** → Added Inbox/Settings tabs with `GET /notifications`, unread count, mark as read
-- **API Status** → `GET /status/services` + `GET /status/incidents` replaces hardcoded arrays
-- **Backend proxy** → Added `/api-status` route for K8s ingress conflict
-
-### Session 3: Dashboard Total Transactions/Volume Fix
-- Root cause: `/dashboard` API returns 0 for total_transactions and total_volume (backend-level issue)
-- Fix: DashboardSaga now also calls `POST /wallet/getUserAnalytics` and supplements dashboard data when it returns 0
-- Result: Dashboard shows **640 transactions** and **$14,790.38 volume** from analytics data
-
-## Verified Working
-- Dashboard: 640 tx, $14,790 vol, 8 wallets, Starter tier ✅
-- Transactions: 640+ records ✅
-- Wallets: Real balances (BTC, ETH, LTC, DOGE, etc.) ✅
-- Payment Links: List + Edit detail ✅
-- Notifications: Inbox + Settings ✅
-- Referral Code: DYNO2026NOMC92496B9 ✅
-- API Status: Live services + incidents ✅
+## Environment Variables Map
+| Variable | Used In | Purpose |
+|---|---|---|
+| NEXT_PUBLIC_BASE_URL | axiosConfig.ts, axiosAdmin.ts | API base URL |
+| NEXT_PUBLIC_CYPHER_KEY | helpers/createEncryption.ts | AES encryption key |
+| NEXT_PUBLIC_GOOGLE_CLIENT_ID | pages/api/auth/[...nextauth].ts | Google OAuth |
+| NEXT_PUBLIC_GOOGLE_CLIENT_SECRET | pages/api/auth/[...nextauth].ts | Google OAuth |
+| NEXT_PUBLIC_SERVER_URL | helpers/index.ts | Redirect URLs |
+| NEXT_PUBLIC_TELEGRAM_BOT_TOKEN | Telegram integration | Bot token |
+| NEXTAUTH_SECRET | NextAuth internal | Session encryption |
+| NEXTAUTH_URL | NextAuth internal | Canonical URL |
 
 ## Backlog
-- P1: Help & Support — replace hardcoded articles with KB API
-- P2: KYC — dynamic redirect to verification provider
+- P0: None
+- P1: None
+- P2: Consider adding `.env.example` for team documentation
