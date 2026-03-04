@@ -125,7 +125,6 @@ export const ReferralCard = styled("div")(({ theme }) => ({
   color: theme.palette.text.secondary,
   background: theme.palette.secondary.main,
   position: "relative",
-  overflow: "hidden",
   [theme.breakpoints.down("md")]: {
     padding: "13px 14px 13px 14px",
   },

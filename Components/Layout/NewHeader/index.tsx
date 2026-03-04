@@ -74,7 +74,7 @@ const NewHeader = () => {
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <LogoContainer>
           <Image
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/dashboard")}
             src={Logo}
             alt="logo"
             width={114}
@@ -91,7 +91,7 @@ const NewHeader = () => {
           }}
         >
           <Image
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/dashboard")}
             src={MobileLogo}
             alt="logo"
             width={22}
