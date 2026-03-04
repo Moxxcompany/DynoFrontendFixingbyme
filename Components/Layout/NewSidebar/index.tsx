@@ -1,6 +1,7 @@
 import useIsMobile from "@/hooks/useIsMobile";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import AddIcon from "@mui/icons-material/Add";
+import GroupAddRounded from "@mui/icons-material/GroupAddRounded";
 import { Box, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
@@ -34,6 +35,7 @@ const NewSidebar = () => {
     },
     { label: t("wallets"), icon: "wallets", path: "/wallet" },
     { label: t("api"), icon: "api", path: "/developer-keys" },
+    { label: "Referrals", icon: "referrals", path: "/referrals" },
     {
       label: t("notifications"),
       icon: "notifications",
@@ -60,15 +62,26 @@ const NewSidebar = () => {
             >
               <ActiveIndicator active={isActive} />
               <IconBox active={isActive}>
-                <SidebarIcon
-                  name={item.icon}
-                  size={20}
-                  color={
-                    isActive
-                      ? theme.palette.primary.main
-                      : theme.palette.text.primary
-                  }
-                />
+                {item.icon === "referrals" ? (
+                  <GroupAddRounded
+                    sx={{
+                      fontSize: 20,
+                      color: isActive
+                        ? theme.palette.primary.main
+                        : theme.palette.text.primary,
+                    }}
+                  />
+                ) : (
+                  <SidebarIcon
+                    name={item.icon}
+                    size={20}
+                    color={
+                      isActive
+                        ? theme.palette.primary.main
+                        : theme.palette.text.primary
+                    }
+                  />
+                )}
               </IconBox>
 
               <Box

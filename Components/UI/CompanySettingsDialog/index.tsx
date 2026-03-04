@@ -12,6 +12,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { CompanyAction } from "@/Redux/Actions";
 import { COMPANY_UPDATE } from "@/Redux/Actions/CompanyAction";
 import { ICompany, rootReducer } from "@/utils/types";
+import axiosBaseApi from "@/axiosConfig";
 
 import Toast from "../Toast";
 import CompanyDetailsSection from "./CompanyDetailsSection";
@@ -87,6 +88,10 @@ export default function CompanySettingsDialog({
   const [expanded, setExpanded] = useState<string | false>("company");
   const [openToast, setOpenToast] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [autoConvertData, setAutoConvertData] = useState<{
+    auto_convert_volatile_crypto: string;
+    convert_to_stablecoin: string;
+  } | null>(null);
 
   const handleAccordionChange =
     (panel: string) => (_: React.SyntheticEvent, isExpanded: boolean) => {
@@ -116,15 +121,17 @@ export default function CompanySettingsDialog({
           (companyAny.webhook_secret_key as string | undefined) ??
           initialFormValues.webhook_secret_key,
         auto_convert_volatile_crypto:
+          autoConvertData?.auto_convert_volatile_crypto ??
           (companyAny.auto_convert_volatile_crypto as string | undefined) ??
           initialFormValues.auto_convert_volatile_crypto,
         convert_to_stablecoin:
+          autoConvertData?.convert_to_stablecoin ??
           (companyAny.convert_to_stablecoin as string | undefined) ??
           initialFormValues.convert_to_stablecoin,
       };
     }
     return { ...initialFormValues };
-  }, [company]);
+  }, [company, autoConvertData]);
 
   const schema = useMemo(
     () =>
@@ -168,11 +175,44 @@ export default function CompanySettingsDialog({
     }
   }, [open, company]);
 
+  // Fetch auto-convert settings from dedicated endpoint
+  useEffect(() => {
+    if (open && company?.company_id) {
+      axiosBaseApi
+        .get(`/company/auto-convert/${company.company_id}`)
+        .then((res) => {
+          const data = res?.data?.data;
+          if (data) {
+            setAutoConvertData({
+              auto_convert_volatile_crypto:
+                data.auto_convert_enabled === true
+                  ? "yes"
+                  : data.auto_convert_enabled === false
+                    ? "no"
+                    : data.auto_convert_volatile_crypto ?? "no",
+              convert_to_stablecoin:
+                data.target_stablecoin ?? data.convert_to_stablecoin ?? "usdt_trc20",
+            });
+          }
+        })
+        .catch(() => {
+          // Fallback to company data
+        });
+    }
+  }, [open, company?.company_id]);
+
   useEffect(() => {
     if (!open) return;
     if (company?.photo) setImagePreview(company.photo);
     else setImagePreview(undefined);
   }, [open, company]);
+
+  // Remount form when auto-convert data arrives from API
+  useEffect(() => {
+    if (autoConvertData && open) {
+      setFormKey((prev) => prev + 1);
+    }
+  }, [autoConvertData, open]);
 
   const handleClose = () => {
     setMediaFile(undefined);
@@ -199,6 +239,17 @@ export default function CompanySettingsDialog({
     dispatch(
       CompanyAction(COMPANY_UPDATE, { id: company.company_id, formData }),
     );
+
+    // Save auto-convert settings via dedicated endpoint
+    axiosBaseApi
+      .put(`/company/auto-convert/${company.company_id}`, {
+        auto_convert_enabled: values.auto_convert_volatile_crypto === "yes",
+        target_stablecoin: values.convert_to_stablecoin,
+      })
+      .catch(() => {
+        // Silently fail — company update is the primary action
+      });
+
     handleClose();
   };
 
