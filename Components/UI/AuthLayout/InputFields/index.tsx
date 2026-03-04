@@ -466,7 +466,7 @@ const InputField: React.FC<InputFieldProps> = ({
           />
 
           {sideButton && (
-            <CopyButton type="button">{renderSideButtonIcon()}</CopyButton>
+            <CopyButton type="button" onClick={onSideButtonClick}>{renderSideButtonIcon()}</CopyButton>
           )}
         </Box>
 
