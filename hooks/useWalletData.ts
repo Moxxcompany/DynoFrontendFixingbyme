@@ -6,11 +6,16 @@ import { useDispatch, useSelector } from "react-redux";
 
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
 import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
+import BNBIcon from "@/assets/cryptocurrency/BNB-icon.svg";
 import DogecoinIcon from "@/assets/cryptocurrency/Dogecoin-icon.svg";
 import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
 import LitecoinIcon from "@/assets/cryptocurrency/Litecoin-icon.svg";
+import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
+import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
+import SolanaIcon from "@/assets/cryptocurrency/Solana-icon.svg";
 import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
 import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
+import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 import {
   Cryptocurrency,
   WalletDataType,
@@ -26,8 +31,16 @@ const WALLET_ORDER: readonly WalletType[] = [
   "DOGE",
   "BCH",
   "TRX",
+  "SOL",
+  "XRP",
+  "BNB",
+  "POLYGON",
   "USDT-ERC20",
   "USDT-TRC20",
+  "USDT-POLYGON",
+  "USDC-ERC20",
+  "RLUSD",
+  "RLUSD-ERC20",
 ];
 
 const WALLET_ICONS: Record<WalletType, any> = {
@@ -37,8 +50,16 @@ const WALLET_ICONS: Record<WalletType, any> = {
   DOGE: DogecoinIcon,
   BCH: BitcoinCashIcon,
   TRX: TronIcon,
+  SOL: SolanaIcon,
+  XRP: XRPIcon,
+  BNB: BNBIcon,
+  POLYGON: PolygonIcon,
   "USDT-ERC20": USDTIcon,
   "USDT-TRC20": USDTIcon,
+  "USDT-POLYGON": USDTIcon,
+  "USDC-ERC20": USDTIcon,
+  RLUSD: RLUSDIcon,
+  "RLUSD-ERC20": RLUSDIcon,
 };
 
 const WALLET_NAMES: Record<WalletType, string> = {
@@ -48,8 +69,16 @@ const WALLET_NAMES: Record<WalletType, string> = {
   DOGE: "Dogecoin",
   BCH: "Bitcoin Cash",
   TRX: "Tron",
+  SOL: "Solana",
+  XRP: "Ripple",
+  BNB: "BNB",
+  POLYGON: "Polygon (POL)",
   "USDT-ERC20": "USDT-ERC20",
   "USDT-TRC20": "USDT-TRC20",
+  "USDT-POLYGON": "USDT-Polygon",
+  "USDC-ERC20": "USDC-ERC20",
+  RLUSD: "RLUSD",
+  "RLUSD-ERC20": "RLUSD-ERC20",
 };
 
 export const ALLCRYPTOCURRENCIES: readonly Cryptocurrency[] = [
@@ -59,8 +88,16 @@ export const ALLCRYPTOCURRENCIES: readonly Cryptocurrency[] = [
   { code: "DOGE", name: "Dogecoin", icon: DogecoinIcon },
   { code: "BCH", name: "Bitcoin Cash", icon: BitcoinCashIcon },
   { code: "TRX", name: "Tron", icon: TronIcon },
+  { code: "SOL", name: "Solana", icon: SolanaIcon },
+  { code: "XRP", name: "Ripple", icon: XRPIcon },
+  { code: "BNB", name: "BNB", icon: BNBIcon },
+  { code: "POLYGON", name: "Polygon (POL)", icon: PolygonIcon },
   { code: "USDT-ERC20", name: "USDT-ERC20", icon: USDTIcon },
   { code: "USDT-TRC20", name: "USDT-TRC20", icon: USDTIcon },
+  { code: "USDT-POLYGON", name: "USDT-Polygon", icon: USDTIcon },
+  { code: "USDC-ERC20", name: "USDC-ERC20", icon: USDTIcon },
+  { code: "RLUSD", name: "RLUSD", icon: RLUSDIcon },
+  { code: "RLUSD-ERC20", name: "RLUSD-ERC20", icon: RLUSDIcon },
 ];
 
 const requestedWalletFetchByToken = new Set<string>();

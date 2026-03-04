@@ -47,8 +47,16 @@ export type WalletType =
   | "DOGE"
   | "BCH"
   | "TRX"
+  | "SOL"
+  | "XRP"
+  | "BNB"
+  | "POLYGON"
   | "USDT-ERC20"
-  | "USDT-TRC20";
+  | "USDT-TRC20"
+  | "USDT-POLYGON"
+  | "USDC-ERC20"
+  | "RLUSD"
+  | "RLUSD-ERC20";
 
 export type CryptoCode =
   | "BTC"
@@ -57,8 +65,16 @@ export type CryptoCode =
   | "DOGE"
   | "BCH"
   | "TRX"
+  | "SOL"
+  | "XRP"
+  | "BNB"
+  | "POLYGON"
   | "USDT-ERC20"
-  | "USDT-TRC20";
+  | "USDT-TRC20"
+  | "USDT-POLYGON"
+  | "USDC-ERC20"
+  | "RLUSD"
+  | "RLUSD-ERC20";
 
 export interface WalletDataType {
   icon: any;

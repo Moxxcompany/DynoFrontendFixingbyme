@@ -61,6 +61,9 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [closeCryptoDropdown, setCloseCryptoDropdown] = useState(false);
 
+  // Chains that use destination tags (XRP Ledger)
+  const TAG_BASED_CHAINS = ["XRP", "RLUSD"];
+
   useEffect(() => {
     if (currentCryptocurrency) {
       setCryptocurrency(currentCryptocurrency);
@@ -101,10 +104,14 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       setIsSubmitting(true);
       setPopupLoading(true);
 
-      const values = {
+      const values: any = {
         wallet_address: walletAddress.trim(),
         currency: cryptocurrency,
       };
+
+      if (TAG_BASED_CHAINS.includes(cryptocurrency) && xrpTag.trim()) {
+        values.destination_tag = xrpTag.trim();
+      }
 
       const response: any = await axiosBaseApi.post(
         "/wallet/validateWalletAddress",
@@ -255,8 +262,9 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
 
     setCloseCryptoDropdown(true);
     setWalletName("");
-    setCryptocurrency("BTC");
+    setCryptocurrency("");
     setWalletAddress("");
+    setXrpTag("");
     setErrors({});
     setPopupLoading(false);
     setOtpModalOpen(false);
@@ -388,35 +396,39 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             </WarningContent>
           </WarningContainer>
 
-          <InputField
-            label={tWallet("XRPTag")}
-            placeholder={tWallet("XRPTagPlaceholder")}
-            value={xrpTag}
-            onChange={(e) => {
-              setXrpTag(e.target.value);
-              if (errors.xrpTag) {
-                setErrors({ ...errors, xrpTag: undefined });
-              }
-            }}
-            error={!!errors.xrpTag}
-            helperText={errors.xrpTag}
-          />
-
-          <WarningContainer>
-            <WarningIconContainer>
-              <Image
-                src={InfoIcon}
-                alt="info icon"
-                width={16}
-                height={16}
-                draggable={false}
-                style={{ filter: "brightness(0)" }}
+          {TAG_BASED_CHAINS.includes(cryptocurrency) && (
+            <>
+              <InputField
+                label={tWallet("XRPTag")}
+                placeholder={tWallet("XRPTagPlaceholder")}
+                value={xrpTag}
+                onChange={(e) => {
+                  setXrpTag(e.target.value);
+                  if (errors.xrpTag) {
+                    setErrors({ ...errors, xrpTag: undefined });
+                  }
+                }}
+                error={!!errors.xrpTag}
+                helperText={errors.xrpTag}
               />
-            </WarningIconContainer>
-            <WarningContent>
-              <p>{tWallet("XRPTagWarning")}</p>
-            </WarningContent>
-          </WarningContainer>
+
+              <WarningContainer>
+                <WarningIconContainer>
+                  <Image
+                    src={InfoIcon}
+                    alt="info icon"
+                    width={16}
+                    height={16}
+                    draggable={false}
+                    style={{ filter: "brightness(0)" }}
+                  />
+                </WarningIconContainer>
+                <WarningContent>
+                  <p>{tWallet("XRPTagWarning")}</p>
+                </WarningContent>
+              </WarningContainer>
+            </>
+          )}
         </Box>
         <Box
           sx={{ display: "flex", gap: "20px", mt: isMobile ? "14px" : "20px" }}

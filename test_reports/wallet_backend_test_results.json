@@ -1,0 +1,35 @@
+{
+  "summary": {
+    "total_tests": 4,
+    "passed_tests": 2,
+    "failed_tests": 2,
+    "success_rate": 50.0,
+    "test_timestamp": "2026-03-04T17:04:02.276762"
+  },
+  "detailed_results": [
+    {
+      "test": "Login API",
+      "success": true,
+      "details": "Login successful, token received: eyJhbGciOiJIUzI1NiIs...",
+      "timestamp": "2026-03-04T17:04:00.931026"
+    },
+    {
+      "test": "BTC Wallet Validation",
+      "success": false,
+      "details": "Status 400: {'success': False, 'message': 'Company ID is required!', 'statusCode': 400}",
+      "timestamp": "2026-03-04T17:04:01.144022"
+    },
+    {
+      "test": "XRP Wallet Validation (with tag)",
+      "success": false,
+      "details": "Status 400: {'success': False, 'message': 'Company ID is required!', 'statusCode': 400}",
+      "timestamp": "2026-03-04T17:04:01.440242"
+    },
+    {
+      "test": "Currency Coverage Test",
+      "success": true,
+      "details": "API supports 4/4 tested currencies",
+      "timestamp": "2026-03-04T17:04:02.276609"
+    }
+  ]
+}
