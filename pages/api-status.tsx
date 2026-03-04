@@ -1,6 +1,6 @@
 import useIsMobile from "@/hooks/useIsMobile";
-import { Box, Typography } from "@mui/material";
-import React from "react";
+import { Box, Typography, CircularProgress } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { homeTheme } from "@/styles/homeTheme";
 import {
@@ -13,20 +13,20 @@ import successIcon from "@/assets/Icons/home/success.svg";
 import serviceIcon from "@/assets/Icons/home/service.svg";
 import Image from "next/image";
 import Bars from "@/Components/UI/APIStatus/Bars";
+import axiosBaseApi from "@/axiosConfig";
 
 const ApiStatus = () => {
   const isMobile = useIsMobile();
   const { t } = useTranslation("apiStatus");
 
-  const services = [
+  const [services, setServices] = useState([
     { nameKey: "service1Name", uptime: "99.99%", statusKey: "operational" },
     { nameKey: "service2Name", uptime: "99.98%", statusKey: "operational" },
     { nameKey: "service3Name", uptime: "99.97%", statusKey: "operational" },
     { nameKey: "service4Name", uptime: "99.95%", statusKey: "operational" },
     { nameKey: "service5Name", uptime: "99.99%", statusKey: "operational" },
-  ];
-
-  const incidents = [
+  ]);
+  const [incidents, setIncidents] = useState([
     {
       nameKey: "incident1Name",
       timeKey: "incident1Time",
@@ -37,7 +37,46 @@ const ApiStatus = () => {
       timeKey: "incident2Time",
       descriptionKey: "incident2Description",
     },
-  ];
+  ]);
+  const [allOperational, setAllOperational] = useState(true);
+  const [useLiveData, setUseLiveData] = useState(false);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const [servicesRes, incidentsRes] = await Promise.all([
+          axiosBaseApi.get("/status/services").catch(() => null),
+          axiosBaseApi.get("/status/incidents").catch(() => null),
+        ]);
+
+        if (servicesRes?.data?.data?.services) {
+          const svc = servicesRes.data.data.services;
+          setServices(svc.map((s: any) => ({
+            nameKey: s.name,
+            uptime: s.uptime,
+            statusKey: s.status,
+            _live: true,
+          })));
+          setAllOperational(svc.every((s: any) => s.status === "operational"));
+          setUseLiveData(true);
+        }
+
+        if (incidentsRes?.data?.data?.incidents) {
+          setIncidents(incidentsRes.data.data.incidents.map((inc: any) => ({
+            nameKey: inc.title,
+            timeKey: inc.formatted_date,
+            descriptionKey: inc.description,
+            status: inc.status,
+            _live: true,
+          })));
+        }
+      } catch (err) {
+        console.error("Failed to fetch status:", err);
+      }
+    };
+
+    fetchStatus();
+  }, []);
 
   return (
     <Box
@@ -77,7 +116,7 @@ const ApiStatus = () => {
               letterSpacing: 0,
             }}
           >
-            {t("allSystemsOperational")}
+            {allOperational ? t("allSystemsOperational") : "Some Systems Degraded"}
           </Typography>
         </SuccessChip>
 
@@ -155,7 +194,7 @@ const ApiStatus = () => {
               >
                 <Image
                   src={successIcon}
-                  alt={t(service.nameKey)}
+                  alt={(service as any)._live ? service.nameKey : t(service.nameKey)}
                   width={isMobile ? 19.02 : 20}
                   height={20}
                 />
@@ -167,7 +206,7 @@ const ApiStatus = () => {
                     color: "#131520",
                   }}
                 >
-                  {t(service.nameKey)}
+                  {(service as any)._live ? service.nameKey : t(service.nameKey)}
                 </Typography>
               </Box>
 
@@ -193,7 +232,7 @@ const ApiStatus = () => {
                     color: homeTheme.palette.success.main,
                   }}
                 >
-                  {t(service.statusKey)}
+                  {(service as any)._live ? service.statusKey : t(service.statusKey)}
                 </Typography>
               </Box>
             </Box>
@@ -245,12 +284,12 @@ const ApiStatus = () => {
                   color: "#131520",
                 }}
               >
-                {t(incident.nameKey)}
+                {(incident as any)._live ? incident.nameKey : t(incident.nameKey)}
               </Typography>
-              <TypographyTime>{t(incident.timeKey)}</TypographyTime>
+              <TypographyTime>{(incident as any)._live ? incident.timeKey : t(incident.timeKey)}</TypographyTime>
             </Box>
             <TypographyDescription>
-              {t(incident.descriptionKey)}
+              {(incident as any)._live ? incident.descriptionKey : t(incident.descriptionKey)}
             </TypographyDescription>
             <Box
               height={26}

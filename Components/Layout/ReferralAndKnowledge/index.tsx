@@ -16,8 +16,9 @@ import Toast from "@/Components/UI/Toast";
 import { Box } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import axiosBaseApi from "@/axiosConfig";
 
 const ReferralAndKnowledge = ({ isMobile }: { isMobile: boolean }) => {
   const router = useRouter();
@@ -25,9 +26,21 @@ const ReferralAndKnowledge = ({ isMobile }: { isMobile: boolean }) => {
   const tCommon = useCallback((key: string) => t(key, { ns: "common" }), [t]);
   const [openToast, setOpenToast] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [referralCode, setReferralCode] = useState("DYNO2024XYZ");
+
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) return;
+    axiosBaseApi.get("/referral/my-code")
+      .then((res) => {
+        const code = res?.data?.data?.referral_code;
+        if (code) setReferralCode(code);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("DYNO2024XYZ");
+    navigator.clipboard.writeText(referralCode);
     setOpenToast(false);
 
     setTimeout(() => {
@@ -68,7 +81,7 @@ const ReferralAndKnowledge = ({ isMobile }: { isMobile: boolean }) => {
           <ReferralCardTitle>{t("yourReferralCode")}</ReferralCardTitle>
 
           <ReferralCardContentValueContainer>
-            <ReferralCardContentValue>DYNO2024XYZ</ReferralCardContentValue>
+            <ReferralCardContentValue>{referralCode}</ReferralCardContentValue>
             <CopyButton onClick={handleCopy}>
               <Image
                 src={CopyIcon}

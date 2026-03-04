@@ -2,9 +2,9 @@ import CustomButton from "@/Components/UI/Buttons";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
 import PanelCard from "@/Components/UI/PanelCard";
 import { theme } from "@/styles/theme";
-import { Box, CircularProgress, Divider, Grid, IconButton, Typography } from "@mui/material";
+import { Box, Chip, CircularProgress, Divider, Grid, IconButton, Typography } from "@mui/material";
 import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 import BellIcon from "@/assets/Icons/bell-icon.svg";
 import EnvelopeIcon from "@/assets/Icons/envelope-icon.svg";
@@ -14,8 +14,11 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 import { NotificationItemProps } from "@/utils/types/notification";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import CircleIcon from "@mui/icons-material/Circle";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import axiosBaseApi from "@/axiosConfig";
 
 const NotificationItem: React.FC<NotificationItemProps> = ({
   title,
@@ -103,6 +106,61 @@ const NotificationPage = () => {
   const [toastSeverity, setToastSeverity] = useState<"success" | "error">("success");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Notification inbox state
+  const [activeTab, setActiveTab] = useState<"inbox" | "settings">("inbox");
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifLoading, setNotifLoading] = useState(true);
+  const [markingAllRead, setMarkingAllRead] = useState(false);
+
+  useEffect(() => {
+    axiosBaseApi.get("/notifications")
+      .then((res) => setNotifications(res?.data?.data?.notifications || []))
+      .catch(() => {})
+      .finally(() => setNotifLoading(false));
+    axiosBaseApi.get("/notifications/unread-count")
+      .then((res) => setUnreadCount(res?.data?.data?.unread_count || 0))
+      .catch(() => {});
+  }, []);
+
+  const markAllAsRead = async () => {
+    setMarkingAllRead(true);
+    try {
+      await axiosBaseApi.put("/notifications/read-all");
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      setUnreadCount(0);
+    } catch {}
+    setMarkingAllRead(false);
+  };
+
+  const markOneAsRead = async (id: number) => {
+    try {
+      await axiosBaseApi.put(`/notifications/${id}/read`);
+      setNotifications((prev) =>
+        prev.map((n) => (n.notification_id === id ? { ...n, is_read: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch {}
+  };
+
+  const formatTimeAgo = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Date(dateStr).toLocaleDateString();
+  };
+
+  const getTypeColor = (type: string) => {
+    if (type.includes("received") || type.includes("confirmed")) return "#22C55E";
+    if (type.includes("pending") || type.includes("confirming")) return "#F59E0B";
+    if (type.includes("partial")) return "#EF4444";
+    return "#6B7280";
+  };
+
   const handleSaveChanges = async () => {
     setOpenToast(false);
 
@@ -138,6 +196,130 @@ const NotificationPage = () => {
 
   return (
     <Box>
+      {/* Tab Switcher */}
+      <Box sx={{ display: "flex", gap: "12px", mb: 2.5 }}>
+        <CustomButton
+          data-testid="notifications-inbox-tab"
+          label={`Inbox${unreadCount > 0 ? ` (${unreadCount})` : ""}`}
+          variant={activeTab === "inbox" ? "primary" : "outlined"}
+          size="small"
+          onClick={() => setActiveTab("inbox")}
+        />
+        <CustomButton
+          data-testid="notifications-settings-tab"
+          label="Settings"
+          variant={activeTab === "settings" ? "primary" : "outlined"}
+          size="small"
+          onClick={() => setActiveTab("settings")}
+        />
+      </Box>
+
+      {/* Inbox Tab */}
+      {activeTab === "inbox" && (
+        <Box>
+          {unreadCount > 0 && (
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+              <CustomButton
+                data-testid="mark-all-read-btn"
+                label={markingAllRead ? "Marking..." : "Mark All as Read"}
+                variant="outlined"
+                size="small"
+                onClick={markAllAsRead}
+                disabled={markingAllRead}
+              />
+            </Box>
+          )}
+          {notifLoading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+              <CircularProgress size={28} />
+            </Box>
+          ) : notifications.length === 0 ? (
+            <Box sx={{ textAlign: "center", py: 6 }}>
+              <Typography sx={{ fontSize: "15px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}>
+                No notifications yet
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {notifications.map((notif) => (
+                <Box
+                  key={notif.notification_id}
+                  data-testid={`notification-item-${notif.notification_id}`}
+                  onClick={() => !notif.is_read && markOneAsRead(notif.notification_id)}
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    p: isMobile ? 1.5 : 2,
+                    borderRadius: "12px",
+                    border: `1px solid ${theme.palette.border.main}`,
+                    backgroundColor: notif.is_read ? theme.palette.common.white : "#F0F7FF",
+                    cursor: notif.is_read ? "default" : "pointer",
+                    transition: "all 0.15s ease",
+                    "&:hover": { borderColor: theme.palette.primary.main },
+                  }}
+                >
+                  <Box sx={{ pt: "4px", width: 12, flexShrink: 0 }}>
+                    {!notif.is_read && (
+                      <CircleIcon sx={{ fontSize: 8, color: theme.palette.primary.main }} />
+                    )}
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 0.5 }}>
+                      <Typography
+                        sx={{
+                          fontSize: { xs: "13px", md: "15px" },
+                          fontWeight: notif.is_read ? 500 : 700,
+                          fontFamily: notif.is_read ? "UrbanistMedium" : "UrbanistBold",
+                          color: theme.palette.text.primary,
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {notif.title}
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistRegular", whiteSpace: "nowrap", ml: 1 }}
+                      >
+                        {formatTimeAgo(notif.created_at)}
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: { xs: "12px", md: "13px" },
+                        color: theme.palette.text.secondary,
+                        fontFamily: "UrbanistRegular",
+                        lineHeight: 1.4,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      {notif.message}
+                    </Typography>
+                    <Chip
+                      label={notif.type.split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                      size="small"
+                      sx={{
+                        mt: 0.5,
+                        height: 22,
+                        fontSize: "11px",
+                        fontFamily: "UrbanistMedium",
+                        backgroundColor: `${getTypeColor(notif.type)}15`,
+                        color: getTypeColor(notif.type),
+                        border: `1px solid ${getTypeColor(notif.type)}30`,
+                      }}
+                    />
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      )}
+
+      {/* Settings Tab */}
+      {activeTab === "settings" && (
       <Grid container spacing={2.5}>
         {/* Left Column - Two Cards Stacked */}
         <Grid item xs={12} md={6}>
@@ -413,6 +595,7 @@ const NotificationPage = () => {
           </Box>
         </Grid>
       </Grid>
+      )}
       <Toast
         open={openToast}
         message={toastMessage}

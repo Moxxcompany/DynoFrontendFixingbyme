@@ -4,76 +4,81 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { theme } from "@/styles/theme";
 import { PaymentLink } from "@/utils/types/paymentLink";
 import { ExpandLess } from "@mui/icons-material";
-import { Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import axiosBaseApi from "@/axiosConfig";
 
 export default function EditPaymentLink() {
   const router = useRouter();
   const { slug } = router.query;
   const isMobile = useIsMobile();
   const { t } = useTranslation("createPaymentLinkScreen");
-  const [payLinkId, setPayLinkId] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
+  const [paymentLinkData, setPaymentLinkData] = useState<PaymentLink | {}>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!router.isReady) return;
 
     if (typeof slug !== "string" || slug === undefined) {
       router.push("/pay-links");
-    } else {
-      setPayLinkId(slug);
+      return;
     }
-  }, [router, router.isReady, slug]);
 
-  useEffect(() => {
-    const getStatus = () => {
-      if (payLinkId === "a7b9c1d2e23fd5") {
-        setStatus("active");
-      } else if (payLinkId === "a7b9c1d2e6ihj") {
-        setStatus("expired");
-      } else if (payLinkId === "a7b9c1dcvb78") {
-        setStatus("pending");
-      } else if (payLinkId === "a7b9c1d2e3f4a5") {
-        setStatus("paid");
-      } else {
-        setStatus("active");
+    const fetchPaymentLink = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosBaseApi.get(`/pay/links/${slug}`);
+        const d = response?.data?.data;
+        if (d) {
+          setPaymentLinkData({
+            link_id: String(d.link_id),
+            amount: d.base_amount ?? 0,
+            currency: d.base_currency ?? "USD",
+            description: d.description ?? "",
+            status: (d.status ?? "pending").toLowerCase() as any,
+            clientName: d.email ?? "",
+            expire: d.expires_at ? "yes" : "no",
+            blockchainFees: d.fee_payer === "company" ? "merchant" : "customer",
+            acceptedCryptoCurrency: d.accepted_currencies
+              ? d.accepted_currencies.split(",").map((c: string) => c.trim())
+              : ["BTC", "ETH", "LTC", "DOGE", "USDT"],
+            payment_url: d.payment_link ?? "",
+            redirect_url: d.redirect_url ?? "",
+            webhook_url: d.webhook_url ?? "",
+            metadata: {
+              order_id: d.transaction_id ?? "",
+              customer_email: d.email ?? "",
+            },
+            created_at: d.created ?? "",
+            paid_at: "",
+            transaction: {
+              transaction_id: d.transaction_reference ?? "",
+              crypto_currency: d.paid_currency ?? "",
+              crypto_amount: d.paid_amount ?? 0,
+              confirmations: 0,
+              tx_hash: "",
+            },
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch payment link:", err);
+      } finally {
+        setLoading(false);
       }
     };
-    getStatus();
-  }, [payLinkId]);
 
-  const paymentLinkData: PaymentLink | {} = (slug as string)
-    ? {
-        link_id: payLinkId,
-        amount: 199.99,
-        currency: "USD",
-        description: "Order #12345 - Premium Subscription",
-        status: status,
-        clientName: "Artur S.",
-        expire: "yes",
-        blockchainFees: "customer",
-        acceptedCryptoCurrency: ["BTC", "ETH", "LTC", "DOGE", "USDT"],
-        payment_url:
-          "https://checkout.dynopay.com/pay/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-        redirect_url: "https://mystore.com/order/12345/success",
-        webhook_url: "https://mystore.com/webhooks/dynopay",
-        metadata: {
-          order_id: "12345",
-          customer_email: "customer@example.com",
-        },
-        created_at: "2024-01-15T10:30:00Z",
-        paid_at: "2024-01-15T10:45:00Z",
-        transaction: {
-          transaction_id: "txn_abc123",
-          crypto_currency: "BTC",
-          crypto_amount: 0.00456,
-          confirmations: 3,
-          tx_hash: "0x1234567890abcdef...",
-        },
-      }
-    : {};
+    fetchPaymentLink();
+  }, [router, router.isReady, slug]);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress size={32} />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -113,7 +118,8 @@ export default function EditPaymentLink() {
           color: theme.palette.text.primary,
         }}
       >
-        {"status" in paymentLinkData && paymentLinkData.status === "paid"
+        {"status" in paymentLinkData &&
+        (paymentLinkData.status === "paid" || paymentLinkData.status === "expired")
           ? t("paymentLinkDetail")
           : t("editPaymentLink")}
       </Text>
