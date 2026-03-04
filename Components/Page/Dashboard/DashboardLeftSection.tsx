@@ -13,13 +13,14 @@ import TimePeriodSelector from "@/Components/UI/TimePeriodSelector";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
+import { useDashboardData } from "@/hooks/useDashboardData";
 import {
   DateRange,
   TimePeriod,
   TransactionData,
 } from "@/utils/types/dashboard";
 import { Add, ArrowOutward, Remove } from "@mui/icons-material";
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, IconButton, Skeleton, Typography, useTheme } from "@mui/material";
 import {
   eachDayOfInterval,
   endOfDay,
@@ -29,7 +30,7 @@ import {
 } from "date-fns";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { memo, useCallback, useMemo, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PercentageChip } from "./styled";
 
@@ -136,22 +137,27 @@ const processTransactionData = (
 
 const TransactionVolumeChart = ({
   selectedPeriod,
+  apiChartData,
 }: {
   selectedPeriod: SelectedPeriod;
+  apiChartData: Array<{ date: string; value: number }>;
 }) => {
   const isMobile = useIsMobile("md");
 
   const rawTransactionData = useMemo(
-    () => [
-      { date: "Feb 5", value: 8000 },
-      { date: "Feb 6", value: 12000 },
-      { date: "Feb 7", value: 10000 },
-      { date: "Feb 8", value: 15600 },
-      { date: "Feb 9", value: 11000 },
-      { date: "Feb 10", value: 13500 },
-      { date: "Feb 11", value: 15000 },
-    ],
-    [],
+    () =>
+      apiChartData.length > 0
+        ? apiChartData
+        : [
+            { date: "Feb 5", value: 8000 },
+            { date: "Feb 6", value: 12000 },
+            { date: "Feb 7", value: 10000 },
+            { date: "Feb 8", value: 15600 },
+            { date: "Feb 9", value: 11000 },
+            { date: "Feb 10", value: 13500 },
+            { date: "Feb 11", value: 15000 },
+          ],
+    [apiChartData],
   );
 
   const transactionData = useMemo(
@@ -254,6 +260,32 @@ const DashboardLeftSection = () => {
   );
 
   const { activeWalletsData } = useWalletData();
+  const { stats, chartData, loading, fetchChartData } = useDashboardData();
+
+  // Fetch chart data when period changes
+  useEffect(() => {
+    if (selectedPeriod === "custom") {
+      if (customDateRange.startDate && customDateRange.endDate) {
+        fetchChartData(
+          "custom",
+          customDateRange.startDate.toISOString(),
+          customDateRange.endDate.toISOString()
+        );
+      }
+    } else {
+      const periodMap: Record<string, string> = {
+        "7days": "7d",
+        "30days": "30d",
+        "90days": "90d",
+      };
+      fetchChartData(periodMap[selectedPeriod] || "7d");
+    }
+  }, [selectedPeriod, customDateRange, fetchChartData]);
+
+  const totalTransactions = stats.totalTransactions || 4;
+  const totalVolume = stats.totalVolume || 6479.25;
+  const transactionChange = stats.transactionChange || 12;
+  const volumeChange = stats.volumeChange || 8.5;
 
   const maxWalletsToShow = isMobile ? 2 : 3;
   const walletsToDisplay = showAllWallets
@@ -468,7 +500,7 @@ const DashboardLeftSection = () => {
               letterSpacing: 0,
             }}
           >
-            4
+            {loading ? <Skeleton width={60} /> : totalTransactions}
           </Typography>
 
           <Box
@@ -504,7 +536,7 @@ const DashboardLeftSection = () => {
                   letterSpacing: 0,
                 }}
               >
-                12%
+                {transactionChange}%
               </Typography>
             </PercentageChip>
             <Typography
@@ -570,7 +602,7 @@ const DashboardLeftSection = () => {
               letterSpacing: 0,
             }}
           >
-            {getCurrencySymbol("USD", formatNumberWithComma(6479.25))}
+            {loading ? <Skeleton width={120} /> : getCurrencySymbol("USD", formatNumberWithComma(totalVolume))}
           </Typography>
 
           <Box
@@ -607,7 +639,7 @@ const DashboardLeftSection = () => {
                   letterSpacing: 0,
                 }}
               >
-                8.5%
+                {volumeChange}%
               </Typography>
             </PercentageChip>
             <Typography
@@ -875,6 +907,7 @@ const DashboardLeftSection = () => {
             selectedPeriod={
               selectedPeriod === "custom" ? customDateRange : selectedPeriod
             }
+            apiChartData={chartData}
           />
         </PanelCard>
       </Box>

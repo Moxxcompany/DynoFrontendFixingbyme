@@ -11,6 +11,7 @@ import FeeTierProgress from "./FeeTierProgress";
 
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useDashboardData } from "@/hooks/useDashboardData";
 import { theme } from "@/styles/theme";
 
 import CheckCircleIcon from "@/assets/Icons/correct-icon.png";
@@ -35,8 +36,17 @@ const DashboardRightSection = () => {
     [t],
   );
 
-  const [monthlyLimit] = useState(DEFAULT_MONTHLY_LIMIT);
-  const [usedAmount, setUsedAmount] = useState(DEFAULT_USED_AMOUNT);
+  const { feeTiers } = useDashboardData();
+
+  const monthlyLimit = feeTiers.monthlyLimit || DEFAULT_MONTHLY_LIMIT;
+  const currentTier = feeTiers.currentTier || CURRENT_TIER;
+  const [usedAmount, setUsedAmount] = useState(feeTiers.usedAmount || DEFAULT_USED_AMOUNT);
+
+  useEffect(() => {
+    if (feeTiers.usedAmount > 0) {
+      setUsedAmount(feeTiers.usedAmount);
+    }
+  }, [feeTiers.usedAmount]);
 
   useEffect(() => {
     if (usedAmount > monthlyLimit) {
@@ -194,7 +204,7 @@ const DashboardRightSection = () => {
                   height={16}
                   draggable={false}
                 />
-                {CURRENT_TIER}
+                {currentTier}
               </Box>
             </Typography>
           </Box>

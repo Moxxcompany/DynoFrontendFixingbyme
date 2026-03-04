@@ -4,6 +4,8 @@ import { CompanyAction } from "./CompanyAction";
 import { ApiAction } from "./ApiAction";
 import { WalletAction } from "./WalletAction";
 import { TransactionAction } from "./TransactionAction";
+import { DashboardAction } from "./DashboardAction";
+import { PaymentLinkAction } from "./PaymentLinkAction";
 
 export {
   UserAction,
@@ -12,4 +14,6 @@ export {
   ApiAction,
   TransactionAction,
   WalletAction,
+  DashboardAction,
+  PaymentLinkAction,
 };

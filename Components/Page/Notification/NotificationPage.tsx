@@ -2,7 +2,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
 import PanelCard from "@/Components/UI/PanelCard";
 import { theme } from "@/styles/theme";
-import { Box, Divider, Grid, IconButton, Typography } from "@mui/material";
+import { Box, CircularProgress, Divider, Grid, IconButton, Typography } from "@mui/material";
 import Image from "next/image";
 import React, { useRef, useState } from "react";
 
@@ -11,6 +11,7 @@ import EnvelopeIcon from "@/assets/Icons/envelope-icon.svg";
 import MobileIcon from "@/assets/Icons/mobile-icon.svg";
 import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 import { NotificationItemProps } from "@/utils/types/notification";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { useCallback } from "react";
@@ -89,28 +90,32 @@ const NotificationPage = () => {
   );
   const isMobile = useIsMobile("md");
 
-  // Transaction Alerts state
-  const [transactionUpdates, setTransactionUpdates] = useState(true);
-  const [paymentReceived, setPaymentReceived] = useState(false);
-
-  // Weekly Reports state
-  const [weeklySummary, setWeeklySummary] = useState(true);
-  const [securityAlerts, setSecurityAlerts] = useState(false);
-
-  // Email Notifications state
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [smsNotifications, setSmsNotifications] = useState(false);
+  const {
+    preferences,
+    loading,
+    saving,
+    updatePreference,
+    savePreferences,
+  } = useNotificationPreferences();
 
   const [openToast, setOpenToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("Settings updated successfully!");
+  const [toastSeverity, setToastSeverity] = useState<"success" | "error">("success");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleSaveChanges = () => {
-    // TODO: Implement save functionality
-    console.log("Saving notification preferences...");
-
+  const handleSaveChanges = async () => {
     setOpenToast(false);
 
+    const success = await savePreferences(preferences);
+
     setTimeout(() => {
+      if (success) {
+        setToastMessage("Settings updated successfully!");
+        setToastSeverity("success");
+      } else {
+        setToastMessage("Failed to save settings. Please try again.");
+        setToastSeverity("error");
+      }
       setOpenToast(true);
     }, 0);
 
@@ -122,6 +127,14 @@ const NotificationPage = () => {
       setOpenToast(false);
     }, 2000);
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress size={32} />
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -181,14 +194,14 @@ const NotificationPage = () => {
                 <NotificationItem
                   title={tNotifications("transactionUpdatesTitle")}
                   description={tNotifications("transactionUpdatesDescription")}
-                  checked={transactionUpdates}
-                  onChange={setTransactionUpdates}
+                  checked={preferences.transactionUpdates}
+                  onChange={(val) => updatePreference("transactionUpdates", val)}
                 />
                 <NotificationItem
                   title={tNotifications("paymentReceivedTitle")}
                   description={tNotifications("paymentReceivedDescription")}
-                  checked={paymentReceived}
-                  onChange={setPaymentReceived}
+                  checked={preferences.paymentReceived}
+                  onChange={(val) => updatePreference("paymentReceived", val)}
                   showDivider={false}
                 />
               </Box>
@@ -246,14 +259,14 @@ const NotificationPage = () => {
                 <NotificationItem
                   title={tNotifications("weeklySummaryTitle")}
                   description={tNotifications("weeklySummaryDescription")}
-                  checked={weeklySummary}
-                  onChange={setWeeklySummary}
+                  checked={preferences.weeklySummary}
+                  onChange={(val) => updatePreference("weeklySummary", val)}
                 />
                 <NotificationItem
                   title={tNotifications("securityAlertsTitle")}
                   description={tNotifications("securityAlertsDescription")}
-                  checked={securityAlerts}
-                  onChange={setSecurityAlerts}
+                  checked={preferences.securityAlerts}
+                  onChange={(val) => updatePreference("securityAlerts", val)}
                   showDivider={false}
                 />
               </Box>
@@ -323,14 +336,14 @@ const NotificationPage = () => {
                 <NotificationItem
                   title={tNotifications("emailNotificationsTitle")}
                   description={tNotifications("emailNotificationsDescription")}
-                  checked={emailNotifications}
-                  onChange={setEmailNotifications}
+                  checked={preferences.emailNotifications}
+                  onChange={(val) => updatePreference("emailNotifications", val)}
                 />
                 <NotificationItem
                   title={tNotifications("smsNotificationsTitle")}
                   description={tNotifications("smsNotificationsDescription")}
-                  checked={smsNotifications}
-                  onChange={setSmsNotifications}
+                  checked={preferences.smsNotifications}
+                  onChange={(val) => updatePreference("smsNotifications", val)}
                 />
                 {/* Browser Notifications - Special Button */}
                 <Box
@@ -390,19 +403,20 @@ const NotificationPage = () => {
             </PanelCard>
 
             <CustomButton
-              label={tNotifications("saveChanges")}
+              label={saving ? "Saving..." : tNotifications("saveChanges")}
               variant="primary"
               size={isMobile ? "small" : "medium"}
               fullWidth
               onClick={handleSaveChanges}
+              disabled={saving}
             />
           </Box>
         </Grid>
       </Grid>
       <Toast
         open={openToast}
-        message={"Settings updated successfully!"}
-        severity="success"
+        message={toastMessage}
+        severity={toastSeverity}
       />
     </Box>
   );

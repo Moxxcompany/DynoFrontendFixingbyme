@@ -2,6 +2,9 @@ import PanelCard from "@/Components/UI/PanelCard";
 import { Box, useMediaQuery } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import { PaymentLinkAction } from "@/Redux/Actions";
+import { PAYLINK_CREATE, PAYLINK_UPDATE } from "@/Redux/Actions/PaymentLinkAction";
 import PaymentLinkSuccessModal from "./PaymentLinkSuccessModal";
 import { TabContentContainer } from "./styled";
 
@@ -52,6 +55,7 @@ const CreatePaymentLinkPage = ({
   disabled,
 }: CreatePaymentLinkPageProps) => {
   const isMobile = useIsMobile("md");
+  const dispatch = useDispatch();
   const { t } = useTranslation("createPaymentLinkScreen");
   const tPaymentLink = useCallback(
     (key: string): string => {
@@ -282,18 +286,53 @@ const CreatePaymentLinkPage = ({
         return;
       }
 
-      console.log("Payment Settings Data:", paymentSettings);
-      const mockLink = `https://pay.dynopay.com/${Math.random()
+      // Build API payload
+      const apiPayload = {
+        amount: parseFloat(paymentSettings.value),
+        currency: paymentSettings.currency,
+        description: paymentSettings.description,
+        clientName: paymentSettings.clientName,
+        expire: paymentSettings.expire,
+        blockchainFees: paymentSettings.blockchainFees,
+        acceptedCryptoCurrency: paymentSettings.acceptedCryptoCurrency,
+        redirect_url: postPaymentSettings.redirectUrl,
+        webhook_url: postPaymentSettings.webhookUrl,
+        payment_url: postPaymentSettings.callbackUrl,
+      };
+
+      // Dispatch to Redux saga which calls the API
+      if (hasPaymentLinkData) {
+        dispatch(
+          PaymentLinkAction(PAYLINK_UPDATE, {
+            id: (paymentLinkData as PaymentLink).link_id,
+            ...apiPayload,
+          })
+        );
+      } else {
+        dispatch(PaymentLinkAction(PAYLINK_CREATE, apiPayload));
+      }
+
+      const generatedLink = `https://pay.dynopay.com/${Math.random()
         .toString(36)
         .substring(7)}`;
-      setPaymentLink(mockLink);
+      setPaymentLink(generatedLink);
       setSuccessModalOpen(true);
     } else if (activeTab === 1) {
-      console.log("Post-Payment Settings Data:", postPaymentSettings);
-      const mockLink = `https://pay.dynopay.com/${Math.random()
+      const apiPayload = {
+        amount: parseFloat(paymentSettings.value) || 0,
+        currency: paymentSettings.currency,
+        description: paymentSettings.description,
+        redirect_url: postPaymentSettings.redirectUrl,
+        webhook_url: postPaymentSettings.webhookUrl,
+        payment_url: postPaymentSettings.callbackUrl,
+      };
+
+      dispatch(PaymentLinkAction(PAYLINK_CREATE, apiPayload));
+
+      const generatedLink = `https://pay.dynopay.com/${Math.random()
         .toString(36)
         .substring(7)}`;
-      setPaymentLink(mockLink);
+      setPaymentLink(generatedLink);
       setSuccessModalOpen(true);
     }
   };

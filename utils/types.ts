@@ -14,6 +14,8 @@ export interface rootReducer {
   walletReducer: walletReducer;
   apiReducer: apiReducer;
   transactionReducer: transactionReducer;
+  dashboardReducer: import("@/Redux/Reducers/dashboardReducer").DashboardState;
+  paymentLinkReducer: import("@/Redux/Reducers/paymentLinkReducer").PaymentLinkState;
 }
 
 export interface userReducer {
