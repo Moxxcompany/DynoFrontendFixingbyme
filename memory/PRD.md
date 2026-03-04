@@ -24,24 +24,39 @@ Analyze/set up `.env`, analyze API integrations, fix endpoint mismatches, wire U
 - XRP Tag field now conditional (TAG_BASED_CHAINS)
 
 ### Session 7 — Onboarding UX Fix (P0)
-- **Created**: `Components/UI/OnboardingChecklist/index.tsx` - Setup checklist with 3-step progress
-  - Steps: Create Company, Add Wallet, Create Payment Link
-  - Progress bar, green checkmarks for completed steps, disabled steps for unmet prerequisites
-  - Checklist auto-hides when company + wallet both exist
-  - **Confetti celebration** (`canvas-confetti`) fires when user completes all prerequisites
-  - "You're all set!" animated card with bounce + pulse animations
-  - Auto-dismisses after 5 seconds
-- **Modified**: `pages/dashboard.tsx` - OnboardingChecklist + conditional "Create Payment Link" button
-- **Modified**: `pages/create-pay-link.tsx` - Guard blocks access without company/wallet, shows missing steps with navigation
+- Created `Components/UI/OnboardingChecklist/index.tsx` - Setup checklist with 3-step progress
+- Confetti celebration (`canvas-confetti`) when user completes all prerequisites
+- Modified `pages/dashboard.tsx` - OnboardingChecklist + conditional "Create Payment Link" button
+- Modified `pages/create-pay-link.tsx` - Guard blocks access without company/wallet
 
-### Dependencies Added
-- `canvas-confetti` + `@types/canvas-confetti` for celebration animation
+### Session 8 — Auto-Conversion + Referrals (P1)
+
+#### Auto-Conversion API Integration
+- Modified `Components/UI/CompanySettingsDialog/index.tsx`:
+  - `GET /api/company/auto-convert/{id}` fetched when dialog opens
+  - `PUT /api/company/auto-convert/{id}` called on form submit
+  - Properly maps `auto_convert_enabled` boolean and `target_stablecoin`
+  - Falls back to company data if dedicated endpoint fails
+
+#### Referral APIs — Full Integration (8 endpoints)
+- Created `pages/referrals.tsx` — New dedicated referrals page with:
+  - Referral code display with copy button
+  - "Copy Invite Link" share button
+  - 4 stat cards (Total Referrals, Active, Pending, Total Earnings)
+  - Fee Discount section (discount %, days remaining)
+  - Earnings Breakdown (Credited, Pending, Withdrawn)
+  - My Referrals list (name, email, status chips)
+  - Leaderboard (rank, name, referral count, current user highlight)
+  - All 12 data-testid attributes for testing
+  - All 5 API endpoints called in parallel via `Promise.allSettled`
+- Modified `Components/Layout/NewSidebar/index.tsx` — Added "Referrals" nav link with GroupAddRounded icon
+- Wired endpoints: `/referral/my-code`, `/referral/list`, `/referral/earnings`, `/referral/discount-status`, `/referral/leaderboard`
 
 ## Backlog
-- P1: Wire up Auto-Conversion APIs (GET/PUT /api/company/auto-convert/{id})
-- P1: Wire up remaining Referral APIs (8 endpoints)
-- P2: 2FA (no UI), Invoices (no UI), Webhook Config (no UI)
-- P2: Subscriptions (no UI), Knowledge Base dynamic
+- P2: 2FA (no UI — build from scratch + 10 backend endpoints)
+- P2: Invoices (no UI — build from scratch + 4 backend endpoints)
+- P2: Subscriptions (no UI — build from scratch + backend endpoints)
+- P3: Referral validate/apply/redeem endpoints (POST /referral/validate, /referral/apply, /referral/referee/validate, /referral/referee/redeem)
 
 ## Refactoring Notes
 - Hardcoded crypto list in `useWalletData.ts` should be fetched from backend
