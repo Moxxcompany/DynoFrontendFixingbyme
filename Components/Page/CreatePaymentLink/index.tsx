@@ -362,6 +362,10 @@ const CreatePaymentLinkPage = ({
   const handleCopyLink = () => {
     if (paymentLink) {
       navigator.clipboard.writeText(paymentLink);
+      dispatch({
+        type: "TOAST_SHOW",
+        payload: { message: "Payment link copied!", severity: "success" },
+      });
     }
   };
 

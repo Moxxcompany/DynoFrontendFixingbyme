@@ -383,7 +383,10 @@ const CyrptoComponent = () => {
                                 navigator.clipboard.writeText(
                                   cryptoDetails.address
                                 );
-                                alert("copied");
+                                dispatch({
+                                  type: TOAST_SHOW,
+                                  payload: { message: "Address copied!", severity: "success" },
+                                });
                               }}
                             >
                               <CopyAllRounded />

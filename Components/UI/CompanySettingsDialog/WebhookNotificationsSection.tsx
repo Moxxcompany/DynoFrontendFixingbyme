@@ -6,6 +6,7 @@ import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import SettingsAccordion from "@/Components/UI/SettingsAccordion";
 import useIsMobile from "@/hooks/useIsMobile";
+import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -23,6 +24,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import React, { useCallback, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 const iconButtonSize = { width: 40, height: 40, minWidth: 40, minHeight: 40 };
@@ -59,6 +61,7 @@ export default function WebhookNotificationsSection({
   const { t: tSettings } = useTranslation("companySettings");
   const theme = useTheme();
   const isMobile = useIsMobile("sm") ?? isMobileProp;
+  const dispatch = useDispatch();
   const [showSecret, setShowSecret] = useState(false);
   const [regenerateConfirmOpen, setRegenerateConfirmOpen] = useState(false);
 
@@ -78,14 +81,16 @@ export default function WebhookNotificationsSection({
   const handleCopyUrl = useCallback(() => {
     if (notificationUrl) {
       navigator.clipboard.writeText(notificationUrl);
+      dispatch({ type: TOAST_SHOW, payload: { message: "Webhook URL copied!", severity: "success" } });
     }
-  }, [notificationUrl]);
+  }, [notificationUrl, dispatch]);
 
   const handleCopySecret = useCallback(() => {
     if (secretKey) {
       navigator.clipboard.writeText(secretKey);
+      dispatch({ type: TOAST_SHOW, payload: { message: "Secret key copied!", severity: "success" } });
     }
-  }, [secretKey]);
+  }, [secretKey, dispatch]);
 
   const sizeSx = isMobile ? iconButtonSizeMobile : iconButtonSize;
   const primaryBorder = theme.palette.primary.main;

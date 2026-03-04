@@ -30,33 +30,22 @@ Analyze/set up `.env`, analyze API integrations, fix endpoint mismatches, wire U
 - Modified `pages/create-pay-link.tsx` - Guard blocks access without company/wallet
 
 ### Session 8 — Auto-Conversion + Referrals (P1)
+- Auto-convert API: GET/PUT `/api/company/auto-convert/{id}` wired into CompanySettingsDialog
+- Referrals page: `/referrals` with all 5 GET endpoints, sidebar nav link added
 
-#### Auto-Conversion API Integration
-- Modified `Components/UI/CompanySettingsDialog/index.tsx`:
-  - `GET /api/company/auto-convert/{id}` fetched when dialog opens
-  - `PUT /api/company/auto-convert/{id}` called on form submit
-  - Properly maps `auto_convert_enabled` boolean and `target_stablecoin`
-  - Falls back to company data if dedicated endpoint fails
-
-#### Referral APIs — Full Integration (8 endpoints)
-- Created `pages/referrals.tsx` — New dedicated referrals page with:
-  - Referral code display with copy button
-  - "Copy Invite Link" share button
-  - 4 stat cards (Total Referrals, Active, Pending, Total Earnings)
-  - Fee Discount section (discount %, days remaining)
-  - Earnings Breakdown (Credited, Pending, Withdrawn)
-  - My Referrals list (name, email, status chips)
-  - Leaderboard (rank, name, referral count, current user highlight)
-  - All 12 data-testid attributes for testing
-  - All 5 API endpoints called in parallel via `Promise.allSettled`
-- Modified `Components/Layout/NewSidebar/index.tsx` — Added "Referrals" nav link with GroupAddRounded icon
-- Wired endpoints: `/referral/my-code`, `/referral/list`, `/referral/earnings`, `/referral/discount-status`, `/referral/leaderboard`
+### Session 9 — Copy Feedback Fix (Bug)
+- **Root cause**: `Containers/Client/index.tsx` was missing the global `Toast` component — all `TOAST_SHOW` dispatches from authenticated pages (wallet, API keys, webhook settings, etc.) had no visible feedback
+- **Fixed**: Added `Toast` + `toastReducer` selector to Client container
+- **Also fixed**: 
+  - `CreatePaymentLink/index.tsx` — added toast on payment link copy
+  - `WebhookNotificationsSection.tsx` — added toast on URL/secret key copy
+  - `CryptoComponent.tsx` — replaced `alert("copied")` with proper toast
 
 ## Backlog
 - P2: 2FA (no UI — build from scratch + 10 backend endpoints)
 - P2: Invoices (no UI — build from scratch + 4 backend endpoints)
 - P2: Subscriptions (no UI — build from scratch + backend endpoints)
-- P3: Referral validate/apply/redeem endpoints (POST /referral/validate, /referral/apply, /referral/referee/validate, /referral/referee/redeem)
+- P3: Referral validate/apply/redeem endpoints (POST)
 
 ## Refactoring Notes
 - Hardcoded crypto list in `useWalletData.ts` should be fetched from backend

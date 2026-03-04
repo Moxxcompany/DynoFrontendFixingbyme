@@ -4,10 +4,12 @@ import NewSidebar from "@/Components/Layout/NewSidebar";
 import withAuth from "@/Components/Page/Common/HOC/withAuth";
 import { CompanyDialogProvider } from "@/Components/UI/CompanyDialog/context";
 import { CompanySettingsDialogProvider } from "@/Components/UI/CompanySettingsDialog/context";
+import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
-import { LayoutProps } from "@/utils/types";
+import { LayoutProps, rootReducer } from "@/utils/types";
 import { Box, SxProps, Theme, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
 import {
   MainPageHeader,
   PageHeader,
@@ -26,11 +28,13 @@ const ClientLayout = ({
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useIsMobile("md");
+  const ToastState = useSelector((state: rootReducer) => state.toastReducer);
   const isDashboard =
     router.pathname === "/dashboard" ||
     router.pathname === "/pay-links" ||
     router.pathname === "/transactions";
   return (
+    <>
     <CompanyDialogProvider>
       <CompanySettingsDialogProvider>
         <Box
@@ -195,6 +199,13 @@ const ClientLayout = ({
         </Box>
       </CompanySettingsDialogProvider>
     </CompanyDialogProvider>
+    <Toast
+      open={ToastState.open}
+      message={ToastState.message}
+      severity={ToastState.severity || "success"}
+      loading={ToastState.loading}
+    />
+    </>
   );
 };
 
