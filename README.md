@@ -122,7 +122,7 @@ NEXTAUTH_SECRET="alksdmaolskndmjqweaADLSKDMAKSLaskldjmasd"
 NEXTAUTH_URL="<POD_PREVIEW_URL>/"
 ```
 
-**IMPORTANT**: `NEXT_PUBLIC_SERVER_URL` and `NEXTAUTH_URL` MUST point to the pod's preview URL (e.g., `https://nextauth-config.preview.emergentagent.com/`). These are used for:
+**IMPORTANT**: `NEXT_PUBLIC_SERVER_URL` and `NEXTAUTH_URL` MUST point to the pod's preview URL (e.g., `https://guided-flow-1.preview.emergentagent.com/`). These are used for:
 - NextAuth OAuth callback redirects
 - Payment redirect URLs (success/failed pages)
 

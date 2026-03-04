@@ -1,0 +1,129 @@
+{
+  "summary": "Frontend code review completed for onboarding UX improvements. Code implementation verified correct against all requirements. UI testing BLOCKED by authentication failure - login returns 401 'Invalid email or password' for provided credentials paul@dyno.pt.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "/api/user/login",
+        "issue": "Authentication fails with 401 'Invalid email or password' for credentials paul@dyno.pt / Katiekendra123@",
+        "priority": "CRITICAL",
+        "details": "This blocks all UI testing of onboarding features. Previous iteration 14 reported same issue."
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "testing_limitations": [
+      {
+        "issue": "Cannot perform UI testing of onboarding checklist and create-pay-link guard due to authentication failure",
+        "affected_components": ["OnboardingChecklist", "dashboard.tsx", "create-pay-link.tsx"],
+        "reason": "All protected pages redirect to /auth/login, and login fails with 401"
+      }
+    ]
+  },
+  "passed_tests": [
+    "Code review: OnboardingChecklist has all required data-testid attributes",
+    "Code review: OnboardingChecklist shows 'Complete your setup' title",
+    "Code review: OnboardingChecklist shows progress bar with correct calculation",
+    "Code review: OnboardingChecklist step 1 (company) navigates to /company",
+    "Code review: OnboardingChecklist step 2 (wallet) navigates to /wallet",
+    "Code review: OnboardingChecklist step 3 (payment) disabled when prerequisites not met",
+    "Code review: OnboardingChecklist disappears when company+wallet exist",
+    "Code review: Dashboard hides Create Payment Link button when setup incomplete",
+    "Code review: Dashboard shows Create Payment Link button when setup complete",
+    "Code review: create-pay-link shows setup guard when company/wallet missing",
+    "Code review: create-pay-link guard has clickable cards for missing steps",
+    "Code review: create-pay-link shows normal form when setup complete",
+    "Protected pages correctly redirect to login when not authenticated",
+    "Login page UI loads correctly with multi-step flow"
+  ],
+  "code_review_verification": {
+    "OnboardingChecklist": {
+      "data_testid_attributes": [
+        "onboarding-checklist",
+        "onboarding-title", 
+        "onboarding-progress",
+        "onboarding-step-company",
+        "onboarding-step-wallet",
+        "onboarding-step-payment",
+        "onboarding-step-{key}-check (for completed steps)"
+      ],
+      "functionality_verified": [
+        "Fetches company and wallet data on mount",
+        "Shows checklist when prerequisites incomplete",
+        "Hides when hasCompany && hasWallet",
+        "Progress = (completedCount / 3) * 100",
+        "Payment step disabled when !hasCompany || !hasWallet",
+        "Steps navigate to correct routes on click"
+      ]
+    },
+    "dashboard.tsx": {
+      "data_testid_attributes": ["create-payment-link-btn"],
+      "functionality_verified": [
+        "Includes OnboardingChecklist component",
+        "Create button hidden when !setupComplete",
+        "Create button shown when setupComplete"
+      ]
+    },
+    "create-pay-link.tsx": {
+      "data_testid_attributes": [
+        "payment-link-setup-guard",
+        "setup-required-title",
+        "setup-guard-step-company",
+        "setup-guard-step-wallet"
+      ],
+      "functionality_verified": [
+        "Shows guard when !setupComplete",
+        "Shows form when setupComplete",
+        "Missing steps dynamically generated",
+        "Step cards navigate to correct routes"
+      ]
+    }
+  },
+  "test_report_links": ["/app/test_reports/iteration_15.json"],
+  "action_items": [
+    "CRITICAL: Update test credentials - current credentials (paul@dyno.pt / Katiekendra123@) return 401 'Invalid email or password'",
+    "Once credentials fixed, perform full UI testing of onboarding checklist visibility",
+    "Once credentials fixed, test step navigation (clicking company/wallet steps)",
+    "Once credentials fixed, verify Create Payment Link button visibility logic",
+    "Once credentials fixed, test create-pay-link guard functionality"
+  ],
+  "critical_code_review_comments": [
+    "Code implementation is correct and matches all requirements",
+    "All data-testid attributes are present for testing",
+    "Logic for showing/hiding onboarding checklist is correct",
+    "Logic for disabling payment step is correct",
+    "Navigation actions are properly implemented",
+    "No code issues found - authentication blocker prevents UI verification"
+  ],
+  "updated_files": ["/app/test_reports/iteration_15.json"],
+  "success_rate": {
+    "backend": "0% - Authentication fails",
+    "frontend_code_review": "100% - All code verified correct",
+    "frontend_ui_testing": "10% - Blocked by auth failure"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Login credentials paul@dyno.pt / Katiekendra123@ return 401 'Invalid email or password'. Code review confirms all onboarding features are correctly implemented. Once valid credentials are provided, test: 1) OnboardingChecklist visibility on dashboard, 2) Progress bar updates, 3) Step navigation, 4) Create Payment Link button visibility, 5) create-pay-link guard functionality.",
+  "rca_of_the_issue": {
+    "issue": "Cannot authenticate to test onboarding UI features",
+    "root_cause": "Provided credentials (paul@dyno.pt / Katiekendra123@) fail authentication with 401 error",
+    "evidence": [
+      "Console shows: 'Failed to load resource: the server responded with a status of 401'",
+      "Console shows: 'API Response error: {data: Object, status: 401}'",
+      "Toast message displays: 'Invalid email or password'"
+    ],
+    "reproduction_steps": [
+      "Navigate to https://guided-flow-1.preview.emergentagent.com/auth/login",
+      "Enter email: paul@dyno.pt",
+      "Click Continue",
+      "Select Password option",
+      "Enter password: Katiekendra123@",
+      "Click Continue - 401 error appears"
+    ],
+    "potential_fix": "Verify/update credentials with backend team or check if password was recently changed"
+  }
+}

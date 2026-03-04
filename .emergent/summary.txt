@@ -1,0 +1,163 @@
+<analysis>**original_problem_statement:**
+The user's initial request was to analyze and set up the  file for a Next.js application called DynoPay. This evolved into a series of feature integrations and bug fixes. The main goals were:
+1.  Analyze the codebase against the provided API documentation () to identify and implement missing API integrations.
+2.  Fix several bugs, including incorrect API paths, UI routing issues, broken navigation links, and styling problems.
+3.  Integrate features that had existing (but partially implemented) UI, such as KYC verification.
+4.  Expand the cryptocurrency wallet functionality to include all API-supported currencies and handle special cases like destination tags for XRP.
+5.  The final and current request is to analyze and propose a solution for a poor onboarding user experience, where new users are not guided to complete necessary setup steps (like creating a company and adding a wallet) before they can use core features.
+
+**PRODUCT REQUIREMENTS:**
+-   **Environment Setup:** Configure all required environment variables for the application to run.
+-   **API Integration:** Ensure all frontend UI components are correctly integrated with the live backend endpoints.
+-   **Onboarding Flow:** Create a guided experience for new users, forcing them to complete company and wallet setup before accessing payment features.
+-   **Feature Implementation:** Implement UIs for missing features like 2FA, Invoices, and Subscriptions.
+-   **Bug Fixes:** Address any UI/UX bugs reported by the user.
+
+**User's preferred language**: English
+
+**what currently exists?**
+The project is a Next.js frontend for the DynoPay application. The environment is fully configured, and the application is running. Several key fixes and features have been implemented:
+-   Four incorrect API endpoint paths have been corrected.
+-   A frontend page routing conflict with the backend API () was resolved by renaming the page to .
+-   The KYC (Know Your Customer) verification banner is now fully integrated and appears in the header when a user needs to complete verification.
+-   The Add Wallet feature has been updated to include all 15 cryptocurrencies supported by the API and correctly handles the conditional Destination Tag field for currencies like XRP.
+-   UI bugs related to the main logo's navigation link and a hidden copy icon on the referral card have been fixed.
+
+**Last working item**:
+-   **Last item agent was working:** Analyzing the poor onboarding User Experience (UX). The user reported that a new user can register and access the dashboard without being prompted to create a company or add a wallet, leading to a dead-end when they try to create a payment. The agent was in the process of exploring the registration, dashboard, and payment creation code flows to understand the breakdown and formulate a solution.
+-   **Status:** IN PROGRESS
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** Frontend testing agent. After proposing and implementing a new onboarding flow (e.g., a setup wizard or forced redirects), the frontend testing agent will be needed to verify that users are correctly guided through the new sequence and cannot bypass the required setup steps.
+-   **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+-   **Issue 1: Poor Onboarding User Experience (P0)**
+    The current onboarding flow is a critical UX issue. It allows a new user to land on the dashboard and try to use core features without the necessary prerequisites (a configured company and a wallet address), resulting in a confusing and broken experience.
+
+    **Issues Detail:**
+    -   **Issue 1: Poor Onboarding User Experience (P0)**
+        -   **Attempted fixes:** None yet. The agent is in the analysis phase.
+        -   **Next debug checklist:**
+            1.  Complete the analysis of the user flow from registration () to the dashboard ().
+            2.  Examine the logic that checks for a user's company and wallet status.
+            3.  Propose a solution:
+                -   Option A: A multi-step onboarding wizard shown immediately after registration.
+                -   Option B: A full-page overlay or redirect on the dashboard that forces the user to the company setup page if no company exists.
+                -   Option C: Disable the Create Payment and related features with a clear call-to-action pointing to the setup pages.
+            4.  Present the proposed solution to the user for approval before implementation.
+        -   **Why fix this issue and what will be achieved with the fix?** Fixing this will create a logical and smooth onboarding path for new users, improving user retention and reducing initial friction. It ensures users are properly set up to use the application's core functionality.
+        -   **Status:** IN PROGRESS
+        -   **Is recurring issue?** N
+        -   **Should Test frontend/backend/both after fix?** Frontend
+        -   **Blocked on other issue:** None
+
+**In progress Task List**:
+-   **Task 1: Analyze and Propose a Solution for Onboarding UX (P0)**
+    -   **Where to resume:** The agent has started analyzing the relevant files (, , and payment creation components). The next step is to synthesize these findings into a concrete proposal for a new, guided onboarding flow and present it to the user.
+    -   **What will be achieved with this?** A clear plan to fix the critical onboarding UX flaw.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** Frontend
+    -   **Blocked on something:** Waiting for the analysis to be completed to form a proposal.
+
+**Upcoming and Future Tasks**
+**Upcoming Tasks:**
+-   **Implement the Proposed Onboarding UX (P0):** Based on the user's choice, implement the new onboarding flow. This will likely involve creating new components and adding conditional rendering or redirection logic to the main dashboard or a parent layout component.
+-   **Wire up Auto-Conversion APIs (P1):** The UI for auto-conversion exists in , but it's not connected to its dedicated endpoints. This task involves integrating .
+-   **Wire up remaining Referral APIs (P1):** While the user's referral code is displayed, the other 8 referral-related endpoints (for tracking earnings, validating codes, etc.) are not integrated. This will require creating UI elements or pages to display this information.
+
+**Future Tasks:**
+-   **Implement 2FA Feature (P2):** Build the UI from scratch for setting up and verifying Two-Factor Authentication and integrate it with the 10 existing backend endpoints.
+-   **Implement Invoices Feature (P2):** Build the UI for listing, viewing, and downloading invoices and integrate it with the 4 existing backend endpoints.
+-   **Implement Subscriptions Feature (P2):** Build the UI from scratch for managing subscriptions and integrate it with the relevant backend endpoints.
+
+**Completed work in this session**
+-   **Environment Setup:** Created and configured the  file with all necessary API keys and URLs.
+-   **API Path Fixes:** Corrected incorrect endpoint paths in , , and .
+-   **Frontend Routing Fix:** Renamed  to  to resolve a K8s ingress routing conflict and updated all links.
+-   **KYC Integration:** Implemented the logic to display a KYC verification banner in  and  by fetching status from .
+-   **Navigation Bug Fix:** Changed the logo's link in  to navigate to  for logged-in users.
+-   **Styling Bug Fix:** Removed  from  to make the copy icon visible.
+-   **Wallet Feature Expansion:**
+    -   Updated  to include all 15 API-supported cryptocurrencies.
+    -   Modified  to conditionally show/hide the Destination Tag input field based on the selected currency and include it in the API payload.
+
+**Earlier issues found/mentioned but not fixed**
+-   None.
+
+**Known issue recurrence from previous fork**
+-   None.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+-   **Frontend:** Next.js, React, TypeScript
+-   **State Management:** Redux with Redux-Saga for managing asynchronous API calls.
+-   **Styling:** Tailwind CSS and Styled-Components.
+-   **Authentication:** NextAuth.js, handling both password-based credentials and Google OAuth.
+-   **API Communication:** Axios instances configured for API interaction.
+
+**key DB schema**
+-   Database schema is not directly accessible. It is inferred from the API documentation and frontend data models. Key entities include , , , , , , , and .
+
+**changes in tech stack**
+-   None.
+
+**All files of reference**
+-   : Entry point for logged-in users, a key file for implementing the new onboarding logic.
+-   : Contains the logic for adding a new cryptocurrency wallet. Was recently modified.
+-   : Contains the hardcoded list of cryptocurrencies. Was recently modified.
+-   : The main header for authenticated users. Contains the KYC banner logic. Was recently modified.
+-   : This directory contains all the API integration logic.
+-   : Stores all secrets and configuration variables. Was created in this session.
+
+**Areas that need refactoring**:
+-   The list of cryptocurrencies in  is hardcoded. This should ideally be fetched from a dedicated backend endpoint to ensure it's always in sync with the API and to avoid future manual updates.
+-   API call logic within Redux Sagas could be better organized by feature to improve maintainability as the application grows.
+
+**key api endpoints**
+-   : The Swagger UI documentation for all backend APIs.
+-   : For password-based user authentication.
+-   : Checks if a user needs to complete KYC.
+-   : Initiates the KYC process and returns a provider URL.
+-   : Endpoint for managing user wallet addresses.
+
+**Critical Info for New Agent**
+-   The current highest priority is to fix the onboarding UX. You must analyze the existing flow and propose a guided setup process for the user's approval before starting implementation.
+-   Be aware of the Kubernetes ingress rule: any URL path starting with  is routed to the backend. Avoid creating frontend pages with this prefix to prevent routing conflicts. Use a name like  instead of .
+-   The backend is fully functional and all endpoints are documented and live. The primary work is on the frontend to build UIs and integrate these endpoints.
+-   Use the provided credentials to log in and test authenticated flows. Remember the login form requires clicking Password to reveal the input field.
+
+**documents and test reports created in this job**
+-   
+-   Multiple test reports in 
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **User:** when i clicked on the top dyno logo, it goes to landing page instead of dashboard. Lets fix - **Status:** COMPLETED.
+2.  **User:** ...also, the copy icon near the refferal code is not visible... - **Status:** COMPLETED.
+3.  **User:** ...login to... when the user tried to add wallet address, it is missing XRP and other currencies... - **Status:** COMPLETED.
+4.  **User:** ...also, XRP tag should only appear when user selects chain with tags... - **Status:** COMPLETED.
+5.  **User:** I think the onboarding experience is a bad UX... a user should not be able to create a payment without first setting up a company and add at least one wallet... Analyze the onboarding UX and recommend a solution - **Status:** PENDING. This is the current, highest-priority task.
+
+**Project Health Check:**
+-   **Broken:** The user onboarding experience is fundamentally broken from a UX perspective.
+-   **Mocked:** None.
+
+**3rd Party Integrations**
+-   **Google OAuth:** Integrated via NextAuth.js. Requires User API Key.
+-   **Telegram:** Token exists in  (), but the integration is not implemented. Requires User API Key.
+-   **Veriff:** Used for KYC verification, integrated indirectly via the backend API.
+
+**Testing status**
+-   **Testing agent used after significant changes:** YES
+-   **Troubleshoot agent used after agent stuck in loop:** NO
+-   **Test files created:** None
+-   **Known regressions:** None
+
+**Credentials to test flow:**
+-   **Email:** 
+-   **Password:** 
+-   **Note:** On the login page, you must click the Password button to make the password field visible before you can type in it.
+
+**What agent forgot to execute**
+-   The agent had planned to integrate the dedicated **Auto-Conversion** and remaining **Referral** endpoints after fixing the initial set of bugs. However, this was deprioritized when the user raised more urgent issues (wallet updates and the critical onboarding UX problem). These tasks remain in the Upcoming Tasks backlog.</analysis>
