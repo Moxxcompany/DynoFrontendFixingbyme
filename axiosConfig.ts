@@ -11,9 +11,21 @@ const axiosBaseApi = axios.create({
   },
 });
 
-// Request interceptor: attach token
+// Auth endpoints that should NOT send Authorization headers
+const AUTH_ENDPOINTS = ["user/login", "user/register", "user/checkEmail", "user/forgot", "user/reset", "user/confirmOTP", "user/generateOTP"];
+
+const isAuthEndpoint = (url: string) => AUTH_ENDPOINTS.some((ep) => url.includes(ep));
+
+// Request interceptor: attach token (skip for auth endpoints)
 axiosBaseApi.interceptors.request.use(
   (config: any) => {
+    const requestUrl = config.url || "";
+    if (isAuthEndpoint(requestUrl)) {
+      // Don't send Authorization header for auth endpoints
+      delete config.headers.Authorization;
+      return config;
+    }
+
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -24,7 +36,7 @@ axiosBaseApi.interceptors.request.use(
   },
   (error) => {
     console.error("Request error:", error);
-    return Promise.reject(error); // propagate to try/catch
+    return Promise.reject(error);
   },
 );
 
@@ -35,17 +47,8 @@ axiosBaseApi.interceptors.response.use(
     console.error("API Response error:", error.response ?? error.message);
 
     if (error.response?.status === 401) {
-      // Skip redirect for auth-related endpoints (login, register, etc.)
       const requestUrl = error.config?.url || "";
-      const isAuthRequest = requestUrl.includes("user/login") ||
-        requestUrl.includes("user/register") ||
-        requestUrl.includes("user/checkEmail") ||
-        requestUrl.includes("user/forgot") ||
-        requestUrl.includes("user/reset") ||
-        requestUrl.includes("user/confirmOTP") ||
-        requestUrl.includes("user/generateOTP");
-
-      if (!isAuthRequest) {
+      if (!isAuthEndpoint(requestUrl)) {
         // Remove token from browser storage
         localStorage.removeItem("token");
 
