@@ -21,7 +21,7 @@ export interface InputFieldProps {
   // straight paste hook. Prior versions had reports of the prop not
   // reaching the native <input> which made paste unreliable.
   onInput?: (e: React.FormEvent<HTMLInputElement>) => void;
-  onBeforeInput?: (e: React.FormEvent<HTMLInputElement>) => void;
+  onBeforeInput?: (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   type?: "text" | "email" | "password" | "number" | "tel" | "url" | string;
   variant?: "outlined" | "filled" | "standard";
   size?: "small" | "medium";
