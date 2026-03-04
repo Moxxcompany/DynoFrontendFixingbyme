@@ -1,0 +1,75 @@
+{
+  "timestamp": "2026-03-04T15:49:03.657692",
+  "pod_url": "https://ad4b6602-d54f-44ac-990c-fd6e95c2dba2.preview.emergentagent.com",
+  "tests_run": 11,
+  "tests_passed": 10,
+  "success_rate": "90.9%",
+  "test_results": [
+    {
+      "test_name": "ENV_FILE_EXISTS",
+      "status": "PASSED",
+      "message": "Found .env file with 8 variables",
+      "details": null
+    },
+    {
+      "test_name": "ENV_VARS_COMPLETE",
+      "status": "PASSED",
+      "message": "All 8 required environment variables present",
+      "details": null
+    },
+    {
+      "test_name": "NEXTAUTH_URL_CORRECT",
+      "status": "PASSED",
+      "message": "Expected: https://ad4b6602-d54f-44ac-990c-fd6e95c2dba2.preview.emergentagent.com/, Found: https://ad4b6602-d54f-44ac-990c-fd6e95c2dba2.preview.emergentagent.com/",
+      "details": null
+    },
+    {
+      "test_name": "SERVER_URL_CORRECT",
+      "status": "PASSED",
+      "message": "Expected: https://ad4b6602-d54f-44ac-990c-fd6e95c2dba2.preview.emergentagent.com/, Found: https://ad4b6602-d54f-44ac-990c-fd6e95c2dba2.preview.emergentagent.com/",
+      "details": null
+    },
+    {
+      "test_name": "BASE_URL_CORRECT",
+      "status": "PASSED",
+      "message": "Expected: https://api.dynopay.com/, Found: https://api.dynopay.com/",
+      "details": null
+    },
+    {
+      "test_name": "FRONTEND_HTTP_STATUS",
+      "status": "PASSED",
+      "message": "HTTP 200 OK, Content length: 175780 bytes",
+      "details": null
+    },
+    {
+      "test_name": "FRONTEND_HTML_VALID",
+      "status": "FAILED",
+      "message": "HTML structure valid: False",
+      "details": null
+    },
+    {
+      "test_name": "NEXTAUTH_PROVIDERS_HTTP",
+      "status": "PASSED",
+      "message": "HTTP 200 OK",
+      "details": null
+    },
+    {
+      "test_name": "NEXTAUTH_GOOGLE_PROVIDER",
+      "status": "PASSED",
+      "message": "Google provider found",
+      "details": null
+    },
+    {
+      "test_name": "NEXTAUTH_GOOGLE_URLS",
+      "status": "PASSED",
+      "message": "Google URLs use pod URL: callback=True, signin=True",
+      "details": null
+    },
+    {
+      "test_name": "NEXTAUTH_SESSION_HTTP",
+      "status": "PASSED",
+      "message": "HTTP 200 OK, Response: {}",
+      "details": null
+    }
+  ]
+}

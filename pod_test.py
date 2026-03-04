@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 
 class DynoPayPodTester:
-    def __init__(self, pod_url="https://7ea2dfbe-72b8-41b4-97b4-0a9a63464626.preview.emergentagent.com"):
+    def __init__(self, pod_url="https://nextauth-config.preview.emergentagent.com"):
         self.pod_url = pod_url.rstrip('/')
         self.tests_run = 0
         self.tests_passed = 0
