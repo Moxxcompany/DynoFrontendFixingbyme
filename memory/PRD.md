@@ -1,7 +1,7 @@
 # DynoPay - PRD & Implementation Log
 
 ## Original Problem Statement
-Analyze/set up `.env`, analyze API integrations, fix endpoint mismatches, wire UI, fix bugs, and add missing currencies.
+Analyze/set up `.env`, analyze API integrations, fix endpoint mismatches, wire UI, fix bugs, add missing currencies, and improve onboarding UX.
 
 ## Architecture
 - **Framework**: Next.js 14.2.4 (Pages Router)
@@ -13,10 +13,10 @@ Analyze/set up `.env`, analyze API integrations, fix endpoint mismatches, wire U
 ## What's Been Implemented
 
 ### Session 1-4
-- `.env` setup, API analysis (224 endpoints), 4 endpoint path fixes, KYC banner wiring, Auto-Conversion pre-population, `/apis`→`/developer-keys` route fix
+- `.env` setup, API analysis (224 endpoints), 4 endpoint path fixes, KYC banner wiring, Auto-Conversion pre-population, `/apis`->`/developer-keys` route fix
 
 ### Session 5
-- Logo click → `/dashboard` instead of `/` (NewHeader)
+- Logo click -> `/dashboard` instead of `/` (NewHeader)
 - Referral copy icon — removed overflow:hidden from ReferralCard
 
 ### Session 6 — Wallet Currencies + XRP Tag
@@ -26,6 +26,23 @@ Analyze/set up `.env`, analyze API integrations, fix endpoint mismatches, wire U
 - XRP Tag field now conditional: only shows for XRP and RLUSD (TAG_BASED_CHAINS)
 - destination_tag sent in payload only for tag-based chains
 
+### Session 7 — Onboarding UX Fix (P0)
+- **Created**: `Components/UI/OnboardingChecklist/index.tsx` - A setup checklist component on the dashboard
+  - Shows 3-step progress: Create Company, Add Wallet, Create Payment Link
+  - Progress bar with completion count
+  - Completed steps show green checkmarks
+  - Pending steps are clickable and navigate to the correct page
+  - "Create Payment Link" step is disabled until company + wallet exist
+  - Checklist auto-hides when all prerequisites (company + wallet) are met
+- **Modified**: `pages/dashboard.tsx` - Added OnboardingChecklist, "Create Payment Link" button hidden until setup is complete
+- **Modified**: `pages/create-pay-link.tsx` - Added guard that blocks payment link creation when company or wallet is missing, shows missing steps with navigation
+
 ## Backlog
-- P0: 2FA (no UI), Invoices (no UI), Webhook Config (no UI)
-- P1: Subscriptions (no UI), Referral expanded, Knowledge Base dynamic
+- P1: Wire up Auto-Conversion APIs (GET/PUT /api/company/auto-convert/{id})
+- P1: Wire up remaining Referral APIs (8 endpoints)
+- P2: 2FA (no UI), Invoices (no UI), Webhook Config (no UI)
+- P2: Subscriptions (no UI), Knowledge Base dynamic
+
+## Refactoring Notes
+- Hardcoded crypto list in `useWalletData.ts` should be fetched from backend
+- Redux Sagas could be better organized by feature
