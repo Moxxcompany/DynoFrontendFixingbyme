@@ -117,7 +117,7 @@
       "Toast message displays: 'Invalid email or password'"
     ],
     "reproduction_steps": [
-      "Navigate to https://auth-url-deployment.preview.emergentagent.com/auth/login",
+      "Navigate to https://auth-env-deploy.preview.emergentagent.com/auth/login",
       "Enter email: paul@dyno.pt",
       "Click Continue",
       "Select Password option",

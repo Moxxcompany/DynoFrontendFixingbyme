@@ -12,7 +12,7 @@ from datetime import datetime
 
 class DynoPayEnvTester:
     def __init__(self):
-        self.pod_url = "https://auth-url-deployment.preview.emergentagent.com"
+        self.pod_url = "https://auth-env-deploy.preview.emergentagent.com"
         self.tests_run = 0
         self.tests_passed = 0
         self.test_results = []
@@ -76,7 +76,7 @@ class DynoPayEnvTester:
             self.log_test("ENV_VARS_COMPLETE", True, f"All 8 required environment variables present")
             
             # Verify specific URLs
-            expected_pod_url = "https://auth-url-deployment.preview.emergentagent.com/"
+            expected_pod_url = "https://auth-env-deploy.preview.emergentagent.com/"
             expected_base_url = "https://api.dynopay.com/"
             
             nextauth_url_correct = found_vars.get("NEXTAUTH_URL") == expected_pod_url
