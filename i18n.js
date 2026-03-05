@@ -1,14 +1,27 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
 const isServer = typeof window === "undefined";
-
-// Always start with ENGLISH for SSR + hydration
+const SUPPORTED_LANGUAGES = ["en", "pt", "fr", "es"];
 const DEFAULT_LANGUAGE = "en";
 
-i18n.use(initReactI18next).init({
-  lng: DEFAULT_LANGUAGE, // 🔑 critical
+// Resolve initial language: saved preference > browser locale > default
+function getInitialLanguage() {
+  if (isServer) return DEFAULT_LANGUAGE;
+  try {
+    const saved = localStorage.getItem("lang");
+    if (saved && SUPPORTED_LANGUAGES.includes(saved)) return saved;
+  } catch {}
+  return DEFAULT_LANGUAGE;
+}
+
+const instance = i18n.use(LanguageDetector).use(initReactI18next);
+
+instance.init({
+  lng: getInitialLanguage(),
   fallbackLng: DEFAULT_LANGUAGE,
+  supportedLngs: SUPPORTED_LANGUAGES,
   debug: false,
 
   resources: {
@@ -96,7 +109,12 @@ i18n.use(initReactI18next).init({
 
   detection: {
     order: ["localStorage", "navigator"],
+    lookupLocalStorage: "lang",
     caches: ["localStorage"],
+    convertDetectedLanguage: (lng) => {
+      const base = lng.split("-")[0];
+      return SUPPORTED_LANGUAGES.includes(base) ? base : DEFAULT_LANGUAGE;
+    },
   },
 
   interpolation: {
@@ -108,10 +126,13 @@ i18n.use(initReactI18next).init({
   },
 });
 
-// Optional logs (safe)
+// Persist language on every change & log
 if (!isServer) {
   i18n.on("languageChanged", (lng) => {
     console.log("[i18n] language changed →", lng);
+    try {
+      localStorage.setItem("lang", lng);
+    } catch {}
   });
 }
 
