@@ -1,0 +1,39 @@
+{
+  "summary": "Completed comprehensive testing of language persistence and HTML lang attribute functionality. LanguageBootstrap implementation works correctly for programmatic language changes and navigation persistence, but the language switcher UI component on landing page has a bug.",
+  "backend_issues": {},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Language Switcher (Landing Page)",
+        "issue": "Dropdown functionality not working - clicking language options doesn't trigger i18n.changeLanguage()",
+        "selector": "button:has-text('EN') in header",
+        "fix_priority": "HIGH",
+        "location": "Landing page header"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Google OAuth redirect",
+        "issue": "Google OAuth redirect URI mismatch error - callback URL not properly registered in Google Cloud Console",
+        "affected_selectors": ["Google OAuth button on login page"],
+        "error_message": "redirect_uri_mismatch - https://6ff648c8-0ac1-4138-a335-acd6cff9da1c.preview.emergentagent.com/api/auth/callback/google"
+      }
+    ]
+  },
+  "passed_tests": [
+    "LanguageBootstrap sets HTML lang='en' on initial load",
+    "LanguageBootstrap saves 'en' to localStorage on initialization", 
+    "HTML lang attribute updates correctly when localStorage contains fr/es/en",
+    "Language persists across navigation from landing → login → register",
+    "Language persists through page reloads",
+    "Translations work correctly (French text shows on login page when lang='fr')",
+    "Google OAuth button exists and redirects to Google (with URI mismatch error)",
+    "validateSocialLogin page preserves language setting"
+  ],
+  "test_report_links": [],
+  "success_percentage": "frontend: 75% (7/8 core features working, UI switcher bug)",
+  "updated_files": [],
+  "action_item_for_main_agent": "Fix language switcher dropdown on landing page - the UI component is not calling i18n.changeLanguage() when options are clicked. Also fix Google OAuth redirect URI registration in Google Cloud Console to include the Pod URL.",
+  "should_call_test_agent_after_fix": "true",
+  "should_main_agent_test_itself": "false"
+}
