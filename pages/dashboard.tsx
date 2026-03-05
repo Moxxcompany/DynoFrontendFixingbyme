@@ -1,7 +1,7 @@
 import DashboardLeftSection from "@/Components/Page/Dashboard/DashboardLeftSection";
 import DashboardRightSection from "@/Components/Page/Dashboard/DashboardRightSection";
 import CustomButton from "@/Components/UI/Buttons";
-import OnboardingChecklist from "@/Components/UI/OnboardingChecklist";
+import OnboardingFlow from "@/Components/UI/OnboardingFlow";
 import useIsMobile from "@/hooks/useIsMobile";
 import { pageProps, rootReducer } from "@/utils/types";
 import { AddRounded } from "@mui/icons-material";
@@ -79,7 +79,7 @@ export default function Home({
       </Head>
 
       <main>
-        <OnboardingChecklist />
+        <OnboardingFlow />
         <Grid container spacing={2.5}>
           <Grid item xs={12} xl={8}>
             <DashboardLeftSection />
