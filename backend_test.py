@@ -11,7 +11,7 @@ from datetime import datetime
 import time
 
 class DynoPayAPITester:
-    def __init__(self, base_url="https://guided-flow-1.preview.emergentagent.com"):
+    def __init__(self, base_url="https://auth-url-deployment.preview.emergentagent.com"):
         # Use the pod URL for testing local endpoints
         self.base_url = base_url.rstrip('/')
         self.session = requests.Session()
@@ -285,7 +285,7 @@ def main():
     """Main test execution"""
     try:
         # Test with the pod URL for local testing
-        tester = DynoPayAPITester("https://guided-flow-1.preview.emergentagent.com")
+        tester = DynoPayAPITester("https://auth-url-deployment.preview.emergentagent.com")
         passed, total, results = tester.run_all_tests()
         
         # Save detailed results

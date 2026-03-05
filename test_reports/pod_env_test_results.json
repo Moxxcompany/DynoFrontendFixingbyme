@@ -1,6 +1,6 @@
 {
   "timestamp": "2026-03-04T15:49:03.657692",
-  "pod_url": "https://guided-flow-1.preview.emergentagent.com",
+  "pod_url": "https://auth-url-deployment.preview.emergentagent.com",
   "tests_run": 11,
   "tests_passed": 10,
   "success_rate": "90.9%",
@@ -20,13 +20,13 @@
     {
       "test_name": "NEXTAUTH_URL_CORRECT",
       "status": "PASSED",
-      "message": "Expected: https://guided-flow-1.preview.emergentagent.com/, Found: https://guided-flow-1.preview.emergentagent.com/",
+      "message": "Expected: https://auth-url-deployment.preview.emergentagent.com/, Found: https://auth-url-deployment.preview.emergentagent.com/",
       "details": null
     },
     {
       "test_name": "SERVER_URL_CORRECT",
       "status": "PASSED",
-      "message": "Expected: https://guided-flow-1.preview.emergentagent.com/, Found: https://guided-flow-1.preview.emergentagent.com/",
+      "message": "Expected: https://auth-url-deployment.preview.emergentagent.com/, Found: https://auth-url-deployment.preview.emergentagent.com/",
       "details": null
     },
     {

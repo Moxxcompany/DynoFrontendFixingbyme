@@ -11,8 +11,8 @@
   },
   "passed_tests": [
     ".env file exists at /app/.env with all 8 required environment variables",
-    "NEXTAUTH_URL correctly set to pod URL: https://guided-flow-1.preview.emergentagent.com/",
-    "NEXT_PUBLIC_SERVER_URL correctly set to pod URL: https://guided-flow-1.preview.emergentagent.com/", 
+    "NEXTAUTH_URL correctly set to pod URL: https://auth-url-deployment.preview.emergentagent.com/",
+    "NEXT_PUBLIC_SERVER_URL correctly set to pod URL: https://auth-url-deployment.preview.emergentagent.com/", 
     "NEXT_PUBLIC_BASE_URL correctly set to https://api.dynopay.com/",
     "Frontend application loads successfully (HTTP 200) at pod URL",
     "NextAuth /api/auth/providers endpoint returns Google provider configuration",
