@@ -37,10 +37,12 @@ import ExpandMoreIcon from "@/assets/Icons/ExpendMore-Arrow.svg";
 import CheckIcon from "@/assets/Icons/true-icon.svg";
 import portugalFlag from "@/assets/Images/Icons/flags/portugal-flag.png";
 import unitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
+import franceFlag from "@/assets/Images/Icons/flags/france-flag.png";
+import spainFlag from "@/assets/Images/Icons/flags/spain-flag.png";
 
 /* ===================== TYPES ===================== */
 
-type LanguageCode = "pt" | "en";
+type LanguageCode = "pt" | "en" | "fr" | "es";
 
 type Language = Readonly<{
   code: LanguageCode;
@@ -57,6 +59,8 @@ type Props = Readonly<{
 const LANGUAGES: readonly Language[] = [
   { code: "pt", label: "Português", flag: portugalFlag },
   { code: "en", label: "English", flag: unitedStatesFlag },
+  { code: "fr", label: "Français", flag: franceFlag },
+  { code: "es", label: "Español", flag: spainFlag },
 ] as const;
 
 /* ===================== COMPONENT ===================== */
