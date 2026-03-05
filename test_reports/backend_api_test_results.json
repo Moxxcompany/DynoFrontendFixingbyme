@@ -4,116 +4,116 @@
     "passed_tests": 18,
     "failed_tests": 0,
     "success_rate": 100.0,
-    "test_timestamp": "2026-03-05T14:34:34.322603"
+    "test_timestamp": "2026-03-05T14:54:16.105841"
   },
   "detailed_results": [
     {
       "test": "Health Check (/health)",
       "success": true,
       "details": "Status: 404, Expected: [200, 404, 301, 302]",
-      "timestamp": "2026-03-05T14:34:33.230688"
+      "timestamp": "2026-03-05T14:54:15.140709"
     },
     {
       "test": "Health Check (/api/health)",
       "success": true,
       "details": "Status: 200, Expected: [200, 404, 301, 302]",
-      "timestamp": "2026-03-05T14:34:33.293063"
+      "timestamp": "2026-03-05T14:54:15.198532"
     },
     {
       "test": "Auth Login Test (/api/auth/login)",
       "success": true,
       "details": "Status: 400, Expected: [200, 401, 404, 422, 400]",
-      "timestamp": "2026-03-05T14:34:33.393443"
+      "timestamp": "2026-03-05T14:54:15.319369"
     },
     {
       "test": "API Keys Fetch",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 403, 422]",
-      "timestamp": "2026-03-05T14:34:33.446852"
+      "timestamp": "2026-03-05T14:54:15.370662"
     },
     {
       "test": "API Keys Fetch Alt",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 403, 422]",
-      "timestamp": "2026-03-05T14:34:33.523778"
+      "timestamp": "2026-03-05T14:54:15.431958"
     },
     {
       "test": "API Keys List",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 403, 422]",
-      "timestamp": "2026-03-05T14:34:33.584624"
+      "timestamp": "2026-03-05T14:54:15.480999"
     },
     {
       "test": "API Regenerate",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 403, 422]",
-      "timestamp": "2026-03-05T14:34:33.663822"
+      "timestamp": "2026-03-05T14:54:15.534768"
     },
     {
       "test": "API Toggle Status",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 403, 422]",
-      "timestamp": "2026-03-05T14:34:33.718458"
+      "timestamp": "2026-03-05T14:54:15.589975"
     },
     {
       "test": "Payment Links Fetch",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
-      "timestamp": "2026-03-05T14:34:33.777034"
+      "timestamp": "2026-03-05T14:54:15.638924"
     },
     {
       "test": "Fee Preview",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
-      "timestamp": "2026-03-05T14:34:33.839128"
+      "timestamp": "2026-03-05T14:54:15.691586"
     },
     {
       "test": "Create Payment Link",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
-      "timestamp": "2026-03-05T14:34:33.899453"
+      "timestamp": "2026-03-05T14:54:15.741239"
     },
     {
       "test": "Transactions Fetch",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
-      "timestamp": "2026-03-05T14:34:33.970456"
+      "timestamp": "2026-03-05T14:54:15.791550"
     },
     {
       "test": "Transaction Detail Fetch",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
-      "timestamp": "2026-03-05T14:34:34.021932"
+      "timestamp": "2026-03-05T14:54:15.836662"
     },
     {
       "test": "Transaction Export",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
-      "timestamp": "2026-03-05T14:34:34.085429"
+      "timestamp": "2026-03-05T14:54:15.888358"
     },
     {
       "test": "Company Fetch",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
-      "timestamp": "2026-03-05T14:34:34.152908"
+      "timestamp": "2026-03-05T14:54:15.941039"
     },
     {
       "test": "Company Tax Validation",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
-      "timestamp": "2026-03-05T14:34:34.211746"
+      "timestamp": "2026-03-05T14:54:16.002748"
     },
     {
       "test": "KYC Onboarding Status",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
-      "timestamp": "2026-03-05T14:34:34.271217"
+      "timestamp": "2026-03-05T14:54:16.047548"
     },
     {
       "test": "KYC Submit",
       "success": true,
       "details": "Status: 404, Expected: [200, 401, 404, 422, 403]",
-      "timestamp": "2026-03-05T14:34:34.322414"
+      "timestamp": "2026-03-05T14:54:16.105678"
     }
   ]
 }

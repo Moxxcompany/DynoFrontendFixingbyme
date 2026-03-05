@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import CreateCompanyModal from "./CreateCompanyModal";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
 import CelebrationOverlay from "./CelebrationOverlay";
+import StepIndicator from "./StepIndicator";
 
 type OnboardingPhase = "loading" | "company" | "wallet" | "celebration" | "done";
 
@@ -87,6 +88,7 @@ const OnboardingFlow: React.FC = () => {
           }
         }}
         onWalletAdded={handleWalletAdded}
+        headerExtra={<StepIndicator currentStep={2} totalSteps={2} />}
       />
 
       <CelebrationOverlay

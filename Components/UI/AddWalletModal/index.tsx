@@ -31,6 +31,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   fiatData = [],
   cryptoData = [],
   onWalletAdded,
+  headerExtra,
 }) => {
   const dispatch = useDispatch();
   const userState = useSelector((state: rootReducer) => state.userReducer);
@@ -300,6 +301,11 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         },
       }}
     >
+      {headerExtra && (
+        <Box sx={{ px: isMobile ? 2 : 3.75, pt: isMobile ? 2 : 2.5 }}>
+          {headerExtra}
+        </Box>
+      )}
       <PanelCard
         title={tWallet("addWalletTitle")}
         showHeaderBorder={false}

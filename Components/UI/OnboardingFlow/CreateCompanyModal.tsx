@@ -15,6 +15,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import StepIndicator from "./StepIndicator";
 import { TransitionProps } from "@mui/material/transitions";
 import { MuiTelInput } from "mui-tel-input";
 import React, { useRef, useState } from "react";
@@ -121,11 +122,22 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
       }}
       data-testid="create-company-modal"
     >
+      {/* Step Indicator */}
+      <Box
+        sx={{
+          px: isMobile ? 2.5 : 3.5,
+          pt: isMobile ? 2 : 2.5,
+          pb: 0,
+        }}
+      >
+        <StepIndicator currentStep={1} totalSteps={2} />
+      </Box>
+
       {/* Header */}
       <Box
         sx={{
           px: isMobile ? 2.5 : 3.5,
-          pt: isMobile ? 2.5 : 3,
+          pt: isMobile ? 1.5 : 2,
           pb: 0,
         }}
       >

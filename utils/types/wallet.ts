@@ -13,6 +13,7 @@ export interface AddWalletModalProps {
   fiatData?: any[];
   cryptoData?: any[];
   onWalletAdded?: () => void;
+  headerExtra?: React.ReactNode;
 }
 
 export type Address = {
