@@ -5,11 +5,14 @@ import PasswordValidation from "@/Components/UI/AuthLayout/PasswordValidation";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import CustomButton from "@/Components/UI/Buttons";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
+import OtpDialog from "@/Components/UI/OtpDialog";
 import { AuthContainer, CardWrapper } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import {
   USER_API_ERROR,
+  USER_CONFIRM_CODE,
   USER_REGISTER,
+  USER_SEND_OTP,
   UserAction,
 } from "@/Redux/Actions/UserAction";
 import { theme } from "@/styles/theme";
@@ -19,7 +22,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { Box, Typography } from "@mui/material";
 import Image from "next/image";
 import router from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
@@ -60,6 +63,14 @@ const Register = () => {
     useState<RegisterErrorKey>("");
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Email verification state
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [showOtpDialog, setShowOtpDialog] = useState(false);
+  const [otpCountdown, setOtpCountdown] = useState(0);
+  const [otpError, setOtpError] = useState("");
+  const [otpSubmitted, setOtpSubmitted] = useState(false);
+  const prevLoading = useRef(false);
+
   const passwordRegex =
     /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-=__+{}\[\]:;<>,.?/~]).{8,20}$/;
 
@@ -74,11 +85,61 @@ const Register = () => {
     confirmPassword: yup.string().oneOf([yup.ref("password")]),
   });
 
+  // Redirect to dashboard only AFTER email verification (not on registration)
   useEffect(() => {
-    if (userState.name) {
+    if (userState.name && !pendingVerification) {
       router.push("/dashboard");
     }
-  }, [userState]);
+  }, [userState, pendingVerification]);
+
+  // When registration succeeds, show OTP dialog and send verification code
+  useEffect(() => {
+    if (userState.name && pendingVerification && !showOtpDialog) {
+      setShowOtpDialog(true);
+      dispatch(UserAction(USER_SEND_OTP, { email }));
+      setOtpCountdown(30);
+    }
+  }, [userState.name, pendingVerification, showOtpDialog, email, dispatch]);
+
+  // Detect OTP verification result (loading transitions from true → false after submit)
+  useEffect(() => {
+    if (prevLoading.current && !userState.loading && otpSubmitted) {
+      if (!userState.error) {
+        // OTP verified — allow redirect
+        setShowOtpDialog(false);
+        setPendingVerification(false);
+        setOtpSubmitted(false);
+      } else {
+        setOtpError(userState.error.message || t("enterOTPError"));
+        setOtpSubmitted(false);
+      }
+    }
+    prevLoading.current = userState.loading;
+  }, [userState.loading, userState.error, otpSubmitted, t]);
+
+  // OTP countdown timer
+  useEffect(() => {
+    if (otpCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setOtpCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpCountdown]);
+
+  const handleOtpVerify = useCallback(
+    (otp: string) => {
+      setOtpError("");
+      setOtpSubmitted(true);
+      dispatch(UserAction(USER_CONFIRM_CODE, { email, otp: otp.trim() }));
+    },
+    [dispatch, email],
+  );
+
+  const handleResendOtp = useCallback(() => {
+    setOtpError("");
+    dispatch(UserAction(USER_SEND_OTP, { email }));
+    setOtpCountdown(30);
+  }, [dispatch, email]);
 
   useEffect(() => {
     if (userState.loading) {
@@ -184,6 +245,7 @@ const Register = () => {
         password,
       };
 
+      setPendingVerification(true);
       dispatch(UserAction(USER_REGISTER, payload));
     } catch (err: any) {
       if (err.inner && Array.isArray(err.inner)) {
@@ -553,6 +615,24 @@ const Register = () => {
           </Typography>
         </Box>
       </CardWrapper>
+
+      {/* Email Verification OTP Dialog */}
+      <OtpDialog
+        open={showOtpDialog}
+        onClose={() => {}}
+        preventClose={true}
+        title={t("emailVerification")}
+        subtitle={t("emailVerificationSubtitle")}
+        contactInfo={email}
+        contactType="email"
+        otpLength={6}
+        onVerify={handleOtpVerify}
+        onResendCode={handleResendOtp}
+        onClearError={() => setOtpError("")}
+        countdown={otpCountdown}
+        loading={userState.loading && otpSubmitted}
+        error={otpError}
+      />
     </AuthContainer>
   );
 };
