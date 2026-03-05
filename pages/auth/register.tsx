@@ -92,6 +92,18 @@ const Register = () => {
     }
   }, [userState, pendingVerification]);
 
+  // Reset pendingVerification on registration error
+  useEffect(() => {
+    if (
+      pendingVerification &&
+      !showOtpDialog &&
+      userState.error &&
+      userState.error.actionType === USER_REGISTER
+    ) {
+      setPendingVerification(false);
+    }
+  }, [userState.error, pendingVerification, showOtpDialog]);
+
   // When registration succeeds, show OTP dialog and send verification code
   useEffect(() => {
     if (userState.name && pendingVerification && !showOtpDialog) {
